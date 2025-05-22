@@ -10,8 +10,12 @@ package com.tqp.controllers;
  */
 import com.tqp.pojo.HoiDong;
 import com.tqp.pojo.NguoiDung;
+import com.tqp.pojo.PhanCongGiangVienPhanBien;
+import com.tqp.pojo.ThanhVienHoiDong;
 import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
+import com.tqp.services.PhanCongGiangVienPhanBienService;
+import com.tqp.services.ThanhVienHoiDongService;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,12 @@ public class ApiHoiDongController {
 
     @Autowired
     private NguoiDungService nguoiDungService;
+
+    @Autowired
+    private ThanhVienHoiDongService thanhVienHoiDongService;
+
+    @Autowired
+    private PhanCongGiangVienPhanBienService phanCongService;
 
     @GetMapping("/")
     public ResponseEntity<List<HoiDong>> getAllHoiDong() {
@@ -50,13 +60,43 @@ public class ApiHoiDongController {
             return ResponseEntity.status(404).build();
         }
 
-        // Gán các trường bổ sung trước khi lưu
+        // Gán các trường bổ sung
         hd.setKhoa(user.getKhoa());
-        hd.setStatus("active"); // Hoặc trạng thái mặc định
+        hd.setStatus("active");
 
         HoiDong savedHoiDong = hoiDongService.addHoiDong(hd);
 
-        // Có thể xử lý thêm tạo các thành viên Chủ Tịch, Thư Ký, Phản Biện (nếu cần) ở đây
+        // Tạo Chủ tịch
+        ThanhVienHoiDong chuTich = new ThanhVienHoiDong();
+        chuTich.setHoiDongId(savedHoiDong.getId());
+        chuTich.setUserId(hd.getChuTichUserId());
+        chuTich.setRole("chu_tich");
+        thanhVienHoiDongService.add(chuTich);
+
+        // Tạo Thư ký
+        ThanhVienHoiDong thuKy = new ThanhVienHoiDong();
+        thuKy.setHoiDongId(savedHoiDong.getId());
+        thuKy.setUserId(hd.getThuKyUserId());
+        thuKy.setRole("thu_ky");
+        thanhVienHoiDongService.add(thuKy);
+
+        // Tạo thành viên phản biện
+        for (Integer gvId : hd.getGiangVienPhanBienIds()) {
+            ThanhVienHoiDong phanBien = new ThanhVienHoiDong();
+            phanBien.setHoiDongId(savedHoiDong.getId());
+            phanBien.setUserId(gvId);
+            phanBien.setRole("phan_bien");  
+            thanhVienHoiDongService.add(phanBien);
+        }
+
+        // Tạo các thành viên phản biện trong bảng PhanCongGiangVienPhanBien
+        for (Integer gvId : hd.getGiangVienPhanBienIds()) {
+            PhanCongGiangVienPhanBien p = new PhanCongGiangVienPhanBien();
+            p.setHoiDongId(savedHoiDong.getId());
+            p.setGiangVienPhanBienId(gvId);
+            phanCongService.add(p);
+        }
+
         return ResponseEntity.ok(savedHoiDong);
     }
 
