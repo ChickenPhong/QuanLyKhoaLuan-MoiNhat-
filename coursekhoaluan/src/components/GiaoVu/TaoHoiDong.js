@@ -58,8 +58,8 @@ const TaoHoiDong = () => {
 
     const payload = {
       name: tenHoiDong,                 // backend dùng 'name'
-      chuTichId: Number(chuTichId),
-      thuKyId: Number(thuKyId),
+      chuTichUserId: Number(chuTichId),
+      thuKyUserId: Number(thuKyId),
       giangVienPhanBienIds: phanBiensIds.map(id => Number(id)),
     };
 
