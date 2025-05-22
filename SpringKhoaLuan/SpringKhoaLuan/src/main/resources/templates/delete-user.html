@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa người dùng</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{base :: header}"></th:block>
+
+    <div class="container mt-4">
+        <h2>Xóa người dùng</h2>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u, stat : ${users}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${u.username}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.role}"></td>
+                    <td>
+                        <form th:action="@{/admin/delete-user}" method="post">
+                            <input type="hidden" name="userId" th:value="${u.id}" />
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Bạn có chắc muốn xóa người này không?')">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <th:block th:replace="~{base :: footer}"></th:block>
+</body>
+</html>

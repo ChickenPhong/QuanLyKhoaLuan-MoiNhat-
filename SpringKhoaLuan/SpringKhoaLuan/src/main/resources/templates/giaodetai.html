@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Giao đề tài cho Hội đồng</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+<div th:replace="base :: header"></div>
+
+<div class="container mt-4">
+    <h2 class="text-center text-primary">Giao đề tài cho Hội đồng</h2>
+
+    <form method="get" th:action="@{/khoaluan/giaodetai}">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="khoaHoc" class="form-label">Chọn khóa</label>
+                <select class="form-select" name="khoaHoc" id="khoaHoc" required>
+                    <option value="" disabled selected>-- Chọn khóa học --</option>
+                    <option th:each="y : ${yearOptions}" th:value="${y}" th:text="'Khóa ' + ${y}" th:selected="${khoaHoc == y}"></option>
+                </select>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <button type="submit" class="btn btn-primary">Xem danh sách</button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+
+    <form th:action="@{/khoaluan/giaodetai/giao}" method="post">
+        <input type="hidden" name="khoaHoc" th:value="${khoaHoc}" />
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-success" type="submit">Giao đề tài ngẫu nhiên cho hội đồng</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên đề tài</th>
+            <th>Sinh viên</th>
+            <th>Trạng thái</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="dt, iterStat : ${deTais}">
+            <td th:text="${iterStat.index + 1}"></td>
+            <td th:text="${dt.title}"></td>
+            <td th:text="${svMap[dt.id]} ?: 'Chưa có sinh viên'"></td>
+            <td>
+                <span th:if="${hdMap[dt.id] != null}" class="badge bg-success">Đã giao</span>
+                <span th:if="${hdMap[dt.id] == null}" class="badge bg-warning text-dark">Chưa giao</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:replace="base :: footer"></div>
+</body>
+</html>

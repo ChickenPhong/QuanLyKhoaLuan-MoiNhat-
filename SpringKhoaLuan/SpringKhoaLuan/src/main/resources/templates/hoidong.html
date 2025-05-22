@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Tạo Hội Đồng</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    <h2 class="mb-4">Tạo Hội Đồng</h2>
+    <form th:action="@{/hoidong/create}" method="post">
+        <div class="mb-3">
+            <label for="tenHoiDong" class="form-label">Tên Hội Đồng</label>
+            <input type="text" class="form-control" id="tenHoiDong" name="tenHoiDong" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="chutich" class="form-label">Chọn Chủ Tịch</label>
+            <select class="form-select" id="chutich" name="chutich" required>
+                <option value="" disabled selected>Chọn Chủ Tịch</option>
+                <option th:each="gv : ${giangViens}" th:value="${gv.id}" th:text="${gv.username}" class="opt-chutich"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="thuky" class="form-label">Chọn Thư Ký</label>
+            <select class="form-select" id="thuky" name="thuky" required>
+                <option value="" disabled selected>Chọn Thư Ký</option>
+                <option th:each="gv : ${giangViens}" th:value="${gv.id}" th:text="${gv.username}" class="opt-thuky"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="giangvienphanbien" class="form-label">Chọn Giảng Viên Phản Biện</label>
+            <select class="form-select" id="giangvienphanbien" name="giangvienphanbien" multiple required>
+                <option th:each="gv : ${giangViens}" th:value="${gv.id}" th:text="${gv.username}" class="opt-phanbien"></option>
+            </select>
+            <small class="text-muted">Chọn từ 2 đến 3 giảng viên phản biện.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lập Hội Đồng</button>
+    </form>
+</div>
+<div th:replace="base :: footer"></div>
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    const selectChuTich = document.getElementById("chutich");
+    const selectThuKy = document.getElementById("thuky");
+    const phanBienSelect = $('#giangvienphanbien');
+
+    function updateDropdowns() {
+        const chuTichVal = selectChuTich.value;
+        const thuKyVal = selectThuKy.value;
+        const phanBienVals = phanBienSelect.val() || [];
+
+        // 1. Chủ tịch & Thư ký: ẩn lẫn nhau
+        document.querySelectorAll('.opt-chutich').forEach(opt => opt.hidden = false);
+        document.querySelectorAll('.opt-thuky').forEach(opt => opt.hidden = false);
+        if (thuKyVal) {
+            document.querySelectorAll(`.opt-chutich[value="${thuKyVal}"]`).forEach(opt => opt.hidden = true);
+        }
+        if (chuTichVal) {
+            document.querySelectorAll(`.opt-thuky[value="${chuTichVal}"]`).forEach(opt => opt.hidden = true);
+        }
+
+        // 2. Ẩn Chủ tịch và Thư ký khỏi Giảng viên phản biện
+        phanBienSelect.find('option').each(function () {
+            const val = this.value;
+            if (val === chuTichVal || val === thuKyVal) {
+                $(this).attr('disabled', 'disabled');
+                $(this).prop('selected', false);
+            } else {
+                $(this).removeAttr('disabled');
+            }
+        });
+
+        // 3. Update Select2 giao diện
+        phanBienSelect.trigger('change.select2');
+    }
+
+    $(document).ready(function () {
+        // Khởi tạo Select2
+        phanBienSelect.select2({
+            placeholder: "Chọn Giảng Viên Phản Biện",
+            width: '100%',
+            maximumSelectionLength: 3,
+            language: {
+                maximumSelected: function () {
+                    return "Chỉ được chọn tối đa 3 giảng viên phản biện";
+                }
+            }
+        });
+
+        // Gắn sự kiện
+        $('#chutich, #thuky').on('change', updateDropdowns);
+        phanBienSelect.on('change', updateDropdowns);
+        updateDropdowns();
+
+        // Kiểm tra số lượng phản biện trước khi submit
+        $('form').on('submit', function (e) {
+            const selectedCount = phanBienSelect.select2('data').length;
+            if (selectedCount < 2) {
+                e.preventDefault();
+                alert("Vui lòng chọn ít nhất 2 giảng viên phản biện.");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Xếp danh sách khóa luận</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+<div th:replace="base :: header"></div>
+
+<main class="container">
+    <h2 class="text-center text-info mt-3">Xếp danh sách sinh viên thực hiện khóa luận</h2>
+
+    <!-- Chọn khóa học -->
+    <form class="row mb-4" th:action="@{/khoaluan/xep_detai}" method="get">
+        <div class="col-md-4">
+            <label for="khoaHoc" class="form-label">Chọn khóa</label>
+            <select class="form-select" name="khoaHoc" id="khoaHoc" required>
+                <option value="" disabled selected>-- Chọn khóa học --</option>
+                <option th:each="y : ${yearOptions}" 
+                        th:value="${y}" 
+                        th:text="'Khóa ' + ${y}"
+                        th:selected="${khoaHoc == y}">
+                </option>
+            </select>
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button class="btn btn-primary" type="submit">Lọc danh sách</button>
+        </div>
+    </form>
+
+    <!-- Danh sách sinh viên -->
+    <div th:if="${sinhViens != null}">
+        <h5 class="mb-3">Danh sách sinh viên thuộc khoa [[${khoa}]] - Khóa [[${khoaHoc}]]:</h5>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="sv, stat : ${sinhViens}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${sv.username}"></td>
+                    <td th:text="${sv.email}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Nút xếp danh sách -->
+        <form th:action="@{/khoaluan/xep_detai/xep}" method="post">
+            <input type="hidden" name="khoaHoc" th:value="${khoaHoc}" />
+            <button type="submit" class="btn btn-success"
+                    onclick="return confirm('Xác nhận xếp danh sách sinh viên vào đề tài và gán giảng viên?');">
+                Xếp danh sách thực hiện khóa luận
+            </button>
+        </form>
+    </div>
+</main>
+<div th:if="${message}" class="alert alert-warning" th:text="${message}"></div>
+<div th:replace="base :: footer"></div>
+</body>
+</html>
+

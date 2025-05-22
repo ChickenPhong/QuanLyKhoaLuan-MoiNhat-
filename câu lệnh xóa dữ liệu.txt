@@ -1,0 +1,4 @@
+SET SQL_SAFE_UPDATES = 0;
+SET SQL_SAFE_UPDATES = 1;
+
+DELETE FROM khoaluandb.detaikhoaluan_hoidong;

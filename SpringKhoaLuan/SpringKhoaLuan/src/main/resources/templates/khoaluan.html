@@ -1,0 +1,52 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản trị Khóa luận</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container">
+        <h1 class="text-center text-info mt-1">QUẢN TRỊ KHÓA LUẬN</h1>
+
+        <!-- Form Thêm hoặc Cập nhật Đề Tài -->
+        <form th:action="@{/khoaluan/add}" th:object="${khoaLuan}" method="post">
+            <div class="mb-3 mt-3">
+                <input type="text" class="form-control" th:field="*{title}" placeholder="Tên đề tài khóa luận" required />
+            </div>
+
+            <input type="hidden" th:field="*{id}" />
+
+            <button type="submit" class="btn btn-primary" th:if="${khoaLuan.id == null}">Thêm đề tài</button>
+            <button type="submit" class="btn btn-primary" th:unless="${khoaLuan.id == null}">Cập nhật đề tài</button>
+        </form>
+
+        <!-- Hiển thị danh sách các đề tài hiện tại -->
+        <h3 class="mt-5">Danh sách đề tài</h3>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên đề tài</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="khoaLuan, stat : ${allDeTai}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${khoaLuan.title}"></td>
+                    <td>
+                        <form th:action="@{/khoaluan/delete}" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${khoaLuan.id}" />
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa đề tài này?')">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+</body>
+</html>

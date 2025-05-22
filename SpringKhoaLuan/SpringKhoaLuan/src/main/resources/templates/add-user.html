@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm người dùng</title>
+    <th:block th:replace="base :: styles"></th:block> 
+</head>
+<body>
+<div th:replace="base :: header"></div>
+
+<div class="container mt-4">
+    <h2>Thêm người dùng mới</h2>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <form th:action="@{/admin/add-user}" method="post" enctype="multipart/form-data" class="mt-4">
+        
+        <!-- Fullname -->
+        <div class="mb-3">
+            <label class="form-label">Họ và tên:</label>
+            <input type="text" name="fullname" class="form-control" required>
+        </div>
+        
+        <!-- Tên đăng nhập -->
+        <div class="mb-3">
+            <label class="form-label">Tên đăng nhập:</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+
+        <!-- Mật khẩu -->
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu:</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label class="form-label">Email:</label>
+            <input type="email" name="email" class="form-control">
+        </div>
+
+        <!-- Vai trò -->
+        <div class="mb-3">
+            <label class="form-label">Vai trò:</label>
+            <select name="role" id="role" class="form-select" onchange="toggleFields()">
+                <option value="ROLE_ADMIN" selected>Admin</option>
+                <option value="ROLE_GIAOVU">Giáo vụ</option>
+                <option value="ROLE_GIANGVIEN">Giảng viên</option>
+                <option value="ROLE_SINHVIEN">Sinh viên</option>
+            </select>
+        </div>
+
+        <!-- Khoa -->
+        <div class="mb-3" id="khoaField" style="display: none;">
+            <label class="form-label">Khoa:</label>
+            <select name="khoa" class="form-select">
+                <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+                <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
+                <option value="Tài chính - Ngân hàng">Tài chính - Ngân hàng</option>
+                <option value="Ngôn ngữ Anh">Ngôn ngữ Anh</option>
+                <option value="Kế toán">Kế toán</option>
+            </select>
+        </div>
+
+        <!-- Khóa học -->
+        <div class="mb-3" id="khoaHocField" style="display: none;">
+            <label class="form-label">Khóa học:</label>
+            <input type="text" name="khoaHoc" class="form-control" placeholder="VD: 2022">
+        </div>
+
+        <!-- Avatar -->
+        <div class="mb-3">
+            <label class="form-label">Avatar:</label>
+            <input type="file" name="avatar" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Thêm người dùng</button>
+        <a th:href="@{/admin}" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>
+
+<div th:replace="base :: footer"></div>
+
+<script>
+    function toggleFields() {
+        const role = document.getElementById("role").value;
+        const khoaField = document.getElementById("khoaField");
+        const khoaHocField = document.getElementById("khoaHocField");
+
+        if (role === "ROLE_ADMIN") {
+            khoaField.style.display = "none";
+            khoaHocField.style.display = "none";
+        } else {
+            khoaField.style.display = "block";
+
+            if (role === "ROLE_SINHVIEN") {
+                khoaHocField.style.display = "block";
+            } else {
+                khoaHocField.style.display = "none";
+            }
+        }
+    }
+
+    // Gọi khi trang load lần đầu
+    window.addEventListener("DOMContentLoaded", toggleFields);
+</script>
+
+</body>
+</html>

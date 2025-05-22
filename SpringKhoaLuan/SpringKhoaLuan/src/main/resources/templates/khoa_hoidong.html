@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Khóa Hội đồng</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+<div th:replace="base :: header"></div>
+
+<div class="container mt-4">
+    <h2 class="text-center text-primary">Khóa Hội đồng</h2>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên hội đồng</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="hd, iter : ${hoiDongs}">
+            <td th:text="${iter.index + 1}"></td>
+            <td th:text="${hd.name}"></td>
+            <td>
+                <span th:if="${lockedMap[hd.id]}" class="badge bg-danger">Đã khóa</span>
+                <span th:if="${!lockedMap[hd.id]}" class="badge bg-success">Đang mở</span>
+            </td>
+            <td>
+                <form th:action="@{/khoaluan/khoa_hoidong}" method="post" th:if="${!lockedMap[hd.id]}">
+                    <input type="hidden" name="hoiDongId" th:value="${hd.id}" />
+                    <button class="btn btn-danger btn-sm" type="submit"
+                            onclick="return confirm('Bạn có chắc chắn muốn khóa hội đồng này?')">
+                        Khóa hội đồng
+                    </button>
+                </form>
+                <span th:if="${lockedMap[hd.id]}" class="text-muted">Không thể thao tác</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:replace="base :: footer"></div>
+</body>
+</html>
+

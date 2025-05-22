@@ -1,0 +1,93 @@
+USE khoaluandb;
+
+-- Bảng người dùng
+CREATE TABLE nguoiDungs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'giaovu', 'giangvien', 'sinhvien') NOT NULL,
+    avatar VARCHAR(255),
+    email VARCHAR(100)
+);
+
+-- Bảng đề tài khóa luận
+CREATE TABLE deTaiKhoaLuans (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL
+);
+
+-- Quan hệ sinh viên - khóa luận
+CREATE TABLE deTaiKhoaLuan_SinhVien (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    deTaiKhoaLuan_id INT,
+    sinhVien_id INT,
+    FOREIGN KEY (deTaiKhoaLuan_id) REFERENCES deTaiKhoaLuans(id),
+    FOREIGN KEY (sinhVien_id) REFERENCES nguoiDungs(id)
+);
+
+-- Quan hệ giảng viên hướng dẫn - khóa luận
+CREATE TABLE deTaiKhoaLuan_GiangVienHuongDan (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    deTaiKhoaLuan_id INT,
+    giangVienHuongDan_id INT,
+    FOREIGN KEY (deTaiKhoaLuan_id) REFERENCES deTaiKhoaLuans(id),
+    FOREIGN KEY (giangVienHuongDan_id) REFERENCES nguoiDungs(id)
+);
+
+-- Phân công giảng viên phản biện
+CREATE TABLE phanCongGiangVienPhanBiens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    deTaiKhoaLuan_id INT,
+    giangVienPhanBien_id INT,
+    thongBao_sent BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (deTaiKhoaLuan_id) REFERENCES deTaiKhoaLuans(id),
+    FOREIGN KEY (giangVienPhanBien_id) REFERENCES nguoiDungs(id)
+);
+
+-- Hội đồng
+CREATE TABLE hoiDongs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    created_by INT,
+    status ENUM('active', 'closed') DEFAULT 'active',
+    FOREIGN KEY (created_by) REFERENCES nguoiDungs(id)
+);
+
+-- Thành viên hội đồng
+CREATE TABLE thanhVienHoiDong (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    hoiDong_id INT,
+    user_id INT,
+    role ENUM('chu_tich', 'thu_ky', 'phan_bien', 'thanh_vien'),
+    FOREIGN KEY (hoiDong_id) REFERENCES hoiDongs(id),
+    FOREIGN KEY (user_id) REFERENCES nguoiDungs(id)
+);
+
+-- Liên kết khóa luận với hội đồng
+CREATE TABLE deTaiKhoaLuan_HoiDong (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    deTaiKhoaLuan_id INT,
+    hoiDong_id INT,
+    FOREIGN KEY (deTaiKhoaLuan_id) REFERENCES deTaiKhoaLuans(id),
+    FOREIGN KEY (hoiDong_id) REFERENCES hoiDongs(id)
+);
+
+-- Bảng điểm
+CREATE TABLE bangDiems (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    deTaiKhoaLuan_id INT,
+    giangVienPhanBien_id INT,
+    tieuChi TEXT,
+    diem FLOAT,
+    FOREIGN KEY (deTaiKhoaLuan_id) REFERENCES deTaiKhoaLuans(id),
+    FOREIGN KEY (giangVienPhanBien_id) REFERENCES nguoiDungs(id)
+);
+
+-- Bảng thông báo
+CREATE TABLE thongBaos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nguoiDung_id INT,
+    tinNhan TEXT,
+    thoiGianGui DATETIME,
+    FOREIGN KEY (nguoiDung_id) REFERENCES nguoiDungs(id)
+);
