@@ -17,4 +17,5 @@ public interface DeTaiService {
     DeTaiKhoaLuan getDeTaiById(int id);
     DeTaiKhoaLuan addDeTai(DeTaiKhoaLuan deTai);
     boolean deleteDeTai(int id);
+    DeTaiKhoaLuan updateDeTai(int id, DeTaiKhoaLuan deTai);
 }

@@ -17,4 +17,5 @@ public interface DeTaiRepository {
     DeTaiKhoaLuan getById(int id);
     DeTaiKhoaLuan save(DeTaiKhoaLuan deTai);
     boolean delete(int id);
+    DeTaiKhoaLuan update(DeTaiKhoaLuan deTai);
 }

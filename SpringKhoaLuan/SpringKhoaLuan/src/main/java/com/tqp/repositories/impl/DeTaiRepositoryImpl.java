@@ -59,7 +59,24 @@ public class DeTaiRepositoryImpl implements DeTaiRepository{
         DeTaiKhoaLuan d = s.get(DeTaiKhoaLuan.class, id);
         if (d != null) {
             s.delete(d);
+            return true;  // trả về true khi xóa thành công
         }
-        return false;
+        return false;  // trả về false khi không tìm thấy entity
+    }
+    
+    @Override
+    public DeTaiKhoaLuan update(DeTaiKhoaLuan deTai) {
+        Session s = this.factory.getObject().getCurrentSession();
+        // Lấy entity hiện tại trong DB theo id
+        DeTaiKhoaLuan existing = s.get(DeTaiKhoaLuan.class, deTai.getId());
+        if (existing != null) {
+            existing.setTitle(deTai.getTitle());
+            existing.setKhoa(deTai.getKhoa());
+            // Cập nhật các trường khác nếu có, ví dụ:
+            // existing.setOtherField(deTai.getOtherField());
+            s.update(existing);
+            return existing;
+        }
+        return null;  // Hoặc ném exception nếu không tìm thấy
     }
 }

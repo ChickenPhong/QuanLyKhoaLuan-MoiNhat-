@@ -40,7 +40,7 @@ const Home = () => {
   useEffect(() => {
     const fetchDeTai = async () => {
       try {
-        const res = await authApis().get("/detai");
+        const res = await authApis().get(endpoints.detai + "/");
         setDeTaiList(res.data);
       } catch (error) {
         setMsg("Lỗi tải danh sách đề tài.");
@@ -75,13 +75,13 @@ const Home = () => {
 
     try {
       if (khoaLuan.id) {
-        await authApis().put(`/detai/${khoaLuan.id}`, khoaLuan);
+        await authApis().put(`${endpoints.detai}/${khoaLuan.id}`, khoaLuan);
       } else {
-        await authApis().post("/detai", khoaLuan);
+        await authApis().post(endpoints.detai + "/", khoaLuan);
       }
       setKhoaLuan({ id: null, title: "" });
       // reload danh sách đề tài
-      const res = await authApis().get("/detai");
+      const res = await authApis().get(endpoints.detai + "/");
       setDeTaiList(res.data);
       setMsg("Thao tác thành công!");
     } catch (error) {
@@ -92,12 +92,12 @@ const Home = () => {
   const handleDeTaiDelete = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa đề tài này?")) return;
     try {
-      await authApis().delete(`/detai/${id}`);
-      const res = await authApis().get("/detai");
+      await authApis().delete(`${endpoints.detai}/${id}`);
+      const res = await authApis().get(endpoints.detai + "/");
       setDeTaiList(res.data);
       setMsg("Xóa đề tài thành công.");
     } catch (error) {
-      setMsg("Xóa đề tài thất bại.");
+      setMsg("Xóa đề tài thất bại."+ (error.response?.data?.message || error.message));
     }
   };
 

@@ -49,6 +49,7 @@ public class JwtFilter implements Filter{
                 try {
                     String username = JwtUtils.validateTokenAndGetUsername(token);
                     if (username != null) {
+                        System.out.println("Token hợp lệ, user: " + username); //mới thêm
                         httpRequest.setAttribute("username", username);
                         UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(username, null, null);
@@ -60,9 +61,12 @@ public class JwtFilter implements Filter{
 
                         chain.doFilter(request, response);
                         return;
+                    } else {
+                        System.out.println("Token hết hạn hoặc không hợp lệ");
                     }
                 } catch (Exception e) {
                     // Log lỗi nếu cần
+                    e.printStackTrace();
                 }
             }
 

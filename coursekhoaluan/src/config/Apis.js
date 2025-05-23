@@ -19,6 +19,8 @@ export const endpoints = {
     'assign-reviewers': 'theses/assign',
     committees: 'committees',
 
+    detai: "detai",
+
     // Tiêu chí
     tieuchi: 'tieuchi',        // GET danh sách tiêu chí
 
@@ -31,6 +33,10 @@ export const endpoints = {
 
 // Gọi API có kèm token (auth required)
 export const authApis = () => {
+    const token = cookie.load('token');
+    if (!token) {
+        console.warn("Token không tồn tại khi gọi API");
+    }
     return axios.create({
         baseURL: BASE_URL,
         headers: {

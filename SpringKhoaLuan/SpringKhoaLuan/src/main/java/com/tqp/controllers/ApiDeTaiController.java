@@ -40,4 +40,10 @@ public class ApiDeTaiController {
     public void delete(@PathVariable int id) {
         deTaiService.deleteDeTai(id);
     }
+    
+    @PutMapping("/{id}")
+    public DeTaiKhoaLuan update(@PathVariable int id, @RequestBody DeTaiKhoaLuan deTai) {
+        // Cập nhật đề tài với id, dữ liệu trong deTai
+        return deTaiService.updateDeTai(id, deTai);
+    }
 }

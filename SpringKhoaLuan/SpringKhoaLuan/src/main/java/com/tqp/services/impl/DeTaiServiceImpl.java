@@ -48,4 +48,16 @@ public class DeTaiServiceImpl implements DeTaiService{
             return false;  // Nếu có lỗi, trả về false
         }
     }
+    
+    @Override
+    public DeTaiKhoaLuan updateDeTai(int id, DeTaiKhoaLuan deTai) {
+        DeTaiKhoaLuan existing = deTaiRepo.getById(id);
+        if (existing != null) {
+            existing.setTitle(deTai.getTitle());
+            existing.setKhoa(deTai.getKhoa());
+            // Cập nhật các trường khác nếu có
+            return deTaiRepo.update(existing);
+        }
+        return null;  // Hoặc ném exception nếu cần
+    }
 }
