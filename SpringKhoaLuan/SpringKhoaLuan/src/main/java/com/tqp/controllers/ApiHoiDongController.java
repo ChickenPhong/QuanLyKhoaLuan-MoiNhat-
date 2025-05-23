@@ -12,6 +12,7 @@ import com.tqp.pojo.HoiDong;
 import com.tqp.pojo.NguoiDung;
 import com.tqp.pojo.PhanCongGiangVienPhanBien;
 import com.tqp.pojo.ThanhVienHoiDong;
+import com.tqp.services.EmailService;
 import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
 import com.tqp.services.PhanCongGiangVienPhanBienService;
@@ -38,6 +39,9 @@ public class ApiHoiDongController {
 
     @Autowired
     private PhanCongGiangVienPhanBienService phanCongService;
+    
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/")
     public ResponseEntity<List<HoiDong>> getAllHoiDong() {
@@ -95,6 +99,18 @@ public class ApiHoiDongController {
             p.setHoiDongId(savedHoiDong.getId());
             p.setGiangVienPhanBienId(gvId);
             phanCongService.add(p);
+        }
+        
+        // Gửi email cho giảng viên phản biện ---
+        for (Integer gvId : hd.getGiangVienPhanBienIds()) {
+            NguoiDung gv = nguoiDungService.getById(gvId);
+            if (gv != null && gv.getEmail() != null && !gv.getEmail().isEmpty()) {
+                emailService.sendEmail(
+                    gv.getEmail(),
+                    "Thông báo phân công phản biện",
+                    "Chào thầy/cô " + gv.getUsername() + ",\nThầy/cô đã được phân công làm giảng viên phản biện cho hội đồng \"" + savedHoiDong.getName() + "\"."
+                );
+            }
         }
 
         return ResponseEntity.ok(savedHoiDong);

@@ -11,16 +11,10 @@ const XepDeTai = () => {
   const [msgType, setMsgType] = useState(""); // 'success' hoặc 'danger'
   const current_user = useContext(MyUserContext);
   useEffect(() => {
-    const loadKhoaHoc = async () => {
-      try {
-        const res = await authApis().get("giaovu/khoahoc");
-        setKhoaHocList(res.data || []);
-      } catch (error) {
-        setMsg("Lỗi tải danh sách khóa học: " + error.message);
-        setMsgType("danger");
-      }
-    };
-    loadKhoaHoc();
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = 2020; y <= currentYear; y++) years.push(y.toString());
+    setKhoaHocList(years);
   }, []);
 
   const handleLocDanhSach = async (e) => {
@@ -34,13 +28,9 @@ const XepDeTai = () => {
     setMsg("");
     try {
       let form = new FormData();
-      form.append('username',current_user.username);
+      form.append('username', current_user.username);
       form.append('khoaHoc', selectedKhoaHoc);
-      const res = await Apis.get("http://localhost:8080/SpringKhoaLuan/api/giaovu/sinhviens", form,{
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await authApis().get(`giaovu/sinhviens?khoaHoc=${selectedKhoaHoc}`);
       setSinhVienList(res.data || []);
     } catch (error) {
       setMsg("Lỗi tải danh sách sinh viên: " + error.message);

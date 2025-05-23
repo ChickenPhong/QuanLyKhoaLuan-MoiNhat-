@@ -40,26 +40,38 @@ public class ApiGiaoVuController {
     private DeTaiHuongDanService deTaiGVHuongDanService;
     
     @GetMapping("/khoahoc")
-    public ResponseEntity<List<String>> getKhoaHocList(Principal principal) {
+    public ResponseEntity<?> getKhoaHocList(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
+        }
         var user = nguoiDungService.getByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy người dùng");
+        }
         String khoa = user.getKhoa();
-
-        // Lấy danh sách các năm khóa của sinh viên theo khoa
+        if (khoa == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Người dùng chưa khai báo khoa");
+        }
         List<String> khoaHocList = nguoiDungService.getAllKhoaHocByKhoa(khoa);
-
+        if (khoaHocList == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Không tìm thấy khóa học nào");
+        }
         return ResponseEntity.ok(khoaHocList);
     }
 
     // 1. Lấy danh sách sinh viên theo khoa và khóa học
     @GetMapping("/sinhviens")
-    public ResponseEntity<?> getSinhVienByKhoaVaKhoaHoc(@RequestParam Map<String, String> params ) {
+    public ResponseEntity<?> getSinhVienByKhoaVaKhoaHoc(@RequestParam String khoaHoc, Principal principal ) {
 
-        NguoiDung user = this.nguoiDungService.getByUsername(params.get("username"));
+        if (principal == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
+        }
+        NguoiDung user = this.nguoiDungService.getByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy người dùng");
+        }
         String khoa = user.getKhoa();
-        String khoaHoc = params.get("khoaHoc");
-
         List<NguoiDung> svList = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
-
         return ResponseEntity.ok(svList);
     }
 
