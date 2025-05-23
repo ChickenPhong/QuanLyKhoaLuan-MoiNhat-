@@ -38,6 +38,7 @@ public class ApiDeTaiController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable int id) {
+        System.out.println("🔥 API DELETE gọi với ID: " + id);
         deTaiService.deleteDeTai(id);
     }
     

@@ -1,57 +1,101 @@
-
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table, Alert, Badge } from "react-bootstrap";
+import { authApis } from "../../config/Apis";
+import cookie from 'react-cookies';
+import axios from "axios";
 
-const GiaoDeTai = ({
-  yearOptions = [],
-  initialKhoaHoc = "",
-  deTais = [],
-  svMap = {},
-  hdMap = {},
-  message = "",
-  onSelectKhoaHoc,
-  onSubmitRandomAssign,
-  onViewList,
-}) => {
-  const [khoaHoc, setKhoaHoc] = useState(initialKhoaHoc);
-  const [alertMsg, setAlertMsg] = useState(message);
+const GiaoDeTai = () => {
+  const [khoaHoc, setKhoaHoc] = useState("");
+  const [khoaHocList, setKhoaHocList] = useState([]);
+  const [deTais, setDeTais] = useState([]);
+  const [svMap, setSvMap] = useState({});
+  const [hdMap, setHdMap] = useState({});
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alertVariant, setAlertVariant] = useState("info");
 
   useEffect(() => {
-    setAlertMsg(message);
-  }, [message]);
+    // Tạo danh sách khóa học năm từ 2020 đến năm hiện tại
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = 2020; y <= currentYear; y++) years.push(y.toString());
+    setKhoaHocList(years);
+  }, []);
 
-  const handleKhoaHocChange = (e) => {
-    setKhoaHoc(e.target.value);
+  // Hàm gọi API lấy danh sách đề tài + sinh viên + hội đồng theo khóa học
+  const fetchDanhSach = async () => {
+    const token = cookie.load('token');
+    console.log("Token gửi lên API:", token);
+    if (!token) {
+      setAlertMsg("Token không tồn tại, vui lòng đăng nhập lại");
+      setAlertVariant("warning");
+      return;
+    }
+    if (!khoaHoc) {
+      setAlertMsg("Vui lòng chọn khóa học");
+      setAlertVariant("warning");
+      return;
+    }
+    try {
+      // Giả sử backend có API REST /api/giaovu/giaodetai?khoaHoc=xxxx
+      // Trả về dạng { deTais: [...], svMap: {...}, hdMap: {...} }
+      const res = await authApis().get("giaovu/giaodetai", { params: { khoaHoc } });
+
+      // Nếu dữ liệu trả về đúng cấu trúc
+      setDeTais(res.data.deTais || []);
+      setSvMap(res.data.svMap || {});
+      setHdMap(res.data.hdMap || {});
+
+      setAlertMsg("");
+    } catch (error) {
+      setAlertMsg("Lỗi khi tải dữ liệu danh sách đề tài: " + (error.response?.data || error.message));
+      setAlertVariant("danger");
+    }
   };
 
-  const handleViewList = (e) => {
-    e.preventDefault();
-    if (onViewList) onViewList(khoaHoc);
-  };
+  // Hàm gọi API giao đề tài ngẫu nhiên cho hội đồng
+  const handleRandomAssign = async () => {
+    if (!khoaHoc) {
+      setAlertMsg("Vui lòng chọn khóa học trước khi giao đề tài!");
+      setAlertVariant("warning");
+      return;
+    }
+    try {
+      const res = await authApis().post("giaovu/giaodetai/giao", null, { params: { khoaHoc } });
+      setAlertMsg("Giao đề tài thành công");
+      setAlertVariant("success");
 
-  const handleRandomAssign = (e) => {
-    e.preventDefault();
-    if (onSubmitRandomAssign) onSubmitRandomAssign(khoaHoc);
+      // Sau khi giao xong thì tải lại danh sách
+      await fetchDanhSach();
+    } catch (error) {
+      setAlertMsg("Lỗi khi giao đề tài: " + (error.response?.data || error.message));
+      setAlertVariant("danger");
+    }
   };
 
   return (
     <Container className="mt-4">
       <h2 className="text-center text-primary mb-4">Giao đề tài cho Hội đồng</h2>
 
-      <Form onSubmit={handleViewList} className="mb-3">
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+          fetchDanhSach();
+        }}
+        className="mb-3"
+      >
         <Row className="align-items-end">
           <Col md={4}>
             <Form.Group controlId="khoaHoc">
               <Form.Label>Chọn khóa</Form.Label>
               <Form.Select
                 value={khoaHoc}
-                onChange={handleKhoaHocChange}
+                onChange={(e) => setKhoaHoc(e.target.value)}
                 required
               >
                 <option value="" disabled>
                   -- Chọn khóa học --
                 </option>
-                {yearOptions.map((y) => (
+                {khoaHocList.map((y) => (
                   <option key={y} value={y}>
                     Khóa {y}
                   </option>
@@ -68,17 +112,16 @@ const GiaoDeTai = ({
       </Form>
 
       {alertMsg && (
-        <Alert variant="info" onClose={() => setAlertMsg("")} dismissible>
+        <Alert variant={alertVariant} onClose={() => setAlertMsg("")} dismissible>
           {alertMsg}
         </Alert>
       )}
 
-      <Form onSubmit={handleRandomAssign} className="d-flex justify-content-end mb-3">
-        <input type="hidden" name="khoaHoc" value={khoaHoc} />
-        <Button variant="success" type="submit">
+      <div className="d-flex justify-content-end mb-3">
+        <Button variant="success" onClick={handleRandomAssign}>
           Giao đề tài ngẫu nhiên cho hội đồng
         </Button>
-      </Form>
+      </div>
 
       <Table bordered striped>
         <thead>

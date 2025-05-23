@@ -14,7 +14,9 @@ import com.tqp.services.DeTaiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 @Service
+@Transactional
 public class DeTaiServiceImpl implements DeTaiService{
     @Autowired
     private DeTaiRepository deTaiRepo;
@@ -51,6 +53,8 @@ public class DeTaiServiceImpl implements DeTaiService{
     
     @Override
     public DeTaiKhoaLuan updateDeTai(int id, DeTaiKhoaLuan deTai) {
+        System.out.println("UPDATE ID URL = " + id);
+        System.out.println("UPDATE ID BODY = " + deTai.getId());
         DeTaiKhoaLuan existing = deTaiRepo.getById(id);
         if (existing != null) {
             existing.setTitle(deTai.getTitle());

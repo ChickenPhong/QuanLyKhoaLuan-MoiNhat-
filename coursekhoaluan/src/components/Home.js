@@ -11,7 +11,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [deTaiList, setDeTaiList] = useState([]);
-  const [khoaLuan, setKhoaLuan] = useState({ id: null, title: "" });
+  const [khoaLuan, setKhoaLuan] = useState({ id: null, title: "", khoa: ""});
   const [msg, setMsg] = useState("");
   const nav = useNavigate();
 
@@ -73,14 +73,18 @@ const Home = () => {
       return;
     }
 
+    const payload = {
+      ...khoaLuan,
+      khoa: user.khoa // lấy khoa từ tài khoản giáo vụ đang đăng nhập
+    };
+
     try {
       if (khoaLuan.id) {
-        await authApis().put(`${endpoints.detai}/${khoaLuan.id}`, khoaLuan);
+        await authApis().put(`${endpoints.detai}/${khoaLuan.id}`, payload);
       } else {
-        await authApis().post(endpoints.detai + "/", khoaLuan);
+        await authApis().post(endpoints.detai + "/", payload);
       }
-      setKhoaLuan({ id: null, title: "" });
-      // reload danh sách đề tài
+      setKhoaLuan({ id: null, title: "", khoa: "" });
       const res = await authApis().get(endpoints.detai + "/");
       setDeTaiList(res.data);
       setMsg("Thao tác thành công!");
@@ -90,6 +94,7 @@ const Home = () => {
   };
 
   const handleDeTaiDelete = async (id) => {
+    console.log("👉 Gọi API xóa với ID:", id); // Thêm dòng này
     if (!window.confirm("Bạn có chắc chắn muốn xóa đề tài này?")) return;
     try {
       await authApis().delete(`${endpoints.detai}/${id}`);
@@ -98,11 +103,16 @@ const Home = () => {
       setMsg("Xóa đề tài thành công.");
     } catch (error) {
       setMsg("Xóa đề tài thất bại."+ (error.response?.data?.message || error.message));
+      console.error("🔥 Lỗi khi gọi API DELETE:", error); // Rất quan trọng
     }
   };
 
   const handleEditDeTai = (dt) => {
-    setKhoaLuan(dt);
+    setKhoaLuan({
+      id: dt.id,
+      title: dt.title,
+      khoa: dt.khoa || user.khoa // fallback nếu thiếu khoa
+    });
   };
 
   if (!user) return <Alert variant="danger">Bạn chưa đăng nhập!</Alert>;

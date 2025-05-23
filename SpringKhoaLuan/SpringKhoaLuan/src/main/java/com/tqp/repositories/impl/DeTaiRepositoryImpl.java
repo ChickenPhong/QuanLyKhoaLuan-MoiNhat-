@@ -68,6 +68,7 @@ public class DeTaiRepositoryImpl implements DeTaiRepository{
     public DeTaiKhoaLuan update(DeTaiKhoaLuan deTai) {
         Session s = this.factory.getObject().getCurrentSession();
         // Lấy entity hiện tại trong DB theo id
+        System.out.println("Updating by ID from body: " + deTai.getId());
         DeTaiKhoaLuan existing = s.get(DeTaiKhoaLuan.class, deTai.getId());
         if (existing != null) {
             existing.setTitle(deTai.getTitle());

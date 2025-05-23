@@ -10,9 +10,11 @@ package com.tqp.controllers;
  */
 import com.tqp.pojo.DeTaiKhoaLuan;
 import com.tqp.pojo.NguoiDung;
+import com.tqp.services.DeTaiHoiDongService;
 import com.tqp.services.DeTaiService;
 import com.tqp.services.DeTaiSinhVienService;
 import com.tqp.services.DeTaiHuongDanService;
+import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 
 @RestController
@@ -38,6 +41,12 @@ public class ApiGiaoVuController {
 
     @Autowired
     private DeTaiHuongDanService deTaiGVHuongDanService;
+    
+    @Autowired
+    private DeTaiHoiDongService deTaiHoiDongService;
+    
+    @Autowired
+    private HoiDongService hoiDongService;
     
     @GetMapping("/khoahoc")
     public ResponseEntity<?> getKhoaHocList(Principal principal) {
@@ -112,4 +121,45 @@ public class ApiGiaoVuController {
         res.put("message", "Đã xếp danh sách thành công cho khóa " + khoaHoc);
         return ResponseEntity.ok(res);
     }
+    
+    @GetMapping("/giaodetai")
+    public ResponseEntity<?> getGiaoDeTai(@RequestParam String khoaHoc, Principal principal) {
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+
+        // Lấy danh sách đề tài có sinh viên theo khoa và khóa
+        var deTais = deTaiService.getByKhoa(khoa).stream()
+            .filter(dt -> {
+                var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
+                return dtsv != null && khoaHoc.equals(nguoiDungService.getById(dtsv.getSinhVienId()).getKhoaHoc());
+            })
+            .collect(Collectors.toList());
+
+        Map<Integer, String> svMap = new HashMap<>();
+        for (var dt : deTais) {
+            var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
+            if (dtsv != null) {
+                var sv = nguoiDungService.getById(dtsv.getSinhVienId());
+                svMap.put(dt.getId(), sv.getUsername());
+            }
+        }
+
+        Map<Integer, String> hdMap = new HashMap<>();
+        for (var dt : deTais) {
+            var hdh = deTaiHoiDongService.findByDeTaiId(dt.getId());
+            if (hdh != null) {
+                var hd = hoiDongService.getById(hdh.getHoiDongId());
+                hdMap.put(dt.getId(), hd.getName());
+            }
+        }
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("deTais", deTais);
+        res.put("svMap", svMap);
+        res.put("hdMap", hdMap);
+
+        return ResponseEntity.ok(res);
+    }
 }
+
+

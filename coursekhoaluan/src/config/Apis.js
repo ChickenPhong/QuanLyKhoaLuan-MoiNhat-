@@ -40,7 +40,8 @@ export const authApis = () => {
     return axios.create({
         baseURL: BASE_URL,
         headers: {
-            'Authorization': `Bearer ${cookie.load('token')}`
+            //'Authorization': `Bearer ${cookie.load('token')}`
+            Authorization: token ? `Bearer ${token}` : '',  // Gửi header chỉ khi có token
         }
     });
 };
