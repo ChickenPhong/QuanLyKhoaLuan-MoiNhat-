@@ -6,14 +6,14 @@ const DanhSachThucHien = () => {
   const [khoaHocList, setKhoaHocList] = useState([]);
   const [selectedKhoaHoc, setSelectedKhoaHoc] = useState("");
   const [sinhVienList, setSinhVienList] = useState([]);
-  const [msg, setMsg] = useState("");
   const [khoa, setKhoa] = useState("");
+  const [msg, setMsg] = useState("");
 
-  // Load danh sách khóa học khi component mount
+  // Load danh sách khóa học từ backend
   useEffect(() => {
     const loadKhoaHoc = async () => {
       try {
-        const res = await authApis().get("/khoaluan/khoahoc"); // endpoint backend trả danh sách khóa học
+        const res = await authApis().get("/giaovu/khoahoc");
         setKhoaHocList(res.data || []);
       } catch (error) {
         setMsg("Lỗi tải danh sách khóa học: " + error.message);
@@ -22,7 +22,7 @@ const DanhSachThucHien = () => {
     loadKhoaHoc();
   }, []);
 
-  // Load danh sách sinh viên khi chọn khóa học và nhấn xem danh sách
+  // Gọi API lấy danh sách sinh viên + đề tài + GV
   const handleXemDanhSach = async (e) => {
     e.preventDefault();
     if (!selectedKhoaHoc) {
@@ -33,8 +33,7 @@ const DanhSachThucHien = () => {
 
     try {
       setMsg("");
-      // Gọi API lấy danh sách sinh viên và dữ liệu liên quan theo khóa học
-      const res = await authApis().get(`/khoaluan/danhsach_thuchien?khoaHoc=${selectedKhoaHoc}`);
+      const res = await authApis().get(`/giaovu/danhsach_thuchien?khoaHoc=${selectedKhoaHoc}`);
       setSinhVienList(res.data.sinhViens || []);
       setKhoa(res.data.khoa || "");
     } catch (error) {
@@ -43,13 +42,12 @@ const DanhSachThucHien = () => {
     }
   };
 
-  // Thêm giảng viên thứ 2 cho sinh viên
+  // Gọi API thêm giảng viên hướng dẫn thứ 2
   const handleThemGV2 = async (sinhVienId) => {
     try {
-      await authApis().post("/khoaluan/them_gv2", { sinhVienId });
+      await authApis().post("/giaovu/them_gv2", { sinhVienId });
       setMsg("Thêm giảng viên thứ 2 thành công!");
-      // Có thể reload lại danh sách sau khi thêm
-      handleXemDanhSach(new Event('submit'));
+      handleXemDanhSach(new Event("submit"));
     } catch (error) {
       setMsg("Thêm giảng viên thứ 2 thất bại: " + error.message);
     }
@@ -70,15 +68,17 @@ const DanhSachThucHien = () => {
             required
           >
             <option value="">-- Chọn khóa học --</option>
-            {khoaHocList.map((khoa) => (
-              <option key={khoa} value={khoa}>
-                Khóa {khoa}
+            {khoaHocList.map((k) => (
+              <option key={k} value={k}>
+                Khóa {k}
               </option>
             ))}
           </Form.Select>
         </div>
         <div className="col-md-2 align-self-end">
-          <Button className="w-100" type="submit">Xem danh sách</Button>
+          <Button className="w-100" type="submit">
+            Xem danh sách
+          </Button>
         </div>
       </Form>
 
@@ -102,8 +102,8 @@ const DanhSachThucHien = () => {
                   <td>{idx + 1}</td>
                   <td>{sv.username}</td>
                   <td>{sv.email}</td>
-                  <td>{sv.deTai || ""}</td>
-                  <td>{sv.giangVienHuongDan || ""}</td>
+                  <td>{sv.deTai || "Chưa có"}</td>
+                  <td>{sv.giangVienHuongDan || "Chưa có"}</td>
                   <td>
                     <Button
                       size="sm"
