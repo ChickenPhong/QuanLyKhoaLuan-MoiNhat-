@@ -18,7 +18,7 @@ public interface DeTaiHoiDongService {
     DeTaiKhoaLuan_HoiDong add(DeTaiKhoaLuan_HoiDong dthd);
     void delete(int id);
     
-    void assignHoiDong(int deTaiId, int hoiDongId);
+    void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId);
     boolean isDeTaiAssigned(int deTaiId);
     DeTaiKhoaLuan_HoiDong findByDeTaiId(int deTaiId);
     long countDeTaiByHoiDongId(int hoiDongId);
@@ -28,4 +28,5 @@ public interface DeTaiHoiDongService {
     boolean isHoiDongLocked(int hoiDongId);
     
     List<DeTaiKhoaLuan> findDeTaiByHoiDongId(int hoiDongId);
+    DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId);
 }

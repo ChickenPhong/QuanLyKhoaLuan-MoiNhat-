@@ -79,4 +79,17 @@ public class DeTaiSinhVienRepositoryImpl implements DeTaiSinhVienRepository{
         List<DeTaiKhoaLuan_SinhVien> result = q.getResultList();
         return result.isEmpty() ? null : result.get(0);
     }
+    
+    @Override
+    public List<DeTaiKhoaLuan_SinhVien> getByKhoaVaKhoaHoc(String khoa, String khoaHoc) {
+        Session session = factory.getObject().getCurrentSession();
+        // Giả sử bảng NguoiDung là entity 'NguoiDung', join tới DeTaiKhoaLuan_SinhVien
+        String hql = "SELECT dtsv FROM DeTaiKhoaLuan_SinhVien dtsv "
+                   + "JOIN NguoiDung nd ON dtsv.sinhVienId = nd.id "
+                   + "WHERE nd.khoa = :khoa AND nd.khoaHoc = :khoaHoc";
+        return session.createQuery(hql, DeTaiKhoaLuan_SinhVien.class)
+                      .setParameter("khoa", khoa)
+                      .setParameter("khoaHoc", khoaHoc)
+                      .getResultList();
+    }
 }

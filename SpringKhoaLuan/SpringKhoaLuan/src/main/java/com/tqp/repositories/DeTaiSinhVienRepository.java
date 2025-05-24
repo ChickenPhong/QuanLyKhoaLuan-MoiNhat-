@@ -19,4 +19,6 @@ public interface DeTaiSinhVienRepository {
     boolean isSinhVienDaXepDeTai(int sinhVienId);
     DeTaiKhoaLuan_SinhVien findBySinhVienId(int sinhVienId);
     DeTaiKhoaLuan_SinhVien findByDeTaiId(int deTaiId);
+    
+    List<DeTaiKhoaLuan_SinhVien> getByKhoaVaKhoaHoc(String khoa, String khoaHoc);
 }

@@ -25,4 +25,6 @@ public interface DeTaiHoiDongRepository {
     List<DeTaiKhoaLuan_HoiDong> findByHoiDongId(int hoiDongId);
     void lockAllByHoiDongId(int hoiDongId);
     boolean isHoiDongLocked(int hoiDongId);
+    
+    DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId);
 }

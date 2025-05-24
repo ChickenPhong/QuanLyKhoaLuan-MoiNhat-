@@ -104,4 +104,9 @@ public class DeTaiHoiDongServiceImpl implements DeTaiHoiDongService{
         }
         return result;
     }
+    
+    @Override
+    public DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId) {
+        return repo.findByDtsvId(dtsvId);
+    }
 }

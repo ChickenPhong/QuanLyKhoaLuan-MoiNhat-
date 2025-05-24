@@ -119,4 +119,14 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
         Long count = (Long) q.getSingleResult();
         return count == 0; // Nếu tất cả đều locked thì return true
     }
+    
+    @Override
+    public DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId) {
+        Session s = factory.getObject().getCurrentSession();
+        Query<DeTaiKhoaLuan_HoiDong> q = s.createQuery(
+            "FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId = :dtsvId", DeTaiKhoaLuan_HoiDong.class);
+        q.setParameter("dtsvId", dtsvId);
+        List<DeTaiKhoaLuan_HoiDong> list = q.getResultList();
+        return list.isEmpty() ? null : list.get(0);
+    }
 }
