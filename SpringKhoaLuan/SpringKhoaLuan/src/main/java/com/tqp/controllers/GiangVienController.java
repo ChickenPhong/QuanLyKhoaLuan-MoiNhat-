@@ -135,7 +135,7 @@ public class GiangVienController {
 
         List<DeTaiKhoaLuan> deTais = new ArrayList<>();
         for (var dthd : deTaiHoiDongs) {
-            var dt = deTaiService.getDeTaiById(dthd.getDeTaiKhoaLuanId());
+            var dt = deTaiService.getDeTaiById(dthd.getDeTaiKhoaLuanSinhVienId());
             if (dt != null)
                 deTais.add(dt);
         }
@@ -186,17 +186,17 @@ public class GiangVienController {
 
         for (var dthd : deTaiHoiDongs) {
             for (var tc : tieuchis) {
-                String paramKey = "diem_" + dthd.getDeTaiKhoaLuanId() + "_" + tc.getTenTieuChi();
+                String paramKey = "diem_" + dthd.getDeTaiKhoaLuanSinhVienId() + "_" + tc.getTenTieuChi();
                 if (params.containsKey(paramKey) && !params.get(paramKey).isEmpty()) {
                     float diem = Float.parseFloat(params.get(paramKey));
                     var existingScore = bangDiemService.findByDeTaiIdAndGiangVienIdAndTieuChi(
-                            dthd.getDeTaiKhoaLuanId(), giangVienPhanBienId, tc.getTenTieuChi());
+                            dthd.getDeTaiKhoaLuanSinhVienId(), giangVienPhanBienId, tc.getTenTieuChi());
 
                     if (existingScore != null) {
                         existingScore.setDiem(diem);
                         bangDiemService.update(existingScore); // hoặc save(existingScore);
                     } else {
-                        bangDiemService.add(new BangDiem(null, dthd.getDeTaiKhoaLuanId(), giangVienPhanBienId, tc.getTenTieuChi(), diem));
+                        bangDiemService.add(new BangDiem(null, dthd.getDeTaiKhoaLuanSinhVienId(), giangVienPhanBienId, tc.getTenTieuChi(), diem));
                     }
                 }
             }

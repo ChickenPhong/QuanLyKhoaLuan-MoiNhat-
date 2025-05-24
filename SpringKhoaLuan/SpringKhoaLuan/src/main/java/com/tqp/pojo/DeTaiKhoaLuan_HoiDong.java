@@ -21,8 +21,8 @@ public class DeTaiKhoaLuan_HoiDong implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "deTaiKhoaLuan_id")
-    private Integer deTaiKhoaLuanId;
+    @Column(name = "detaikhoaluan_sinhvien_id", nullable = false)
+    private Integer deTaiKhoaLuanSinhVienId;
 
     @Column(name = "hoiDong_id")
     private Integer hoiDongId;
@@ -32,17 +32,17 @@ public class DeTaiKhoaLuan_HoiDong implements Serializable{
 
     public DeTaiKhoaLuan_HoiDong() {}
 
-    public DeTaiKhoaLuan_HoiDong(Integer id, Integer deTaiKhoaLuanId, Integer hoiDongId) {
+    public DeTaiKhoaLuan_HoiDong(Integer id, Integer deTaiKhoaLuanSinhVienId, Integer hoiDongId) {
         this.id = id;
-        this.deTaiKhoaLuanId = deTaiKhoaLuanId;
+        this.deTaiKhoaLuanSinhVienId = deTaiKhoaLuanSinhVienId;
         this.hoiDongId = hoiDongId;
     }
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
-    public Integer getDeTaiKhoaLuanId() { return deTaiKhoaLuanId; }
-    public void setDeTaiKhoaLuanId(Integer deTaiKhoaLuanId) { this.deTaiKhoaLuanId = deTaiKhoaLuanId; }
+    public Integer getDeTaiKhoaLuanSinhVienId() { return deTaiKhoaLuanSinhVienId; }
+    public void setDeTaiKhoaLuanSinhVienId(Integer deTaiKhoaLuanSinhVienId) { this.deTaiKhoaLuanSinhVienId = deTaiKhoaLuanSinhVienId; }
 
     public Integer getHoiDongId() { return hoiDongId; }
     public void setHoiDongId(Integer hoiDongId) { this.hoiDongId = hoiDongId; }

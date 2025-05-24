@@ -10,12 +10,14 @@ package com.tqp.controllers;
  */
 import com.tqp.pojo.DeTaiKhoaLuan;
 import com.tqp.pojo.NguoiDung;
+import com.tqp.pojo.PhanCongGiangVienPhanBien;
 import com.tqp.services.DeTaiHoiDongService;
 import com.tqp.services.DeTaiService;
 import com.tqp.services.DeTaiSinhVienService;
 import com.tqp.services.DeTaiHuongDanService;
 import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
+import com.tqp.services.PhanCongGiangVienPhanBienService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +43,9 @@ public class ApiGiaoVuController {
 
     @Autowired
     private DeTaiHuongDanService deTaiGVHuongDanService;
+    
+    @Autowired
+    private PhanCongGiangVienPhanBienService phanCongGiangVienPhanBienService;
     
     @Autowired
     private DeTaiHoiDongService deTaiHoiDongService;
@@ -127,16 +132,22 @@ public class ApiGiaoVuController {
         var user = nguoiDungService.getByUsername(principal.getName());
         String khoa = user.getKhoa();
 
-        // Lấy danh sách đề tài có sinh viên theo khoa và khóa
-        var deTais = deTaiService.getByKhoa(khoa).stream()
+        // Lấy tất cả đề tài thuộc khoa user đăng nhập
+        var deTais = deTaiService.getByKhoa(khoa);
+
+        // Lọc đề tài có sinh viên thuộc khóa học được chọn
+        List<DeTaiKhoaLuan> filteredDeTais = deTais.stream()
             .filter(dt -> {
                 var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
-                return dtsv != null && khoaHoc.equals(nguoiDungService.getById(dtsv.getSinhVienId()).getKhoaHoc());
+                if (dtsv == null) return false;
+                var sv = nguoiDungService.getById(dtsv.getSinhVienId());
+                return khoaHoc.equals(sv.getKhoaHoc());
             })
             .collect(Collectors.toList());
 
+        // Tạo map sinh viên (id đề tài => username sinh viên)
         Map<Integer, String> svMap = new HashMap<>();
-        for (var dt : deTais) {
+        for (var dt : filteredDeTais) {
             var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
             if (dtsv != null) {
                 var sv = nguoiDungService.getById(dtsv.getSinhVienId());
@@ -144,8 +155,9 @@ public class ApiGiaoVuController {
             }
         }
 
+        // Tạo map hội đồng (id đề tài => tên hội đồng)
         Map<Integer, String> hdMap = new HashMap<>();
-        for (var dt : deTais) {
+        for (var dt : filteredDeTais) {
             var hdh = deTaiHoiDongService.findByDeTaiId(dt.getId());
             if (hdh != null) {
                 var hd = hoiDongService.getById(hdh.getHoiDongId());
@@ -154,10 +166,88 @@ public class ApiGiaoVuController {
         }
 
         Map<String, Object> res = new HashMap<>();
-        res.put("deTais", deTais);
+        res.put("deTais", filteredDeTais);
         res.put("svMap", svMap);
         res.put("hdMap", hdMap);
 
+        return ResponseEntity.ok(res);
+    }
+    
+    @PostMapping("/giaodetai/giao")
+    public ResponseEntity<?> giaoDeTaiNgauNhien(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+
+        // Lấy danh sách đề tài đã có sinh viên thực hiện theo khoa & khóa
+        var deTais = deTaiService.getByKhoa(khoa).stream()
+            .filter(dt -> {
+                var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
+                return dtsv != null && khoaHoc.equals(nguoiDungService.getById(dtsv.getSinhVienId()).getKhoaHoc());
+            })
+            .collect(Collectors.toList());
+
+        // Lấy danh sách hội đồng
+        var hoiDongs = hoiDongService.getAllHoiDong();
+        if (hoiDongs.isEmpty()) {
+            Map<String, String> res = new HashMap<>();
+            res.put("error", "Chưa có hội đồng nào để giao đề tài");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        }
+
+        int hdIndex = 0;
+
+        for (var dt : deTais) {
+            // Lấy bản ghi detaikhoaluan_sinhvien tương ứng với đề tài dt
+            var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
+            if (dtsv == null) {
+                continue; // hoặc xử lý lỗi nếu cần
+            }
+
+            // Kiểm tra đề tài đã giao hội đồng chưa, nếu rồi thì bỏ qua
+            if (deTaiHoiDongService.isDeTaiAssigned(dtsv.getId()))
+                continue;
+
+            boolean assigned = false;
+
+            // Duyệt vòng tròn các hội đồng để gán đề tài
+            for (int i = 0; i < hoiDongs.size(); i++) {
+                var hd = hoiDongs.get(hdIndex % hoiDongs.size());
+                long soLuongDeTai = deTaiHoiDongService.countDeTaiByHoiDongId(hd.getId());
+
+                // Giới hạn mỗi hội đồng 5 đề tài (có thể điều chỉnh)
+                if (soLuongDeTai < 5) {
+                    // Gán đề tài cho hội đồng, truyền id của detaikhoaluan_sinhvien
+                    deTaiHoiDongService.assignHoiDong(dtsv.getId(), hd.getId());
+
+                    // Gán giảng viên phản biện ngẫu nhiên trong hội đồng
+                    var thanhVien = hoiDongService.getThanhVienHoiDong(hd.getId());
+                    if (!thanhVien.isEmpty()) {
+                        NguoiDung randomGv = thanhVien.stream()
+                            .filter(tv -> "phan_bien".equals(tv.getRole()))
+                            .findFirst()
+                            .orElse(null);
+                        if (randomGv != null) {
+                            phanCongGiangVienPhanBienService.assignPhanBien(randomGv.getId(), hd.getId());
+                        }
+                    }
+
+                    assigned = true;
+                    hdIndex++;
+                    break;
+                } else {
+                    hdIndex++;
+                }
+            }
+
+            if (!assigned) {
+                Map<String, String> res = new HashMap<>();
+                res.put("error", "Không đủ hội đồng để giao tất cả đề tài");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+            }
+        }
+
+        Map<String, String> res = new HashMap<>();
+        res.put("message", "Đã giao đề tài ngẫu nhiên cho khóa " + khoaHoc);
         return ResponseEntity.ok(res);
     }
 }

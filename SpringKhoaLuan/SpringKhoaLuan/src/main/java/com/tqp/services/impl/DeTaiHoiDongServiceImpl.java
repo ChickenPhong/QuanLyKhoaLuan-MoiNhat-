@@ -55,18 +55,18 @@ public class DeTaiHoiDongServiceImpl implements DeTaiHoiDongService{
     }
     
     @Override
-    public void assignHoiDong(int deTaiId, int hoiDongId) {
-        repo.assignHoiDong(deTaiId, hoiDongId);
+    public void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId) {
+        repo.assignHoiDong(detaikhoaluanSinhVienId, hoiDongId);
     }
 
     @Override
-    public boolean isDeTaiAssigned(int deTaiId) {
-        return repo.isDeTaiAssigned(deTaiId);
+    public boolean isDeTaiAssigned(int detaikhoaluanSinhVienId) {
+        return repo.isDeTaiAssigned(detaikhoaluanSinhVienId);
     }
     
     @Override
-    public DeTaiKhoaLuan_HoiDong findByDeTaiId(int deTaiId) {
-        return repo.findByDeTaiId(deTaiId);
+    public DeTaiKhoaLuan_HoiDong findByDeTaiId(int detaikhoaluanSinhVienId) {
+        return repo.findByDeTaiId(detaikhoaluanSinhVienId);
     }
     
     @Override
@@ -98,7 +98,7 @@ public class DeTaiHoiDongServiceImpl implements DeTaiHoiDongService{
         List<DeTaiKhoaLuan_HoiDong> list = this.findByHoiDongId(hoiDongId); // đã có sẵn hàm này
         List<DeTaiKhoaLuan> result = new ArrayList<>();
         for (DeTaiKhoaLuan_HoiDong dthd : list) {
-            DeTaiKhoaLuan dt = deTaiService.getDeTaiById(dthd.getDeTaiKhoaLuanId());
+            DeTaiKhoaLuan dt = deTaiService.getDeTaiById(dthd.getDeTaiKhoaLuanSinhVienId());
             if (dt != null)
                 result.add(dt);
         }

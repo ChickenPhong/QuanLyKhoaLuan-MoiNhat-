@@ -369,7 +369,7 @@ public class GiaoVuController {
         var deTaiHoiDongs = deTaiHoiDongService.findByHoiDongId(hoiDongId);
 
         for (var dthd : deTaiHoiDongs) {
-            int deTaiId = dthd.getDeTaiKhoaLuanId();
+            int deTaiId = dthd.getDeTaiKhoaLuanSinhVienId();
             // Lấy sinh viên thực hiện đề tài này
             var dtsv = deTaiSinhVienService.findByDeTaiId(deTaiId);
             if (dtsv != null) {

@@ -57,29 +57,29 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
     }
     
     @Override
-    public void assignHoiDong(int deTaiId, int hoiDongId) {
+    public void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId) {
         Session session = sessionFactory.getCurrentSession();
         DeTaiKhoaLuan_HoiDong dtHd = new DeTaiKhoaLuan_HoiDong();
-        dtHd.setDeTaiKhoaLuanId(deTaiId);
+        dtHd.setDeTaiKhoaLuanSinhVienId(detaikhoaluanSinhVienId);
         dtHd.setHoiDongId(hoiDongId);
         session.save(dtHd);
     }
 
     @Override
-    public boolean isDeTaiAssigned(int deTaiId) {
+    public boolean isDeTaiAssigned(int detaikhoaluanSinhVienId) {
         Session session = sessionFactory.getCurrentSession();
-        Query q = session.createQuery("SELECT COUNT(*) FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanId=:id");
-        q.setParameter("id", deTaiId);
+        Query q = session.createQuery("SELECT COUNT(*) FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId=:id");
+        q.setParameter("id", detaikhoaluanSinhVienId);
         long count = (Long) q.getSingleResult();
         return count > 0;
     }
     
     @Override
-    public DeTaiKhoaLuan_HoiDong findByDeTaiId(int deTaiId) {
+    public DeTaiKhoaLuan_HoiDong findByDeTaiId(int detaikhoaluanSinhVienId) {
         Session session = this.factory.getObject().getCurrentSession();
         Query<DeTaiKhoaLuan_HoiDong> q = 
-            session.createQuery("FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanId = :id", DeTaiKhoaLuan_HoiDong.class);
-        q.setParameter("id", deTaiId);
+            session.createQuery("FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId = :id", DeTaiKhoaLuan_HoiDong.class);
+        q.setParameter("id", detaikhoaluanSinhVienId);
         List<DeTaiKhoaLuan_HoiDong> result = q.getResultList();
         return result.isEmpty() ? null : result.get(0);
     }

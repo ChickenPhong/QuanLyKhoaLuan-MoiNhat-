@@ -67,7 +67,20 @@ const GiaoDeTai = () => {
       // Sau khi giao xong thì tải lại danh sách
       await fetchDanhSach();
     } catch (error) {
-      setAlertMsg("Lỗi khi giao đề tài: " + (error.response?.data || error.message));
+      let errMsg = "Lỗi khi giao đề tài: ";
+      if (error.response) {
+        // Nếu backend trả lỗi dạng object hoặc string
+        if (typeof error.response.data === "string") {
+          errMsg += error.response.data;
+        } else if (typeof error.response.data === "object") {
+          errMsg += JSON.stringify(error.response.data);
+        } else {
+          errMsg += error.message;
+        }
+      } else {
+        errMsg += error.message;
+      }
+      setAlertMsg(errMsg);
       setAlertVariant("danger");
     }
   };

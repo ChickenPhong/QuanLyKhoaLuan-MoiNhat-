@@ -17,9 +17,9 @@ public interface DeTaiHoiDongRepository {
     DeTaiKhoaLuan_HoiDong save(DeTaiKhoaLuan_HoiDong dthd);
     void delete(int id);
     
-    void assignHoiDong(int deTaiId, int hoiDongId);
-    boolean isDeTaiAssigned(int deTaiId);
-    DeTaiKhoaLuan_HoiDong findByDeTaiId(int deTaiId);
+    void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId);
+    boolean isDeTaiAssigned(int detaikhoaluanSinhVienId);
+    DeTaiKhoaLuan_HoiDong findByDeTaiId(int detaikhoaluanSinhVienId);
     long countDeTaiByHoiDongId(int hoiDongId);
     
     List<DeTaiKhoaLuan_HoiDong> findByHoiDongId(int hoiDongId);
