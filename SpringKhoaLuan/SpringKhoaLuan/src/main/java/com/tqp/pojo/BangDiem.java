@@ -21,8 +21,8 @@ public class BangDiem implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "deTaiKhoaLuan_id")
-    private Integer deTaiKhoaLuanId;
+    @Column(name = "deTaiKhoaLuan_SinhVien_id")
+    private Integer deTaiKhoaLuanSinhVienId;
 
     @Column(name = "giangVienPhanBien_id")
     private Integer giangVienPhanBienId;
@@ -35,9 +35,9 @@ public class BangDiem implements Serializable{
 
     public BangDiem() {}
 
-    public BangDiem(Integer id, Integer deTaiKhoaLuanId, Integer giangVienPhanBienId, String tieuChi, Float diem) {
+    public BangDiem(Integer id, Integer deTaiKhoaLuanSinhVienId, Integer giangVienPhanBienId, String tieuChi, Float diem) {
         this.id = id;
-        this.deTaiKhoaLuanId = deTaiKhoaLuanId;
+        this.deTaiKhoaLuanSinhVienId = deTaiKhoaLuanSinhVienId;
         this.giangVienPhanBienId = giangVienPhanBienId;
         this.tieuChi = tieuChi;
         this.diem = diem;
@@ -46,8 +46,8 @@ public class BangDiem implements Serializable{
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
-    public Integer getDeTaiKhoaLuanId() { return deTaiKhoaLuanId; }
-    public void setDeTaiKhoaLuanId(Integer deTaiKhoaLuanId) { this.deTaiKhoaLuanId = deTaiKhoaLuanId; }
+    public Integer getDeTaiKhoaLuanSinhVienId() { return deTaiKhoaLuanSinhVienId; }
+    public void setDeTaiKhoaLuanSinhVienId(Integer deTaiKhoaLuanId) { this.deTaiKhoaLuanSinhVienId = deTaiKhoaLuanId; }
 
     public Integer getGiangVienPhanBienId() { return giangVienPhanBienId; }
     public void setGiangVienPhanBienId(Integer giangVienPhanBienId) { this.giangVienPhanBienId = giangVienPhanBienId; }

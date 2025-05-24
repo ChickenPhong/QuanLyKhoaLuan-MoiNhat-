@@ -144,12 +144,12 @@ public class GiangVienController {
 
         // Map điểm đã cho
         Map<String, Float> diemDaCho = new HashMap<>();
-        for (DeTaiKhoaLuan deTai : deTais) {
+        for (var dthd : deTaiHoiDongs) {
             for (var tc : tieuchiList) {
-                var bangDiem = bangDiemService.findByDeTaiIdAndGiangVienIdAndTieuChi(
-                        deTai.getId(), giangVienPhanBienId, tc.getTenTieuChi());
+                var bangDiem = bangDiemService.findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(
+                    dthd.getDeTaiKhoaLuanSinhVienId(), giangVienPhanBienId, tc.getTenTieuChi());
                 if (bangDiem != null) {
-                    diemDaCho.put(deTai.getId() + "_" + tc.getTenTieuChi(), bangDiem.getDiem());
+                    diemDaCho.put(dthd.getDeTaiKhoaLuanSinhVienId() + "_" + tc.getTenTieuChi(), bangDiem.getDiem());
                 }
             }
         }
@@ -189,8 +189,8 @@ public class GiangVienController {
                 String paramKey = "diem_" + dthd.getDeTaiKhoaLuanSinhVienId() + "_" + tc.getTenTieuChi();
                 if (params.containsKey(paramKey) && !params.get(paramKey).isEmpty()) {
                     float diem = Float.parseFloat(params.get(paramKey));
-                    var existingScore = bangDiemService.findByDeTaiIdAndGiangVienIdAndTieuChi(
-                            dthd.getDeTaiKhoaLuanSinhVienId(), giangVienPhanBienId, tc.getTenTieuChi());
+                    var existingScore = bangDiemService.findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(
+                        dthd.getDeTaiKhoaLuanSinhVienId(), giangVienPhanBienId, tc.getTenTieuChi());
 
                     if (existingScore != null) {
                         existingScore.setDiem(diem);

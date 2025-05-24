@@ -10,7 +10,7 @@ package com.tqp.repositories.impl;
  */
 import com.tqp.pojo.BangDiem;
 import com.tqp.repositories.BangDiemRepository;
-import jakarta.persistence.Query;
+import org.hibernate.query.Query;
 import java.util.List;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +53,11 @@ public class BangDiemRepositoryImpl implements BangDiemRepository{
     }
     
     @Override
-    public BangDiem findByDeTaiIdAndGiangVienIdAndTieuChi(int deTaiId, int giangVienId, String tieuChi) {
+    public BangDiem findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(int dtsvId, int giangVienId, String tieuChi) {
         Session s = factory.getObject().getCurrentSession();
-        String hql = "FROM BangDiem bd WHERE bd.deTaiKhoaLuanId = :deTaiId AND bd.giangVienPhanBienId = :giangVienId AND bd.tieuChi = :tieuChi";
+        String hql = "FROM BangDiem bd WHERE bd.deTaiKhoaLuanSinhVienId = :dtsvId AND bd.giangVienPhanBienId = :giangVienId AND bd.tieuChi = :tieuChi";
         Query query = s.createQuery(hql, BangDiem.class);
-        query.setParameter("deTaiId", deTaiId);
+        query.setParameter("dtsvId", dtsvId);
         query.setParameter("giangVienId", giangVienId);
         query.setParameter("tieuChi", tieuChi);
 
@@ -74,11 +74,23 @@ public class BangDiemRepositoryImpl implements BangDiemRepository{
     }
     
     @Override
-    public List<BangDiem> findByDeTaiKhoaLuanId(int deTaiId) {
+    public List<BangDiem> findByDeTaiSinhVienId(int dtsvId) {
         Session s = factory.getObject().getCurrentSession();
-        String hql = "FROM BangDiem bd WHERE bd.deTaiKhoaLuanId = :deTaiId";
+        String hql = "FROM BangDiem bd WHERE bd.deTaiKhoaLuanSinhVienId = :dtsvId";
         Query query = s.createQuery(hql, BangDiem.class);
-        query.setParameter("deTaiId", deTaiId);
+        query.setParameter("dtsvId", dtsvId);
         return query.getResultList();
+    }
+    
+    @Override
+    public List<BangDiem> findByGiangVienAndDtsv(int giangVienId, int dtsvId) {
+        Session s = factory.getObject().getCurrentSession();
+        Query<BangDiem> q = s.createQuery(
+            "FROM BangDiem WHERE giangVienPhanBienId = :gvId AND deTaiKhoaLuanSinhVienId = :dtsvId",
+            BangDiem.class
+        );
+        q.setParameter("gvId", giangVienId);
+        q.setParameter("dtsvId", dtsvId);
+        return q.getResultList();
     }
 }

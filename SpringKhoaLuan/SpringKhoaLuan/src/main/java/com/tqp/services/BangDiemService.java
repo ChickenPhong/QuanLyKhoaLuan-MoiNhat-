@@ -18,11 +18,13 @@ public interface BangDiemService {
     BangDiem add(BangDiem diem);
     void delete(int id);
     
-    BangDiem findByDeTaiIdAndGiangVienIdAndTieuChi(int deTaiId, int giangVienId, String tieuChi);
+    BangDiem findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(int dtsvId, int giangVienId, String tieuChi);
     BangDiem update(BangDiem diem);
     
-    List<BangDiem> findByDeTaiKhoaLuanId(int deTaiId);
-    public Double tinhDiemTrungBinhByDeTaiId(int deTaiId);
+    List<BangDiem> findByDeTaiSinhVienId(int dtsvId);
+    Double tinhDiemTrungBinhByDeTaiSinhVienId(int dtsvId);
     
     List<BangDiemTongHopDTO> layBangDiemTongHopTheoHoiDong(int hoiDongId);
+    
+    List<BangDiem> findByGiangVienAndDtsv(int giangVienId, int dtsvId);
 }

@@ -63,8 +63,8 @@ public class BangDiemServiceImpl implements BangDiemService{
     }
     
     @Override
-    public BangDiem findByDeTaiIdAndGiangVienIdAndTieuChi(int deTaiId, int giangVienId, String tieuChi) {
-        return bangDiemRepo.findByDeTaiIdAndGiangVienIdAndTieuChi(deTaiId, giangVienId, tieuChi);
+    public BangDiem findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(int dtsvId, int giangVienId, String tieuChi) {
+        return bangDiemRepo.findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(dtsvId, giangVienId, tieuChi);
     }
     
     @Override
@@ -73,13 +73,13 @@ public class BangDiemServiceImpl implements BangDiemService{
     }
     
     @Override
-    public List<BangDiem> findByDeTaiKhoaLuanId(int deTaiId) {
-        return bangDiemRepo.findByDeTaiKhoaLuanId(deTaiId);
+    public List<BangDiem> findByDeTaiSinhVienId(int dtsvId) {
+        return bangDiemRepo.findByDeTaiSinhVienId(dtsvId);
     }
 
     @Override
-    public Double tinhDiemTrungBinhByDeTaiId(int deTaiId) {
-        List<BangDiem> bangDiems = bangDiemRepo.findByDeTaiKhoaLuanId(deTaiId);
+    public Double tinhDiemTrungBinhByDeTaiSinhVienId(int dtsvId) {
+        List<BangDiem> bangDiems = bangDiemRepo.findByDeTaiSinhVienId(dtsvId);
         if (bangDiems == null || bangDiems.isEmpty()) return null;
         double tong = 0.0;
         for (BangDiem bd : bangDiems) {
@@ -103,7 +103,7 @@ public class BangDiemServiceImpl implements BangDiemService{
             NguoiDung sv = nguoiDungService.getById(dtsv.getSinhVienId());
 
             // Tính điểm trung bình cho đề tài này
-            Double diemTrungBinh = this.tinhDiemTrungBinhByDeTaiId(dt.getId());
+            Double diemTrungBinh = this.tinhDiemTrungBinhByDeTaiSinhVienId(dt.getId());
 
             BangDiemTongHopDTO dto = new BangDiemTongHopDTO();
             dto.setTenHoiDong(hoiDongService.getById(hoiDongId).getName());
@@ -113,6 +113,11 @@ public class BangDiemServiceImpl implements BangDiemService{
             result.add(dto);
         }
         return result;
+    }
+    
+    @Override
+    public List<BangDiem> findByGiangVienAndDtsv(int giangVienId, int dtsvId) {
+        return bangDiemRepo.findByGiangVienAndDtsv(giangVienId, dtsvId);
     }
 
 

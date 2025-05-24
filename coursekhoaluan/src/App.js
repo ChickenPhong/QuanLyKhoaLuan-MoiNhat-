@@ -17,6 +17,8 @@ import GiaoDeTai from "./components/GiaoVu/GiaoDeTai";
 import KhoaHoiDong from "./components/GiaoVu/KhoaHoiDong";
 import ThongKeKhoaLuan from "./components/GiaoVu/ThongKeKhoaLuan";
 
+import ChamDiem from "./components/GiangVien/ChamDiem";
+
 import { Container } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -46,6 +48,7 @@ function App() {
               <Route path="/giaovu/giaodetai" element={<GiaoDeTai />} />
               <Route path="/giaovu/khoahoidong" element={<KhoaHoiDong />} />
               <Route path="/giaovu/thongke" element={<ThongKeKhoaLuan />} />
+              <Route path="/giangvien/chamdiem" element={<ChamDiem />} />
             </Routes>
           </Container>
           <Footer />

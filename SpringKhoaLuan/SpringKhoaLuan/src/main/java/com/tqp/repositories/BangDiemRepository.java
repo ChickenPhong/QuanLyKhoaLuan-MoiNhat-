@@ -17,8 +17,10 @@ public interface BangDiemRepository {
     BangDiem save(BangDiem diem);
     void delete(int id);
     
-    BangDiem findByDeTaiIdAndGiangVienIdAndTieuChi(int deTaiId, int giangVienId, String tieuChi);
+    BangDiem findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(int dtsvId, int giangVienId, String tieuChi);
     BangDiem update(BangDiem diem);
     
-    List<BangDiem> findByDeTaiKhoaLuanId(int deTaiId);
+    List<BangDiem> findByDeTaiSinhVienId(int dtsvId);
+    
+    List<BangDiem> findByGiangVienAndDtsv(int giangVienId, int dtsvId);
 }

@@ -377,7 +377,7 @@ public class GiaoVuController {
                 var sinhVien = nguoiDungService.getById(sinhVienId);
 
                 // Tính điểm trung bình hội đồng cho đề tài này
-                Double diemTrungBinh = bangDiemService.tinhDiemTrungBinhByDeTaiId(deTaiId);
+                Double diemTrungBinh = bangDiemService.tinhDiemTrungBinhByDeTaiSinhVienId(dthd.getDeTaiKhoaLuanSinhVienId());
 
                 // Gửi email nếu có địa chỉ email
                 if (sinhVien != null && sinhVien.getEmail() != null) {
