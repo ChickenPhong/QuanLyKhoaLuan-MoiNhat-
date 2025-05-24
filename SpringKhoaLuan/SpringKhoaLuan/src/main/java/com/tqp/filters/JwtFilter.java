@@ -32,12 +32,13 @@ public class JwtFilter implements Filter{
         String uri = httpRequest.getRequestURI();
 
         // Chỉ kiểm tra token với các request bắt đầu bằng /api/secure
-        if (uri.startsWith(contextPath + "/api/secure")
-                || uri.startsWith(contextPath + "/api/tieuchi")
-                || uri.startsWith(contextPath + "/api/hoidong")
-                || uri.startsWith(contextPath + "/api/giaovu")) {
+        if (uri.contains("/api/secure")
+            || uri.contains("/api/tieuchi")
+            || uri.contains("/api/hoidong")
+            || uri.contains("/api/giaovu")) {
             
             String header = httpRequest.getHeader("Authorization");
+            System.out.println("HEADER nhận từ FE: " + header);
             
             if (header == null || !header.startsWith("Bearer ")) {
                 ((HttpServletResponse) response).sendError(
@@ -66,6 +67,7 @@ public class JwtFilter implements Filter{
                     }
                 } catch (Exception e) {
                     // Log lỗi nếu cần
+                    System.out.println("Lỗi JWT: " + e.getMessage());
                     e.printStackTrace();
                 }
             }

@@ -70,7 +70,7 @@ public class ApiGiaoVuController {
 
     // 1. Lấy danh sách sinh viên theo khoa và khóa học
     @GetMapping("/sinhviens")
-    public ResponseEntity<?> getSinhVienByKhoaVaKhoaHoc(@RequestParam String khoaHoc, Principal principal ) {
+    public ResponseEntity<?> getSinhVienByKhoaVaKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal ) {
 
         if (principal == null) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
@@ -87,7 +87,7 @@ public class ApiGiaoVuController {
     // 2. Xếp đề tài cho sinh viên khóa học (theo khoa của người dùng đăng nhập)
     @PostMapping("/xepdetai")
     public ResponseEntity<?> xepDeTaiChoSinhVien(
-        @RequestParam String khoaHoc,
+        @RequestParam("khoaHoc") String khoaHoc,
         Principal principal) {
 
         var user = nguoiDungService.getByUsername(principal.getName());
@@ -123,7 +123,7 @@ public class ApiGiaoVuController {
     }
     
     @GetMapping("/giaodetai")
-    public ResponseEntity<?> getGiaoDeTai(@RequestParam String khoaHoc, Principal principal) {
+    public ResponseEntity<?> getGiaoDeTai(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
         var user = nguoiDungService.getByUsername(principal.getName());
         String khoa = user.getKhoa();
 
