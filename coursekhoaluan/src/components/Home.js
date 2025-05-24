@@ -158,7 +158,7 @@ const Home = () => {
         </Col>
       </Row>
 
-      {(user.role === "ROLE_GIAOVU" || user.role === "ROLE_ADMIN") && (
+      {(user.role === "ROLE_GIAOVU" ) && (
         <div>
           <h3>Quản lý đề tài khóa luận</h3>
           <Form onSubmit={handleDeTaiSubmit} className="mb-3">

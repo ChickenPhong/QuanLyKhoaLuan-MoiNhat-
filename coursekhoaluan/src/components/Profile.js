@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
-import axios from "axios";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { MyUserContext } from "../config/Contexts";
+import { authApis } from "../config/Apis"; // ✅ dùng đúng tên đã export trong Apis.js
 
 const Profile = () => {
   const user = useContext(MyUserContext);
@@ -15,7 +15,6 @@ const Profile = () => {
   const [successMsg, setSuccessMsg] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // Nếu chưa có user => hiển thị lỗi
   if (!user)
     return (
       <div className="alert alert-danger mt-5">
@@ -23,7 +22,6 @@ const Profile = () => {
       </div>
     );
 
-  // Xử lý đổi mật khẩu
   const handleChangePassword = async (e) => {
     e.preventDefault();
 
@@ -42,19 +40,11 @@ const Profile = () => {
     setChangingPassword(true);
 
     try {
-      const res = await axios.post(
-        "/api/secure/change-password",
-        {
-          oldPassword,
-          newPassword,
-          confirmPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await authApis().post("/secure/change-password", {
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      });
 
       setSuccessMsg(res.data);
       setOldPassword("");
@@ -89,12 +79,8 @@ const Profile = () => {
           <h4 className="mt-2">{user.username}</h4>
         </div>
         <div className="col-md-8">
-          <p>
-            <strong>Email:</strong> {user.email}
-          </p>
-          <p>
-            <strong>Vai trò:</strong> {user.role}
-          </p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Vai trò:</strong> {user.role}</p>
           <Button variant="warning" onClick={() => setShowModal(true)}>
             Đổi mật khẩu
           </Button>
@@ -107,7 +93,7 @@ const Profile = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleChangePassword}>
-            <Form.Group className="mb-3" controlId="oldPassword">
+            <Form.Group className="mb-3">
               <Form.Label>Mật khẩu cũ</Form.Label>
               <Form.Control
                 type="password"
@@ -117,7 +103,7 @@ const Profile = () => {
               />
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="newPassword">
+            <Form.Group className="mb-3">
               <Form.Label>Mật khẩu mới</Form.Label>
               <Form.Control
                 type="password"
@@ -127,7 +113,7 @@ const Profile = () => {
               />
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="confirmPassword">
+            <Form.Group className="mb-3">
               <Form.Label>Xác nhận mật khẩu mới</Form.Label>
               <Form.Control
                 type="password"
@@ -137,11 +123,7 @@ const Profile = () => {
               />
             </Form.Group>
 
-            <Button
-              variant="primary"
-              type="submit"
-              disabled={changingPassword}
-            >
+            <Button type="submit" variant="primary" disabled={changingPassword}>
               {changingPassword ? "Đang xử lý..." : "Lưu thay đổi"}
             </Button>
           </Form>

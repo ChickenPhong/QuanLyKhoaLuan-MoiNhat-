@@ -5,32 +5,41 @@ function ChamDiem({ user }) {
   const [danhSach, setDanhSach] = useState([]);
   const [tieuChis, setTieuChis] = useState([]);
   const [diem, setDiem] = useState({});
-  const [info, setInfo] = useState({});
   const [selected, setSelected] = useState(null);
 
-  // Lấy danh sách đề tài + sinh viên của giảng viên phản biện này
+  // Lấy danh sách đề tài + sinh viên của giảng viên phản biện
   useEffect(() => {
-    axios.get(`/api/giangvien/phanbien/danhsach?giangVienPhanBienId=${user.id}`)
-      .then(res => setDanhSach(res.data));
-    axios.get(`/api/giangvien/tieuchi`).then(res => setTieuChis(res.data));
-  }, [user.id]);
+    if (user && user.id) {
+      axios.get(`/api/giangvien/phanbien/danhsach?giangVienPhanBienId=${user.id}`)
+        .then(res => setDanhSach(res.data))
+        .catch(err => console.error("Lỗi lấy danh sách đề tài:", err));
+
+      axios.get(`/api/giangvien/tieuchi`)
+        .then(res => setTieuChis(res.data))
+        .catch(err => console.error("Lỗi lấy tiêu chí:", err));
+    }
+  }, [user]);
 
   // Khi chọn 1 đề tài_sinhvien, load điểm đã chấm
   useEffect(() => {
-    if (selected)
+    if (selected && user && user.id) {
       axios.get(`/api/giangvien/phanbien/diem?dtsvId=${selected.dtsvId}&giangVienPhanBienId=${user.id}`)
         .then(res => {
           let diemObj = {};
           res.data.forEach(d => diemObj[d.tieuChi] = d.diem || "");
           setDiem(diemObj);
-        });
-  }, [selected, user.id]);
+        })
+        .catch(err => console.error("Lỗi lấy điểm:", err));
+    }
+  }, [selected, user]);
 
   const handleDiemChange = (tc, value) => {
     setDiem({ ...diem, [tc]: value });
   };
 
   const handleSave = () => {
+    if (!selected || !user || !user.id) return;
+
     axios.post(`/api/giangvien/phanbien/luudiem`, {
       dtsvId: selected.dtsvId,
       giangVienPhanBienId: user.id,
@@ -39,6 +48,9 @@ function ChamDiem({ user }) {
       .then(res => alert(res.data))
       .catch(err => alert("Lưu điểm thất bại"));
   };
+
+  if (!user || !user.id)
+    return <p>Đang tải thông tin người dùng...</p>;
 
   return (
     <div>
@@ -55,6 +67,7 @@ function ChamDiem({ user }) {
           )}
         </ul>
       </div>
+
       {selected &&
         <div>
           <h5>Đề tài: {selected.deTaiTitle}</h5>
