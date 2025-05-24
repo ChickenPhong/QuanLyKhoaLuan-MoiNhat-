@@ -42,7 +42,6 @@ CREATE TABLE `bangdiems` (
 
 LOCK TABLES `bangdiems` WRITE;
 /*!40000 ALTER TABLE `bangdiems` DISABLE KEYS */;
-INSERT INTO `bangdiems` VALUES (5,2,17,'Độ chính xác của nghiên cứu',6.5),(6,2,17,'Tính khả dụng của nghiên cứu',8),(7,1,16,'Độ chính xác của nghiên cứu',7),(8,1,16,'Tính khả dụng của nghiên cứu',6);
 /*!40000 ALTER TABLE `bangdiems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,7 +61,7 @@ CREATE TABLE `detaikhoaluan_giangvienhuongdan` (
   KEY `giangVienHuongDan_id` (`giangVienHuongDan_id`),
   CONSTRAINT `detaikhoaluan_giangvienhuongdan_ibfk_1` FOREIGN KEY (`deTaiKhoaLuan_id`) REFERENCES `detaikhoaluans` (`id`),
   CONSTRAINT `detaikhoaluan_giangvienhuongdan_ibfk_2` FOREIGN KEY (`giangVienHuongDan_id`) REFERENCES `nguoidungs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +70,7 @@ CREATE TABLE `detaikhoaluan_giangvienhuongdan` (
 
 LOCK TABLES `detaikhoaluan_giangvienhuongdan` WRITE;
 /*!40000 ALTER TABLE `detaikhoaluan_giangvienhuongdan` DISABLE KEYS */;
-INSERT INTO `detaikhoaluan_giangvienhuongdan` VALUES (1,1,7),(2,2,8),(5,1,8);
+INSERT INTO `detaikhoaluan_giangvienhuongdan` VALUES (8,1,7),(9,2,8),(10,1,7),(11,2,8),(12,1,7),(13,2,8),(14,1,7),(15,2,8),(16,1,7),(17,2,8);
 /*!40000 ALTER TABLE `detaikhoaluan_giangvienhuongdan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -84,15 +83,15 @@ DROP TABLE IF EXISTS `detaikhoaluan_hoidong`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `detaikhoaluan_hoidong` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `deTaiKhoaLuan_id` int DEFAULT NULL,
+  `detaikhoaluan_sinhvien_id` int DEFAULT NULL,
   `hoiDong_id` int DEFAULT NULL,
   `locked` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `deTaiKhoaLuan_id` (`deTaiKhoaLuan_id`),
+  KEY `deTaiKhoaLuan_id` (`detaikhoaluan_sinhvien_id`),
   KEY `hoiDong_id` (`hoiDong_id`),
-  CONSTRAINT `detaikhoaluan_hoidong_ibfk_1` FOREIGN KEY (`deTaiKhoaLuan_id`) REFERENCES `detaikhoaluans` (`id`),
+  CONSTRAINT `detaikhoaluan_hoidong_ibfk_1` FOREIGN KEY (`detaikhoaluan_sinhvien_id`) REFERENCES `detaikhoaluans` (`id`),
   CONSTRAINT `detaikhoaluan_hoidong_ibfk_2` FOREIGN KEY (`hoiDong_id`) REFERENCES `hoidongs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +100,6 @@ CREATE TABLE `detaikhoaluan_hoidong` (
 
 LOCK TABLES `detaikhoaluan_hoidong` WRITE;
 /*!40000 ALTER TABLE `detaikhoaluan_hoidong` DISABLE KEYS */;
-INSERT INTO `detaikhoaluan_hoidong` VALUES (13,1,3,1),(14,2,4,1);
 /*!40000 ALTER TABLE `detaikhoaluan_hoidong` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -121,7 +119,7 @@ CREATE TABLE `detaikhoaluan_sinhvien` (
   KEY `sinhVien_id` (`sinhVien_id`),
   CONSTRAINT `detaikhoaluan_sinhvien_ibfk_1` FOREIGN KEY (`deTaiKhoaLuan_id`) REFERENCES `detaikhoaluans` (`id`),
   CONSTRAINT `detaikhoaluan_sinhvien_ibfk_2` FOREIGN KEY (`sinhVien_id`) REFERENCES `nguoidungs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -130,7 +128,7 @@ CREATE TABLE `detaikhoaluan_sinhvien` (
 
 LOCK TABLES `detaikhoaluan_sinhvien` WRITE;
 /*!40000 ALTER TABLE `detaikhoaluan_sinhvien` DISABLE KEYS */;
-INSERT INTO `detaikhoaluan_sinhvien` VALUES (1,1,9),(2,2,14);
+INSERT INTO `detaikhoaluan_sinhvien` VALUES (13,1,9),(14,2,14),(15,1,15),(16,2,48);
 /*!40000 ALTER TABLE `detaikhoaluan_sinhvien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -146,7 +144,7 @@ CREATE TABLE `detaikhoaluans` (
   `title` varchar(255) NOT NULL,
   `khoa` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -172,7 +170,7 @@ CREATE TABLE `hoidongs` (
   `status` enum('active','closed') DEFAULT 'active',
   `khoa` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +179,7 @@ CREATE TABLE `hoidongs` (
 
 LOCK TABLES `hoidongs` WRITE;
 /*!40000 ALTER TABLE `hoidongs` DISABLE KEYS */;
-INSERT INTO `hoidongs` VALUES (3,'Hội đồng 1','active','Công nghệ thông tin'),(4,'Hội đồng 2','active','Công nghệ thông tin'),(6,'test','active','Công nghệ thông tin');
+INSERT INTO `hoidongs` VALUES (3,'Hội đồng 1','active','Công nghệ thông tin'),(4,'Hội đồng 2','active','Công nghệ thông tin'),(10,'Hội đồng 3','active','Công nghệ thông tin');
 /*!40000 ALTER TABLE `hoidongs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,7 +202,7 @@ CREATE TABLE `nguoidungs` (
   `khoaHoc` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +211,7 @@ CREATE TABLE `nguoidungs` (
 
 LOCK TABLES `nguoidungs` WRITE;
 /*!40000 ALTER TABLE `nguoidungs` DISABLE KEYS */;
-INSERT INTO `nguoidungs` VALUES (2,'Nguyễn Văn A','admin','$2a$10$fdEqk74SrGthQ4g9GTb6XOjWlQRjlZmlcorWNXOQCO8W00pTUarzO','ROLE_ADMIN','admin.png','admin1@example.com',NULL,NULL),(5,'Trần Huỳnh Sang','sang','$2a$10$uHhxwGZi.5RIvWwxaUqNLOUQkrhP.n3/vJkSiw0Xls3fttESGVzAW','ROLE_GIAOVU','https://res.cloudinary.com/dp4fipzce/image/upload/v1746964288/rbudpadcmrgbw0o0a52l.jpg','sang12@gmail.com','Công nghệ thông tin',NULL),(7,'Tô Quốc Bình','binh','$2a$10$GAkTj5yjHg0XbWpF5zPgLuJ7OGKGBGo.qPTxKaIFoD0F0ezdBbiZO','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1746964633/mzoody395lo41z3oodz8.jpg','binh@gmail.com','Công nghệ thông tin',NULL),(8,'Trần Quốc Phong','phong','$2a$10$/gyHfcy9195gsLrE9y8GJu7UDScJ1rQWeE2RGnO4z2f4K9wL3Y9AC','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1746967846/rbfcnahhp55ebq7ulkiz.jpg','asamikiri2004@gmail.com','Công nghệ thông tin',NULL),(9,'Nguyễn Đăng Khôi','khoi','$2a$10$qyFEvDXFwv7mp1U1YhVtOuwmw8wIOQzXJv4W3JOjRC.7AJLYWoBnW','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1746967972/gf6jgp03jtks6xkyjrfw.jpg','tqphong2004@gmail.com','Công nghệ thông tin','2022'),(11,'Nguyễn Huỳnh Đan','giaovu1','$2a$10$gbqyucHnmBQoS/FNXIADlOgnMbWAXUnylVxQfxDp0mZs7fKR3Oh0m','ROLE_GIAOVU','https://res.cloudinary.com/dp4fipzce/image/upload/v1747018459/cne69oxhvyy1iftwcyqz.jpg','ffg@gmail.com','Quản trị kinh doanh',NULL),(14,'Trần Văn Ben','ben','$2a$10$.RfH6fZkMacqKPJ.5N3x1emMwWdV77bFIPNEkr8Dz12pOcXme4GQ2','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747042537/nudodqrgdfxdxnp7oeap.jpg','ben@gmail.com','Công nghệ thông tin','2022'),(15,'Nguyễn Như Quỳnh','quynh','$2a$10$Kvt4L5hOubUuo3tvrQxnnuwxrR57wahnOj0OHo7DhswJqmM11FO7S','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747042876/koodiu9bun3dhcdbgmpw.jpg','quynh@gmail.com','Công nghệ thông tin','2023'),(16,'Bùi Tấn Phát','phat','$2a$10$oIaQ.lkF7HNtX1dd6QFLK.Iubd6.zY.FJ2oZpbdNoPedWdYyyiXue','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747051536/kzrzxsiwpzr4cggldqfy.jpg','phat@gmail.com','Công nghệ thông tin',NULL),(17,'Trần Phong','phong tran','$2a$10$dqoJfW8rMsjBDJtQKHd/luqdYz0qs0WJSFNFqtIet5fOAEncZ/jNC','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747275032/ifndemkwsxp5nhe3sf0n.jpg','2251010073phong@ou.edu.vn','Công nghệ thông tin',NULL),(19,'Bùi Xuân Đức','duc','$2a$10$bRfPuNj1X7Afp/bDdJdAeulJ2y6/9vghZ981/vCKqrVXJS5r0f7cu','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747653210/vgr2yk9jth0sx1kmhqwk.jpg','vggg2004@gmail.com','Công nghệ thông tin',NULL),(46,'Trần Thanh Tâm','tam','$2a$10$HIlBAmQcQ.VpxW9RXqXd5.GRTL1Hpqw5.p4g49yDGI.jtug0SWsya','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747904193/uxvwquukszgop74vjos3.jpg','13ng2004@gmail.com','Tài chính - Ngân hàng',NULL);
+INSERT INTO `nguoidungs` VALUES (2,'Nguyễn Văn A','admin','$2a$10$fdEqk74SrGthQ4g9GTb6XOjWlQRjlZmlcorWNXOQCO8W00pTUarzO','ROLE_ADMIN','admin.png','admin1@example.com',NULL,NULL),(5,'Trần Huỳnh Sang','sang','$2a$10$uHhxwGZi.5RIvWwxaUqNLOUQkrhP.n3/vJkSiw0Xls3fttESGVzAW','ROLE_GIAOVU','https://res.cloudinary.com/dp4fipzce/image/upload/v1746964288/rbudpadcmrgbw0o0a52l.jpg','sang12@gmail.com','Công nghệ thông tin',NULL),(7,'Tô Quốc Bình','binh','$2a$10$GAkTj5yjHg0XbWpF5zPgLuJ7OGKGBGo.qPTxKaIFoD0F0ezdBbiZO','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1746964633/mzoody395lo41z3oodz8.jpg','binh@gmail.com','Công nghệ thông tin',NULL),(8,'Trần Quốc Phong','phong','$2a$10$/gyHfcy9195gsLrE9y8GJu7UDScJ1rQWeE2RGnO4z2f4K9wL3Y9AC','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1746967846/rbfcnahhp55ebq7ulkiz.jpg','asamikiri2004@gmail.com','Công nghệ thông tin',NULL),(9,'Nguyễn Đăng Khôi','khoi','$2a$10$qyFEvDXFwv7mp1U1YhVtOuwmw8wIOQzXJv4W3JOjRC.7AJLYWoBnW','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1746967972/gf6jgp03jtks6xkyjrfw.jpg','tqphong2004@gmail.com','Công nghệ thông tin','2022'),(11,'Nguyễn Huỳnh Đan','giaovu1','$2a$10$gbqyucHnmBQoS/FNXIADlOgnMbWAXUnylVxQfxDp0mZs7fKR3Oh0m','ROLE_GIAOVU','https://res.cloudinary.com/dp4fipzce/image/upload/v1747018459/cne69oxhvyy1iftwcyqz.jpg','ffg@gmail.com','Quản trị kinh doanh',NULL),(14,'Trần Văn Ben','ben','$2a$10$.RfH6fZkMacqKPJ.5N3x1emMwWdV77bFIPNEkr8Dz12pOcXme4GQ2','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747042537/nudodqrgdfxdxnp7oeap.jpg','ben@gmail.com','Công nghệ thông tin','2022'),(15,'Nguyễn Như Quỳnh','quynh','$2a$10$Kvt4L5hOubUuo3tvrQxnnuwxrR57wahnOj0OHo7DhswJqmM11FO7S','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747042876/koodiu9bun3dhcdbgmpw.jpg','quynh@gmail.com','Công nghệ thông tin','2023'),(16,'Bùi Tấn Phát','phat','$2a$10$oIaQ.lkF7HNtX1dd6QFLK.Iubd6.zY.FJ2oZpbdNoPedWdYyyiXue','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747051536/kzrzxsiwpzr4cggldqfy.jpg','phat@gmail.com','Công nghệ thông tin',NULL),(17,'Trần Phong','phong tran','$2a$10$dqoJfW8rMsjBDJtQKHd/luqdYz0qs0WJSFNFqtIet5fOAEncZ/jNC','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747275032/ifndemkwsxp5nhe3sf0n.jpg','2251010073phong@ou.edu.vn','Công nghệ thông tin',NULL),(19,'Bùi Xuân Đức','duc','$2a$10$bRfPuNj1X7Afp/bDdJdAeulJ2y6/9vghZ981/vCKqrVXJS5r0f7cu','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747653210/vgr2yk9jth0sx1kmhqwk.jpg','vggg2004@gmail.com','Công nghệ thông tin',NULL),(46,'Trần Thanh Tâm','tam','$2a$10$HIlBAmQcQ.VpxW9RXqXd5.GRTL1Hpqw5.p4g49yDGI.jtug0SWsya','ROLE_GIANGVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747904193/uxvwquukszgop74vjos3.jpg','13ng2004@gmail.com','Tài chính - Ngân hàng',NULL),(47,'Nguyễn Phúc Thịnh','thinh','$2a$10$8UZmLu.4SD0LhrWWByOrJeASIdThFr5M7RccKCQdxGP3lRAdFLj86','ROLE_GIAOVU','https://res.cloudinary.com/dp4fipzce/image/upload/v1747966478/mfxxuuejf3w6oqeh8chw.jpg','rtg2004@gmail.com','Công nghệ thông tin',NULL),(48,'Trần Thanh An','an','$2a$10$AYjqdmJloonDSsHJ9N1mJOpC8q4/Dy2SPyy0izVO7I7YnTJzClunW','ROLE_SINHVIEN','https://res.cloudinary.com/dp4fipzce/image/upload/v1747986765/mxav0yybsk8ccnby67lm.jpg','asamikiri2@gmail.com','Công nghệ thông tin','2023');
 /*!40000 ALTER TABLE `nguoidungs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -231,7 +229,7 @@ CREATE TABLE `phanconggiangvienphanbiens` (
   PRIMARY KEY (`id`),
   KEY `giangVienPhanBien_id` (`giangVienPhanBien_id`),
   CONSTRAINT `phanconggiangvienphanbiens_ibfk_2` FOREIGN KEY (`giangVienPhanBien_id`) REFERENCES `nguoidungs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -240,7 +238,7 @@ CREATE TABLE `phanconggiangvienphanbiens` (
 
 LOCK TABLES `phanconggiangvienphanbiens` WRITE;
 /*!40000 ALTER TABLE `phanconggiangvienphanbiens` DISABLE KEYS */;
-INSERT INTO `phanconggiangvienphanbiens` VALUES (1,16,3),(2,17,4);
+INSERT INTO `phanconggiangvienphanbiens` VALUES (1,16,3),(2,17,4),(13,8,10),(14,17,10);
 /*!40000 ALTER TABLE `phanconggiangvienphanbiens` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -261,7 +259,7 @@ CREATE TABLE `thanhvienhoidong` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `thanhvienhoidong_ibfk_1` FOREIGN KEY (`hoiDong_id`) REFERENCES `hoidongs` (`id`),
   CONSTRAINT `thanhvienhoidong_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `nguoidungs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -270,7 +268,7 @@ CREATE TABLE `thanhvienhoidong` (
 
 LOCK TABLES `thanhvienhoidong` WRITE;
 /*!40000 ALTER TABLE `thanhvienhoidong` DISABLE KEYS */;
-INSERT INTO `thanhvienhoidong` VALUES (5,3,7,'chu_tich'),(6,3,8,'thu_ky'),(7,3,16,'phan_bien'),(8,4,8,'chu_tich'),(9,4,16,'thu_ky'),(10,4,17,'phan_bien');
+INSERT INTO `thanhvienhoidong` VALUES (5,3,7,'chu_tich'),(6,3,8,'thu_ky'),(7,3,16,'phan_bien'),(8,4,8,'chu_tich'),(9,4,16,'thu_ky'),(10,4,17,'phan_bien'),(23,10,16,'chu_tich'),(24,10,19,'thu_ky'),(25,10,8,'phan_bien'),(26,10,17,'phan_bien');
 /*!40000 ALTER TABLE `thanhvienhoidong` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -314,7 +312,7 @@ CREATE TABLE `tieuchis` (
   `status` enum('active','closed') DEFAULT 'active',
   `khoa` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -323,7 +321,7 @@ CREATE TABLE `tieuchis` (
 
 LOCK TABLES `tieuchis` WRITE;
 /*!40000 ALTER TABLE `tieuchis` DISABLE KEYS */;
-INSERT INTO `tieuchis` VALUES (1,'Độ chính xác của nghiên cứu','active','Công nghệ thông tin'),(2,'Tính khả dụng của nghiên cứu','active','Công nghệ thông tin'),(10,'sd','active','Công nghệ thông tin'),(11,'xc','active','Công nghệ thông tin'),(12,'rt','active','Quản trị kinh doanh');
+INSERT INTO `tieuchis` VALUES (1,'Độ chính xác của nghiên cứu','active','Công nghệ thông tin'),(2,'Tính khả dụng của nghiên cứu','active','Công nghệ thông tin'),(10,'sd','active','Công nghệ thông tin'),(11,'xc','active','Công nghệ thông tin'),(12,'rt','active','Quản trị kinh doanh'),(13,'sd','active','Công nghệ thông tin'),(14,'sd','active','Công nghệ thông tin');
 /*!40000 ALTER TABLE `tieuchis` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -336,4 +334,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-22 16:44:13
+-- Dump completed on 2025-05-24 10:54:00

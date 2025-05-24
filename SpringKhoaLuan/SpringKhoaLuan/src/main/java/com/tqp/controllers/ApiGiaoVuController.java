@@ -176,17 +176,29 @@ public class ApiGiaoVuController {
     @PostMapping("/giaodetai/giao")
     public ResponseEntity<?> giaoDeTaiNgauNhien(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
         var user = nguoiDungService.getByUsername(principal.getName());
+        if (user == null) {
+            Map<String, String> res = new HashMap<>();
+            res.put("error", "Người dùng không hợp lệ hoặc chưa đăng nhập");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
+        }
         String khoa = user.getKhoa();
 
-        // Lấy danh sách đề tài đã có sinh viên thực hiện theo khoa & khóa
+        // Lấy danh sách đề tài đã có sinh viên thực hiện theo khoa & khóa học
         var deTais = deTaiService.getByKhoa(khoa).stream()
             .filter(dt -> {
                 var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
-                return dtsv != null && khoaHoc.equals(nguoiDungService.getById(dtsv.getSinhVienId()).getKhoaHoc());
+                if (dtsv == null) return false;
+                var sv = nguoiDungService.getById(dtsv.getSinhVienId());
+                return sv != null && khoaHoc.equals(sv.getKhoaHoc());
             })
             .collect(Collectors.toList());
 
-        // Lấy danh sách hội đồng
+        if (deTais.isEmpty()) {
+            Map<String, String> res = new HashMap<>();
+            res.put("error", "Không tìm thấy đề tài phù hợp để giao");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        }
+
         var hoiDongs = hoiDongService.getAllHoiDong();
         if (hoiDongs.isEmpty()) {
             Map<String, String> res = new HashMap<>();
@@ -200,12 +212,13 @@ public class ApiGiaoVuController {
             // Lấy bản ghi detaikhoaluan_sinhvien tương ứng với đề tài dt
             var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
             if (dtsv == null) {
-                continue; // hoặc xử lý lỗi nếu cần
+                continue; // Không có sinh viên thực hiện đề tài, bỏ qua
             }
 
-            // Kiểm tra đề tài đã giao hội đồng chưa, nếu rồi thì bỏ qua
-            if (deTaiHoiDongService.isDeTaiAssigned(dtsv.getId()))
+            // Kiểm tra đề tài đã được giao hội đồng chưa, nếu rồi thì bỏ qua
+            if (deTaiHoiDongService.isDeTaiAssigned(dtsv.getId())) {
                 continue;
+            }
 
             boolean assigned = false;
 
@@ -214,8 +227,7 @@ public class ApiGiaoVuController {
                 var hd = hoiDongs.get(hdIndex % hoiDongs.size());
                 long soLuongDeTai = deTaiHoiDongService.countDeTaiByHoiDongId(hd.getId());
 
-                // Giới hạn mỗi hội đồng 5 đề tài (có thể điều chỉnh)
-                if (soLuongDeTai < 5) {
+                if (soLuongDeTai < 5) { // Giới hạn mỗi hội đồng 5 đề tài
                     // Gán đề tài cho hội đồng, truyền id của detaikhoaluan_sinhvien
                     deTaiHoiDongService.assignHoiDong(dtsv.getId(), hd.getId());
 
@@ -250,6 +262,7 @@ public class ApiGiaoVuController {
         res.put("message", "Đã giao đề tài ngẫu nhiên cho khóa " + khoaHoc);
         return ResponseEntity.ok(res);
     }
+
 }
 
 

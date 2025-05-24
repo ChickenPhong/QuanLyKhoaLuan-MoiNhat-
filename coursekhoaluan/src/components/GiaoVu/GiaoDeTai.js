@@ -60,7 +60,7 @@ const GiaoDeTai = () => {
       return;
     }
     try {
-      const res = await authApis().post("giaovu/giaodetai/giao", null, { params: { khoaHoc } });
+      const res = await authApis().post(`giaovu/giaodetai/giao?khoaHoc=${khoaHoc}`);
       setAlertMsg("Giao đề tài thành công");
       setAlertVariant("success");
 
