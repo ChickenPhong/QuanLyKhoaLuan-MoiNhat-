@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/giangvien")
 public class ApiGiangVienController {
+
     @Autowired
     private PhanCongGiangVienPhanBienService phanCongService;
 
@@ -54,20 +55,32 @@ public class ApiGiangVienController {
 
     @Autowired
     private BangDiemService bangDiemService;
-    
+
     @Autowired
     private HoiDongService hoiDongService;
 
     // Lấy danh sách đề tài và sinh viên được chấm điểm bởi giảng viên phản biện
     @GetMapping("/phanbien/danhsach")
     public ResponseEntity<?> getDanhSachChamDiem(Principal principal) {
-        // Lấy username từ principal (được thiết lập từ token)
+        // ✅ 1. Kiểm tra Principal có null không
+        if (principal == null) {
+            System.out.println("❌ Principal null – không có token hoặc filter không inject");
+            return ResponseEntity.status(401).body("Không có principal – token không được chấp nhận");
+        }
+
+        // ✅ 2. In ra username từ token
         String username = principal.getName();
+        System.out.println("✅ Username từ token: " + username);
+
+        // ✅ 3. Tìm giảng viên trong DB
         var gv = nguoiDungService.getByUsername(username);
-        if (gv == null)
-            return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
+        if (gv == null) {
+            System.out.println("❌ Không tìm thấy giảng viên với username: " + username);
+            return ResponseEntity.status(401).body("Không tìm thấy giảng viên: " + username);
+        }
 
         int giangVienPhanBienId = gv.getId();
+        System.out.println("✅ ID giảng viên: " + giangVienPhanBienId);
 
         var phanCongs = phanCongService.findByGiangVienPhanBienId(giangVienPhanBienId);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -91,6 +104,8 @@ public class ApiGiangVienController {
                 result.add(item);
             }
         }
+
+        System.out.println("✅ Số lượng đề tài được trả về: " + result.size());
         return ResponseEntity.ok(result);
     }
 
@@ -102,23 +117,40 @@ public class ApiGiangVienController {
 
     // Lấy điểm đã chấm cho đề tài của giảng viên này
     @GetMapping("/phanbien/diem")
-    public ResponseEntity<?> getDiem(@RequestParam int dtsvId, Principal principal) {
+    public ResponseEntity<?> getDiem(@RequestParam(name = "dtsvId") int dtsvId, Principal principal) {
+        // ✅ Kiểm tra principal
+        if (principal == null) {
+            System.out.println("❌ Không có principal – token chưa gửi hoặc không hợp lệ");
+            return ResponseEntity.status(401).body("Không có thông tin người dùng");
+        }
+
         String username = principal.getName();
+        System.out.println("✅ Username từ token: " + username);
+
         var gv = nguoiDungService.getByUsername(username);
-        if (gv == null)
+        if (gv == null) {
+            System.out.println("❌ Không tìm thấy giảng viên trong DB với username: " + username);
             return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
+        }
 
         int giangVienPhanBienId = gv.getId();
+        System.out.println("✅ ID giảng viên: " + giangVienPhanBienId + ", dtsvId: " + dtsvId);
 
         var tieuChis = tieuChiService.getAll();
         List<Map<String, Object>> result = new ArrayList<>();
+
         for (var tc : tieuChis) {
             var diem = bangDiemService.findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(dtsvId, giangVienPhanBienId, tc.getTenTieuChi());
+
             Map<String, Object> item = new HashMap<>();
             item.put("tieuChi", tc.getTenTieuChi());
             item.put("diem", diem != null ? diem.getDiem() : null);
             result.add(item);
+
+            System.out.printf("   - Tiêu chí: %s | Điểm: %s%n", tc.getTenTieuChi(), diem != null ? diem.getDiem() : "null");
         }
+
+        System.out.println("✅ Tổng số tiêu chí: " + result.size());
         return ResponseEntity.ok(result);
     }
 
@@ -127,8 +159,9 @@ public class ApiGiangVienController {
     public ResponseEntity<?> saveDiem(@RequestBody Map<String, Object> payload, Principal principal) {
         String username = principal.getName();
         var gv = nguoiDungService.getByUsername(username);
-        if (gv == null)
+        if (gv == null) {
             return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
+        }
 
         int giangVienPhanBienId = gv.getId();
 

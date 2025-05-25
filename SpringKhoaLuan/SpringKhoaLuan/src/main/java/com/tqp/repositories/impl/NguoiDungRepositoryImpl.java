@@ -36,8 +36,8 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
     public NguoiDung getByUsername(String username) {
         Session s = this.factory.getObject().getCurrentSession();
         try {
-            Query q = s.createQuery("FROM NguoiDung WHERE username = :username", NguoiDung.class);
-            q.setParameter("username", username);
+            Query q = s.createQuery("FROM NguoiDung WHERE lower(username) = :username", NguoiDung.class);
+            q.setParameter("username", username.toLowerCase().trim());
             return (NguoiDung) q.getSingleResult();
         } catch (NoResultException ex) {
             return null;

@@ -17,7 +17,7 @@ function ChamDiem() {
   useEffect(() => {
     if (user && user.id) {
       authApis()
-        .get(`/giangvien/phanbien/danhsach?giangVienPhanBienId=${user.id}`)
+        .get(`/giangvien/phanbien/danhsach`)  // ✅ Bỏ ID
         .then(res => setDanhSach(res.data))
         .catch(err => {
           setMsg("Lỗi lấy danh sách: " + (err.response?.data?.error || err.message));
@@ -33,7 +33,7 @@ function ChamDiem() {
         .then(res => {
           setTieuChis(res.data);
           // Lấy điểm (nếu đã có)
-          authApis().get(`/giangvien/phanbien/diem?dtsvId=${selected.dtsvId}&giangVienPhanBienId=${user.id}`)
+          authApis().get(`/giangvien/phanbien/diem?dtsvId=${selected.dtsvId}`)  // ✅ Bỏ ID giảng viên
             .then(res2 => {
               let diemObj = {};
               res2.data.forEach(d => diemObj[d.tieuChi] = d.diem ?? "");
@@ -74,7 +74,6 @@ function ChamDiem() {
     if (!selected || !user || !user.id) return;
     authApis().post(`/giangvien/phanbien/luudiem`, {
       dtsvId: selected.dtsvId,
-      giangVienPhanBienId: user.id,
       diemMap: diem
     })
       .then(res => {
