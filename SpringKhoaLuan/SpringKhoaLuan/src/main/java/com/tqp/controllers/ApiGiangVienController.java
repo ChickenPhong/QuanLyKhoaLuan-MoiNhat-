@@ -13,6 +13,7 @@ import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
 import com.tqp.services.PhanCongGiangVienPhanBienService;
 import com.tqp.services.TieuChiService;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +60,15 @@ public class ApiGiangVienController {
 
     // Lấy danh sách đề tài và sinh viên được chấm điểm bởi giảng viên phản biện
     @GetMapping("/phanbien/danhsach")
-    public ResponseEntity<?> getDanhSachChamDiem(@RequestParam int giangVienPhanBienId) {
-        // Lấy các hội đồng giảng viên này thuộc về
+    public ResponseEntity<?> getDanhSachChamDiem(Principal principal) {
+        // Lấy username từ principal (được thiết lập từ token)
+        String username = principal.getName();
+        var gv = nguoiDungService.getByUsername(username);
+        if (gv == null)
+            return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
+
+        int giangVienPhanBienId = gv.getId();
+
         var phanCongs = phanCongService.findByGiangVienPhanBienId(giangVienPhanBienId);
         List<Map<String, Object>> result = new ArrayList<>();
         for (var pc : phanCongs) {
@@ -86,7 +94,7 @@ public class ApiGiangVienController {
         return ResponseEntity.ok(result);
     }
 
-    // Lấy tiêu chí chấm điểm
+    // Lấy tiêu chí chấm điểm (giữ nguyên, ai cũng lấy được tiêu chí)
     @GetMapping("/tieuchi")
     public ResponseEntity<?> getTieuChi() {
         return ResponseEntity.ok(tieuChiService.getAll());
@@ -94,7 +102,14 @@ public class ApiGiangVienController {
 
     // Lấy điểm đã chấm cho đề tài của giảng viên này
     @GetMapping("/phanbien/diem")
-    public ResponseEntity<?> getDiem(@RequestParam int dtsvId, @RequestParam int giangVienPhanBienId) {
+    public ResponseEntity<?> getDiem(@RequestParam int dtsvId, Principal principal) {
+        String username = principal.getName();
+        var gv = nguoiDungService.getByUsername(username);
+        if (gv == null)
+            return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
+
+        int giangVienPhanBienId = gv.getId();
+
         var tieuChis = tieuChiService.getAll();
         List<Map<String, Object>> result = new ArrayList<>();
         for (var tc : tieuChis) {
@@ -109,12 +124,31 @@ public class ApiGiangVienController {
 
     // Lưu điểm cho từng tiêu chí
     @PostMapping("/phanbien/luudiem")
-    public ResponseEntity<?> saveDiem(@RequestBody Map<String, Object> payload) {
-        int dtsvId = (int) payload.get("dtsvId");
-        int giangVienPhanBienId = (int) payload.get("giangVienPhanBienId");
-        Map<String, Float> diemMap = (Map<String, Float>) payload.get("diemMap"); // { "TC1": 7.5, ...}
+    public ResponseEntity<?> saveDiem(@RequestBody Map<String, Object> payload, Principal principal) {
+        String username = principal.getName();
+        var gv = nguoiDungService.getByUsername(username);
+        if (gv == null)
+            return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
 
-        
+        int giangVienPhanBienId = gv.getId();
+
+        int dtsvId = (int) payload.get("dtsvId");
+        Map<String, Object> diemMapRaw = (Map<String, Object>) payload.get("diemMap");
+        Map<String, Float> diemMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : diemMapRaw.entrySet()) {
+            Float diem;
+            if (entry.getValue() instanceof Integer) {
+                diem = ((Integer) entry.getValue()).floatValue();
+            } else if (entry.getValue() instanceof Double) {
+                diem = ((Double) entry.getValue()).floatValue();
+            } else if (entry.getValue() instanceof Float) {
+                diem = (Float) entry.getValue();
+            } else {
+                diem = Float.parseFloat(entry.getValue().toString());
+            }
+            diemMap.put(entry.getKey(), diem);
+        }
+
         for (Map.Entry<String, Float> entry : diemMap.entrySet()) {
             var tc = entry.getKey();
             float diem = entry.getValue();

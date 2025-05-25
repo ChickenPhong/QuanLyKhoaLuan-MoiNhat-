@@ -30,8 +30,8 @@ const Profile = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setErrorMsg("Mật khẩu mới phải có ít nhất 6 ký tự");
+    if (newPassword.length < 3) {
+      setErrorMsg("Mật khẩu mới phải có ít nhất 3 ký tự");
       return;
     }
 

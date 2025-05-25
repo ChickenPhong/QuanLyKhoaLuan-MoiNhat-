@@ -99,8 +99,8 @@ public class ApiNguoiDungController {
             return ResponseEntity.badRequest().body("Mật khẩu mới không khớp");
         }
 
-        if (newPassword.length() < 6) {
-            return ResponseEntity.badRequest().body("Mật khẩu mới phải ít nhất 6 ký tự");
+        if (newPassword.length() < 3) {
+            return ResponseEntity.badRequest().body("Mật khẩu mới phải ít nhất 3 ký tự");
         }
 
         // Mã hóa mật khẩu mới và lưu
