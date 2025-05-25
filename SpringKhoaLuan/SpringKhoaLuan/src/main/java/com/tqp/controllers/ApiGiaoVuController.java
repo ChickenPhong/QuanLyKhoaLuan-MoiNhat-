@@ -9,6 +9,7 @@ package com.tqp.controllers;
  * @author Tran Quoc Phong
  */
 import com.tqp.pojo.DeTaiKhoaLuan;
+import com.tqp.pojo.DeTaiKhoaLuan_HoiDong;
 import com.tqp.pojo.DeTaiKhoaLuan_SinhVien;
 import com.tqp.pojo.HoiDong;
 import com.tqp.pojo.NguoiDung;
@@ -69,6 +70,8 @@ public class ApiGiaoVuController {
         if (khoaHocList == null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Không tìm thấy khóa học nào");
         }
+        // Lọc bỏ null
+        khoaHocList = khoaHocList.stream().filter(x -> x != null).collect(Collectors.toList());
         return ResponseEntity.ok(khoaHocList);
     }
 
@@ -277,5 +280,64 @@ public class ApiGiaoVuController {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm được giảng viên khác để gán");
+    }
+    
+    @GetMapping("/hoidong_by_khoahoc")
+    public ResponseEntity<?> getHoiDongByKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+        // Xác định khoa dựa vào user hiện tại
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoaUser = user.getKhoa();
+        // 1. Lấy danh sách sinh viên id thuộc khóa này
+        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoaUser, khoaHoc);
+        List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
+
+        // 2. Lấy các id detaikhoaluan_sinhvien thuộc sinh viên trên
+        List<DeTaiKhoaLuan_SinhVien> dtsvs = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+        List<Integer> dtsvIds = dtsvs.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList());
+
+        // 3. Lấy các detaikhoaluan_hoidong theo dtsvIds
+        List<DeTaiKhoaLuan_HoiDong> dthds = deTaiHoiDongService.findByDtsvIds(dtsvIds);
+
+        // 4. Lấy danh sách hội đồng (unique) + trạng thái locked
+        Map<Integer, Boolean> lockedMap = new HashMap<>();
+        Map<Integer, HoiDong> hoiDongMap = new HashMap<>();
+        for (var dthd : dthds) {
+            HoiDong hd = hoiDongService.getById(dthd.getHoiDongId());
+            hoiDongMap.put(hd.getId(), hd);
+            if (dthd.getLocked()) {
+                lockedMap.put(hd.getId(), true);
+            } else {
+                lockedMap.putIfAbsent(hd.getId(), false);
+            }
+        }
+
+        List<HoiDong> hoiDongs = new ArrayList<>(hoiDongMap.values());
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("hoiDongs", hoiDongs);
+        res.put("lockedMap", lockedMap);
+        return ResponseEntity.ok(res);
+    }
+    
+    @PostMapping("/khoa_hoidong")
+    public ResponseEntity<?> khoaHoiDong(@RequestBody Map<String, Object> body, Principal principal) {
+        int hdId = (Integer) body.get("hoiDongId");
+        String khoaHoc = (String) body.get("khoaHoc");
+        
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoaUser = user.getKhoa();
+
+        // 1. Lấy danh sách sinh viên của khóa
+        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoaUser, khoaHoc);
+        List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
+
+        // 2. Lấy detaikhoaluan_sinhvien_id tương ứng
+        List<DeTaiKhoaLuan_SinhVien> dtsvs = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+        List<Integer> dtsvIds = dtsvs.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList());
+
+        // 3. Update locked = 1 cho detaikhoaluan_hoidong có hoiDong_id = hdId và dtsvId thuộc dtsvIds
+        int count = deTaiHoiDongService.lockAllByHoiDongIdAndDtsvIds(hdId, dtsvIds);
+
+        return ResponseEntity.ok("Đã khóa " + count + " đề tài của hội đồng " + hdId);
     }
 }

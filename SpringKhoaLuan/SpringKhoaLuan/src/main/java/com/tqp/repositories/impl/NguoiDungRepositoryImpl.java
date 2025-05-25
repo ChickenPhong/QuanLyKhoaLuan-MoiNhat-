@@ -127,4 +127,12 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
         query.setParameter("khoa", khoa);
         return query.getResultList();
     }
+    
+    @Override
+    public List<NguoiDung> getSinhVienByKhoaHoc(String khoaHoc) {
+        Session session = this.factory.getObject().getCurrentSession();
+        Query query = session.createQuery("FROM NguoiDung WHERE role = 'ROLE_SINHVIEN' AND khoaHoc = :khoaHoc", NguoiDung.class);
+        query.setParameter("khoaHoc", khoaHoc);
+        return query.getResultList();
+    }
 }

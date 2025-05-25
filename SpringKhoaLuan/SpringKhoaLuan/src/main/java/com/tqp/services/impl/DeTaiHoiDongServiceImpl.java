@@ -109,4 +109,14 @@ public class DeTaiHoiDongServiceImpl implements DeTaiHoiDongService{
     public DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId) {
         return repo.findByDtsvId(dtsvId);
     }
+    
+    @Override
+    public List<DeTaiKhoaLuan_HoiDong> findByDtsvIds(List<Integer> dtsvIds) {
+        return repo.findByDtsvIds(dtsvIds);
+    }
+
+    @Override
+    public int lockAllByHoiDongIdAndDtsvIds(int hoiDongId, List<Integer> dtsvIds) {
+        return repo.lockAllByHoiDongIdAndDtsvIds(hoiDongId, dtsvIds);
+    }
 }

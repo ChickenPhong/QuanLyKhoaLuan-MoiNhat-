@@ -23,6 +23,8 @@ public interface DeTaiSinhVienService {
     DeTaiKhoaLuan_SinhVien findByDeTaiId(int deTaiId);
     
     List<DeTaiKhoaLuan_SinhVien> getByKhoaVaKhoaHoc(String khoa, String khoaHoc);
+    //api
+    List<DeTaiKhoaLuan_SinhVien> findBySinhVienIds(List<Integer> sinhVienIds);
 }
 
 

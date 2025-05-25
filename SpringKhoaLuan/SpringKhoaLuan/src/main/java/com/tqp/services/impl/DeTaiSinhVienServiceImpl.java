@@ -67,4 +67,10 @@ public class DeTaiSinhVienServiceImpl implements DeTaiSinhVienService{
     public List<DeTaiKhoaLuan_SinhVien> getByKhoaVaKhoaHoc(String khoa, String khoaHoc) {
         return repo.getByKhoaVaKhoaHoc(khoa, khoaHoc);
     }
+    
+    //api
+    @Override
+    public List<DeTaiKhoaLuan_SinhVien> findBySinhVienIds(List<Integer> sinhVienIds) {
+        return repo.findBySinhVienIds(sinhVienIds);
+    }
 }

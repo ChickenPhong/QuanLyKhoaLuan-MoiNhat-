@@ -1,29 +1,95 @@
+import React, { useEffect, useState } from "react";
+import { Container, Table, Button, Badge, Alert, Form, Spinner } from "react-bootstrap";
+import axios from "axios";
 
-import React, { useState } from "react";
-import { Container, Table, Button, Badge, Alert, Form } from "react-bootstrap";
+const KhoaHoiDong = () => {
+  const [hoiDongs, setHoiDongs] = useState([]);
+  const [lockedMap, setLockedMap] = useState({});
+  const [khoaHocList, setKhoaHocList] = useState([]);
+  const [selectedKhoaHoc, setSelectedKhoaHoc] = useState("");
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alertError, setAlertError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const KhoaHoiDong = ({
-  hoiDongs = [],
-  lockedMap = {},
-  message = "",
-  error = "",
-  onKhoaHoiDong,
-}) => {
-  const [alertMsg, setAlertMsg] = useState(message);
-  const [alertError, setAlertError] = useState(error);
+  // Lấy danh sách khóa học
+  useEffect(() => {
+    const fetchKhoaHoc = async () => {
+      try {
+        const res = await axios.get("/api/giaovu/khoahoc");
+        // In ra giá trị trả về:
+        console.log("Danh sách khóa học nhận được:", res.data);
+        setKhoaHocList(res.data || []);
+      } catch (error) {
+        setAlertError("Không thể tải danh sách khóa học");
+      }
+    };
+    fetchKhoaHoc();
+  }, []);
+
+  // Lấy danh sách hội đồng theo khóa học đã chọn
+  useEffect(() => {
+    if (selectedKhoaHoc) {
+      fetchHoiDong(selectedKhoaHoc);
+    } else {
+      setHoiDongs([]);
+      setLockedMap({});
+    }
+    // eslint-disable-next-line
+  }, [selectedKhoaHoc]);
+
+  const fetchHoiDong = async (khoaHoc) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/giaovu/hoidong_by_khoahoc?khoaHoc=${khoaHoc}`);
+      setHoiDongs(res.data.hoiDongs || []);
+      setLockedMap(res.data.lockedMap || {});
+      setLoading(false);
+    } catch (err) {
+      setAlertError("Không thể tải danh sách hội đồng");
+      setLoading(false);
+    }
+  };
+
+  const handleKhoaHoiDong = async (hdId) => {
+    try {
+      const res = await axios.post(`/api/giaovu/khoa_hoidong`, {
+        hoiDongId: hdId,
+        khoaHoc: selectedKhoaHoc,
+      });
+      setAlertMsg(res.data);
+      fetchHoiDong(selectedKhoaHoc); // reload lại danh sách sau khi khóa
+    } catch (err) {
+      setAlertError("Khóa hội đồng thất bại!");
+    }
+  };
 
   const handleSubmit = (e, hdId) => {
     e.preventDefault();
     if (window.confirm("Bạn có chắc chắn muốn khóa hội đồng này?")) {
-      if (onKhoaHoiDong) {
-        onKhoaHoiDong(hdId);
-      }
+      handleKhoaHoiDong(hdId);
     }
   };
 
   return (
     <Container className="mt-4">
       <h2 className="text-center text-primary mb-4">Khóa Hội đồng</h2>
+      <Form.Group className="mb-4" controlId="khoaHocSelect">
+        <Form.Label>Chọn khóa học</Form.Label>
+        <Form.Select
+          value={selectedKhoaHoc}
+          onChange={(e) => setSelectedKhoaHoc(e.target.value)}
+          required
+        >
+          <option value="">-- Chọn khóa học --</option>
+          {khoaHocList
+            .filter(khoa => khoa !== null)
+            .map((khoa, idx) => (
+              <option key={idx} value={khoa}>
+                Khóa {khoa}
+              </option>
+            ))}
+        </Form.Select>
+      </Form.Group>
 
       {alertMsg && (
         <Alert variant="success" onClose={() => setAlertMsg("")} dismissible>
@@ -46,7 +112,13 @@ const KhoaHoiDong = ({
           </tr>
         </thead>
         <tbody>
-          {hoiDongs.length > 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan={4} className="text-center">
+                <Spinner animation="border" size="sm" /> Đang tải dữ liệu...
+              </td>
+            </tr>
+          ) : hoiDongs.length > 0 ? (
             hoiDongs.map((hd, index) => {
               const isLocked = lockedMap[hd.id];
               return (
@@ -80,7 +152,9 @@ const KhoaHoiDong = ({
           ) : (
             <tr>
               <td colSpan={4} className="text-center">
-                Không có hội đồng nào
+                {selectedKhoaHoc
+                  ? "Không có hội đồng nào"
+                  : "Vui lòng chọn khóa học"}
               </td>
             </tr>
           )}

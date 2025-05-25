@@ -48,6 +48,7 @@ public class DeTaiKhoaLuan_HoiDong implements Serializable{
     public void setHoiDongId(Integer hoiDongId) { this.hoiDongId = hoiDongId; }
     
     public boolean isLocked() { return locked; }
+    public boolean getLocked() { return locked; }
     public void setLocked(boolean locked) { this.locked = locked; }
 
     @Override

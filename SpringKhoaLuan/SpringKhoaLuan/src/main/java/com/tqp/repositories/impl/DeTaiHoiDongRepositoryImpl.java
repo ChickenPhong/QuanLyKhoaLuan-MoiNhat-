@@ -129,4 +129,26 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
         List<DeTaiKhoaLuan_HoiDong> list = q.getResultList();
         return list.isEmpty() ? null : list.get(0);
     }
+    
+    //api
+    @Override
+    public List<DeTaiKhoaLuan_HoiDong> findByDtsvIds(List<Integer> dtsvIds) {
+        if (dtsvIds == null || dtsvIds.isEmpty()) return List.of();
+        Session session = factory.getObject().getCurrentSession();
+        String hql = "FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId IN (:ids)";
+        Query<DeTaiKhoaLuan_HoiDong> q = session.createQuery(hql, DeTaiKhoaLuan_HoiDong.class);
+        q.setParameterList("ids", dtsvIds);
+        return q.getResultList();
+    }
+
+    @Override
+    public int lockAllByHoiDongIdAndDtsvIds(int hoiDongId, List<Integer> dtsvIds) {
+        if (dtsvIds == null || dtsvIds.isEmpty()) return 0;
+        Session session = factory.getObject().getCurrentSession();
+        String hql = "UPDATE DeTaiKhoaLuan_HoiDong SET locked = 1 WHERE hoiDongId = :hoiDongId AND deTaiKhoaLuanSinhVienId IN (:dtsvIds)";
+        Query q = session.createQuery(hql);
+        q.setParameter("hoiDongId", hoiDongId);
+        q.setParameterList("dtsvIds", dtsvIds);
+        return q.executeUpdate();
+    }
 }

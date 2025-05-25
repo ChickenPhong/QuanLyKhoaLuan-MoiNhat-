@@ -29,4 +29,8 @@ public interface DeTaiHoiDongService {
     
     List<DeTaiKhoaLuan> findDeTaiByHoiDongId(int hoiDongId);
     DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId);
+    
+    //api
+    List<DeTaiKhoaLuan_HoiDong> findByDtsvIds(List<Integer> dtsvIds);
+    int lockAllByHoiDongIdAndDtsvIds(int hoiDongId, List<Integer> dtsvIds);
 }

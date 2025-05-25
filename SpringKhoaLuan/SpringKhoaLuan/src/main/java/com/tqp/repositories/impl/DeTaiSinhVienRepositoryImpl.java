@@ -92,4 +92,15 @@ public class DeTaiSinhVienRepositoryImpl implements DeTaiSinhVienRepository{
                       .setParameter("khoaHoc", khoaHoc)
                       .getResultList();
     }
+    
+    //api
+    @Override
+    public List<DeTaiKhoaLuan_SinhVien> findBySinhVienIds(List<Integer> sinhVienIds) {
+        if (sinhVienIds == null || sinhVienIds.isEmpty()) return List.of();
+        Session session = factory.getObject().getCurrentSession();
+        String hql = "FROM DeTaiKhoaLuan_SinhVien WHERE sinhVienId IN (:ids)";
+        Query<DeTaiKhoaLuan_SinhVien> q = session.createQuery(hql, DeTaiKhoaLuan_SinhVien.class);
+        q.setParameterList("ids", sinhVienIds);
+        return q.getResultList();
+    }
 }

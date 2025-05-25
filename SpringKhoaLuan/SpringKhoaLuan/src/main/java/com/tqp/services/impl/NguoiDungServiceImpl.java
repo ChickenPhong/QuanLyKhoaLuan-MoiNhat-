@@ -153,4 +153,9 @@ public class NguoiDungServiceImpl implements NguoiDungService, UserDetailsServic
     public List<String> getAllKhoaHocByKhoa(String khoa) {
         return nguoiDungRepo.findDistinctKhoaHocByKhoa(khoa);
     }
+    
+    @Override
+    public List<NguoiDung> getSinhVienByKhoaHoc(String khoaHoc) {
+        return nguoiDungRepo.getSinhVienByKhoaHoc(khoaHoc);
+    }
 }
