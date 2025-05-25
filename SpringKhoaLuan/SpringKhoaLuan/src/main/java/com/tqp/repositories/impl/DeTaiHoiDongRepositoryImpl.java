@@ -21,10 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
+public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Autowired
     private SessionFactory sessionFactory;
 
@@ -52,10 +53,11 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
     public void delete(int id) {
         Session s = factory.getObject().getCurrentSession();
         DeTaiKhoaLuan_HoiDong dthd = s.get(DeTaiKhoaLuan_HoiDong.class, id);
-        if (dthd != null)
+        if (dthd != null) {
             s.delete(dthd);
+        }
     }
-    
+
     @Override
     public void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId) {
         Session session = sessionFactory.getCurrentSession();
@@ -73,17 +75,17 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
         long count = (Long) q.getSingleResult();
         return count > 0;
     }
-    
+
     @Override
     public DeTaiKhoaLuan_HoiDong findByDeTaiId(int detaikhoaluanSinhVienId) {
         Session session = this.factory.getObject().getCurrentSession();
-        Query<DeTaiKhoaLuan_HoiDong> q = 
-            session.createQuery("FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId = :id", DeTaiKhoaLuan_HoiDong.class);
+        Query<DeTaiKhoaLuan_HoiDong> q
+                = session.createQuery("FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId = :id", DeTaiKhoaLuan_HoiDong.class);
         q.setParameter("id", detaikhoaluanSinhVienId);
         List<DeTaiKhoaLuan_HoiDong> result = q.getResultList();
         return result.isEmpty() ? null : result.get(0);
     }
-    
+
     @Override
     public long countDeTaiByHoiDongId(int hoiDongId) {
         Session session = this.factory.getObject().getCurrentSession();
@@ -91,16 +93,16 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
         q.setParameter("id", hoiDongId);
         return q.getSingleResult();
     }
-    
+
     @Override
     public List<DeTaiKhoaLuan_HoiDong> findByHoiDongId(int hoiDongId) {
         Session s = factory.getObject().getCurrentSession();
         Query<DeTaiKhoaLuan_HoiDong> q = s.createQuery(
-            "FROM DeTaiKhoaLuan_HoiDong WHERE hoiDongId = :hoiDongId", DeTaiKhoaLuan_HoiDong.class);
+                "FROM DeTaiKhoaLuan_HoiDong WHERE hoiDongId = :hoiDongId", DeTaiKhoaLuan_HoiDong.class);
         q.setParameter("hoiDongId", hoiDongId);
         return q.getResultList();
     }
-    
+
     @Override
     public void lockAllByHoiDongId(int hoiDongId) {
         Session s = factory.getObject().getCurrentSession();
@@ -119,21 +121,23 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
         Long count = (Long) q.getSingleResult();
         return count == 0; // Nếu tất cả đều locked thì return true
     }
-    
+
     @Override
     public DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId) {
         Session s = factory.getObject().getCurrentSession();
         Query<DeTaiKhoaLuan_HoiDong> q = s.createQuery(
-            "FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId = :dtsvId", DeTaiKhoaLuan_HoiDong.class);
+                "FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId = :dtsvId", DeTaiKhoaLuan_HoiDong.class);
         q.setParameter("dtsvId", dtsvId);
         List<DeTaiKhoaLuan_HoiDong> list = q.getResultList();
         return list.isEmpty() ? null : list.get(0);
     }
-    
+
     //api
     @Override
     public List<DeTaiKhoaLuan_HoiDong> findByDtsvIds(List<Integer> dtsvIds) {
-        if (dtsvIds == null || dtsvIds.isEmpty()) return List.of();
+        if (dtsvIds == null || dtsvIds.isEmpty()) {
+            return List.of();
+        }
         Session session = factory.getObject().getCurrentSession();
         String hql = "FROM DeTaiKhoaLuan_HoiDong WHERE deTaiKhoaLuanSinhVienId IN (:ids)";
         Query<DeTaiKhoaLuan_HoiDong> q = session.createQuery(hql, DeTaiKhoaLuan_HoiDong.class);
@@ -143,12 +147,15 @@ public class DeTaiHoiDongRepositoryImpl implements DeTaiHoiDongRepository{
 
     @Override
     public int lockAllByHoiDongIdAndDtsvIds(int hoiDongId, List<Integer> dtsvIds) {
-        if (dtsvIds == null || dtsvIds.isEmpty()) return 0;
+        if (dtsvIds == null || dtsvIds.isEmpty()) {
+            return 0;
+        }
         Session session = factory.getObject().getCurrentSession();
-        String hql = "UPDATE DeTaiKhoaLuan_HoiDong SET locked = 1 WHERE hoiDongId = :hoiDongId AND deTaiKhoaLuanSinhVienId IN (:dtsvIds)";
+        String hql = "UPDATE DeTaiKhoaLuan_HoiDong SET locked = true WHERE hoiDongId = :hoiDongId AND deTaiKhoaLuanSinhVienId IN (:dtsvIds)";
         Query q = session.createQuery(hql);
         q.setParameter("hoiDongId", hoiDongId);
         q.setParameterList("dtsvIds", dtsvIds);
         return q.executeUpdate();
     }
+
 }

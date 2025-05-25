@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Table, Button, Badge, Alert, Form, Spinner } from "react-bootstrap";
-import axios from "axios";
+import { authApis } from "../../config/Apis"; // ✅ sử dụng authApis thay vì axios trực tiếp
 
 const KhoaHoiDong = () => {
   const [hoiDongs, setHoiDongs] = useState([]);
@@ -15,8 +15,7 @@ const KhoaHoiDong = () => {
   useEffect(() => {
     const fetchKhoaHoc = async () => {
       try {
-        const res = await axios.get("/api/giaovu/khoahoc");
-        // In ra giá trị trả về:
+        const res = await authApis().get("giaovu/khoahoc");
         console.log("Danh sách khóa học nhận được:", res.data);
         setKhoaHocList(res.data || []);
       } catch (error) {
@@ -34,25 +33,24 @@ const KhoaHoiDong = () => {
       setHoiDongs([]);
       setLockedMap({});
     }
-    // eslint-disable-next-line
   }, [selectedKhoaHoc]);
 
   const fetchHoiDong = async (khoaHoc) => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/giaovu/hoidong_by_khoahoc?khoaHoc=${khoaHoc}`);
+      const res = await authApis().get(`giaovu/hoidong_by_khoahoc?khoaHoc=${khoaHoc}`);
       setHoiDongs(res.data.hoiDongs || []);
       setLockedMap(res.data.lockedMap || {});
-      setLoading(false);
     } catch (err) {
       setAlertError("Không thể tải danh sách hội đồng");
+    } finally {
       setLoading(false);
     }
   };
 
   const handleKhoaHoiDong = async (hdId) => {
     try {
-      const res = await axios.post(`/api/giaovu/khoa_hoidong`, {
+      const res = await authApis().post("giaovu/khoa_hoidong", {
         hoiDongId: hdId,
         khoaHoc: selectedKhoaHoc,
       });
@@ -73,6 +71,7 @@ const KhoaHoiDong = () => {
   return (
     <Container className="mt-4">
       <h2 className="text-center text-primary mb-4">Khóa Hội đồng</h2>
+
       <Form.Group className="mb-4" controlId="khoaHocSelect">
         <Form.Label>Chọn khóa học</Form.Label>
         <Form.Select

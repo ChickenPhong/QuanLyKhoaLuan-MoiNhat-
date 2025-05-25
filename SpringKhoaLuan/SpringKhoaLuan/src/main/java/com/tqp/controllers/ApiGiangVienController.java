@@ -89,6 +89,11 @@ public class ApiGiangVienController {
             var deTaiHoiDongs = deTaiHoiDongService.findByHoiDongId(hoiDongId);
 
             for (var dthd : deTaiHoiDongs) {
+                if (Boolean.TRUE.equals(dthd.getLocked())) {
+                    System.out.println("⛔ Bỏ qua đề tài trong hội đồng đã khóa, ID hội đồng: " + dthd.getHoiDongId());
+                    continue;
+                }
+                
                 var dtsv = deTaiSinhVienService.getById(dthd.getDeTaiKhoaLuanSinhVienId());
                 var deTai = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
                 var sinhVien = nguoiDungService.getById(dtsv.getSinhVienId());

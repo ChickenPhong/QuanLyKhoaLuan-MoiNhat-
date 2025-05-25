@@ -281,7 +281,7 @@ public class ApiGiaoVuController {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm được giảng viên khác để gán");
     }
-    
+
     @GetMapping("/hoidong_by_khoahoc")
     public ResponseEntity<?> getHoiDongByKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
         // Xác định khoa dựa vào user hiện tại
@@ -318,26 +318,38 @@ public class ApiGiaoVuController {
         res.put("lockedMap", lockedMap);
         return ResponseEntity.ok(res);
     }
-    
+
     @PostMapping("/khoa_hoidong")
     public ResponseEntity<?> khoaHoiDong(@RequestBody Map<String, Object> body, Principal principal) {
-        int hdId = (Integer) body.get("hoiDongId");
+        Integer hdId = (Integer) body.get("hoiDongId");
         String khoaHoc = (String) body.get("khoaHoc");
-        
+
+        if (hdId == null || khoaHoc == null || khoaHoc.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Thiếu thông tin hội đồng hoặc khóa học.");
+        }
+
         var user = nguoiDungService.getByUsername(principal.getName());
         String khoaUser = user.getKhoa();
 
-        // 1. Lấy danh sách sinh viên của khóa
+        if (khoaUser == null) {
+            return ResponseEntity.badRequest().body("Tài khoản chưa có thông tin khoa.");
+        }
+
         List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoaUser, khoaHoc);
+        if (sinhViens.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy sinh viên nào thuộc khóa này.");
+        }
+
         List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
-
-        // 2. Lấy detaikhoaluan_sinhvien_id tương ứng
         List<DeTaiKhoaLuan_SinhVien> dtsvs = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
-        List<Integer> dtsvIds = dtsvs.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList());
+        if (dtsvs.isEmpty()) {
+            return ResponseEntity.ok("Không có đề tài nào để khóa cho hội đồng.");
+        }
 
-        // 3. Update locked = 1 cho detaikhoaluan_hoidong có hoiDong_id = hdId và dtsvId thuộc dtsvIds
+        List<Integer> dtsvIds = dtsvs.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList());
         int count = deTaiHoiDongService.lockAllByHoiDongIdAndDtsvIds(hdId, dtsvIds);
 
         return ResponseEntity.ok("Đã khóa " + count + " đề tài của hội đồng " + hdId);
     }
+
 }
