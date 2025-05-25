@@ -5,13 +5,14 @@ import { MyUserContext } from "../config/Contexts";
 import MySpinner from "./layout/MySpinner";
 import { Image } from "react-bootstrap";
 import { authApis, endpoints } from "../config/Apis";
+import Chat from "./Chat";
 
 const Home = () => {
   const user = useContext(MyUserContext);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [deTaiList, setDeTaiList] = useState([]);
-  const [khoaLuan, setKhoaLuan] = useState({ id: null, title: "", khoa: ""});
+  const [khoaLuan, setKhoaLuan] = useState({ id: null, title: "", khoa: "" });
   const [msg, setMsg] = useState("");
   const nav = useNavigate();
 
@@ -102,7 +103,7 @@ const Home = () => {
       setDeTaiList(res.data);
       setMsg("Xóa đề tài thành công.");
     } catch (error) {
-      setMsg("Xóa đề tài thất bại."+ (error.response?.data?.message || error.message));
+      setMsg("Xóa đề tài thất bại." + (error.response?.data?.message || error.message));
       console.error("🔥 Lỗi khi gọi API DELETE:", error); // Rất quan trọng
     }
   };
@@ -158,7 +159,7 @@ const Home = () => {
         </Col>
       </Row>
 
-      {(user.role === "ROLE_GIAOVU" ) && (
+      {(user.role === "ROLE_GIAOVU") && (
         <div>
           <h3>Quản lý đề tài khóa luận</h3>
           <Form onSubmit={handleDeTaiSubmit} className="mb-3">
@@ -272,6 +273,10 @@ const Home = () => {
           </Table>
         </div>
       )}
+      {/* CHAT REACT-FIREBASE: Cho tất cả vai trò */}
+      <div className="mt-5">
+        <Chat room="all-users" user={user.username || user.lastName || "Ẩn danh"} />
+      </div>
     </>
   );
 };

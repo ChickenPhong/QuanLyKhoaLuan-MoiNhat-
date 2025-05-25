@@ -11,10 +11,16 @@ const XepDeTai = () => {
   const [msgType, setMsgType] = useState(""); // 'success' hoặc 'danger'
   const current_user = useContext(MyUserContext);
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let y = 2020; y <= currentYear; y++) years.push(y.toString());
-    setKhoaHocList(years);
+    const loadKhoaHoc = async () => {
+      try {
+        const res = await authApis().get("/giaovu/khoahoc");
+        setKhoaHocList(res.data || []);
+      } catch (error) {
+        setMsg("Lỗi tải danh sách khóa học: " + error.message);
+        setMsgType("danger");
+      }
+    };
+    loadKhoaHoc();
   }, []);
 
   const handleLocDanhSach = async (e) => {

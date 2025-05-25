@@ -14,11 +14,16 @@ const GiaoDeTai = () => {
   const [alertVariant, setAlertVariant] = useState("info");
 
   useEffect(() => {
-    // Tạo danh sách khóa học năm từ 2020 đến năm hiện tại
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let y = 2020; y <= currentYear; y++) years.push(y.toString());
-    setKhoaHocList(years);
+    const loadKhoaHoc = async () => {
+      try {
+        const res = await authApis().get("/giaovu/khoahoc");
+        setKhoaHocList(res.data || []);
+      } catch (error) {
+        setAlertMsg("Lỗi tải danh sách khóa học: " + error.message);
+        setAlertVariant("danger");
+      }
+    };
+    loadKhoaHoc();
   }, []);
 
   // Hàm gọi API lấy danh sách đề tài + sinh viên + hội đồng theo khóa học
