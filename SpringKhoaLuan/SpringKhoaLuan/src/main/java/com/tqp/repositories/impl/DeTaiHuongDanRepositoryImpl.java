@@ -53,19 +53,19 @@ public class DeTaiHuongDanRepositoryImpl implements DeTaiHuongDanRepository{
     }
     
     @Override
-    public DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiId(int deTaiId) {
+    public DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiKhoaLuanSinhVienId(int id) {
         Session s = factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM DeTaiKhoaLuan_GiangVienHuongDan WHERE deTaiKhoaLuanId = :id", DeTaiKhoaLuan_GiangVienHuongDan.class);
-        q.setParameter("id", deTaiId);
+        Query q = s.createQuery("FROM DeTaiKhoaLuan_GiangVienHuongDan WHERE deTaiKhoaLuanSinhVienId = :id", DeTaiKhoaLuan_GiangVienHuongDan.class);
+        q.setParameter("id", id);
         List<DeTaiKhoaLuan_GiangVienHuongDan> result = q.getResultList();
         return result.isEmpty() ? null : result.get(0);
     }
     
     @Override
-    public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiId(int deTaiId) {
+    public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id) {
         Session s = factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM DeTaiKhoaLuan_GiangVienHuongDan WHERE deTaiKhoaLuanId = :id", DeTaiKhoaLuan_GiangVienHuongDan.class);
-        q.setParameter("id", deTaiId);
+        Query q = s.createQuery("FROM DeTaiKhoaLuan_GiangVienHuongDan WHERE deTaiKhoaLuanSinhVienId = :id", DeTaiKhoaLuan_GiangVienHuongDan.class);
+        q.setParameter("id", id);
         return q.getResultList();
     }
 }

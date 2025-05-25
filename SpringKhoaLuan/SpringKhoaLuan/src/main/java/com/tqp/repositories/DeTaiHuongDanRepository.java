@@ -16,6 +16,6 @@ public  interface DeTaiHuongDanRepository {
     DeTaiKhoaLuan_GiangVienHuongDan getById(int id);
     DeTaiKhoaLuan_GiangVienHuongDan save(DeTaiKhoaLuan_GiangVienHuongDan d);
     void delete(int id);
-    DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiId(int deTaiId);
-    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiId(int deTaiId);
+    DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiKhoaLuanSinhVienId(int id);
+    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id);
 }

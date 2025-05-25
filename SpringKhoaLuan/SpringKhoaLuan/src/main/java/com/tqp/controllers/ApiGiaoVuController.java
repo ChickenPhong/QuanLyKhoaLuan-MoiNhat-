@@ -230,7 +230,7 @@ public class ApiGiaoVuController {
             var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
             item.put("deTai", dt != null ? dt.getTitle() : "Chưa có");
 
-            var gvs = deTaiGVHuongDanService.findAllByDeTaiId(dt.getId());
+            var gvs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
             String tenGVs = gvs.stream()
                     .map(gv -> nguoiDungService.getById(gv.getGiangVienHuongDanId()).getUsername())
                     .collect(Collectors.joining(", "));
@@ -258,7 +258,7 @@ public class ApiGiaoVuController {
         }
 
         var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
-        var currentGVs = deTaiGVHuongDanService.findAllByDeTaiId(dt.getId());
+        var currentGVs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
 
         if (currentGVs.size() >= 2) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Đề tài đã có đủ 2 giảng viên hướng dẫn");
@@ -271,7 +271,7 @@ public class ApiGiaoVuController {
             boolean isAlreadyAssigned = currentGVs.stream()
                     .anyMatch(item -> item.getGiangVienHuongDanId().equals(gv.getId()));
             if (!isAlreadyAssigned) {
-                deTaiGVHuongDanService.assign(dt.getId(), gv.getId());
+                deTaiGVHuongDanService.assign(dtsv.getId(), gv.getId());
                 return ResponseEntity.ok("Đã thêm giảng viên thứ 2 thành công");
             }
         }

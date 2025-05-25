@@ -24,15 +24,15 @@ DROP TABLE IF EXISTS `bangdiems`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bangdiems` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `deTaiKhoaLuan_id` int DEFAULT NULL,
+  `deTaiKhoaLuan_SinhVien_id` int DEFAULT NULL,
   `giangVienPhanBien_id` int DEFAULT NULL,
   `tieuChi` text,
   `diem` float DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `deTaiKhoaLuan_id` (`deTaiKhoaLuan_id`),
   KEY `giangVienPhanBien_id` (`giangVienPhanBien_id`),
-  CONSTRAINT `bangdiems_ibfk_1` FOREIGN KEY (`deTaiKhoaLuan_id`) REFERENCES `detaikhoaluans` (`id`),
-  CONSTRAINT `bangdiems_ibfk_2` FOREIGN KEY (`giangVienPhanBien_id`) REFERENCES `nguoidungs` (`id`)
+  KEY `fk_bangdiem_dtsv` (`deTaiKhoaLuan_SinhVien_id`),
+  CONSTRAINT `bangdiems_ibfk_2` FOREIGN KEY (`giangVienPhanBien_id`) REFERENCES `nguoidungs` (`id`),
+  CONSTRAINT `fk_bangdiem_dtsv` FOREIGN KEY (`deTaiKhoaLuan_SinhVien_id`) REFERENCES `detaikhoaluan_sinhvien` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -54,14 +54,14 @@ DROP TABLE IF EXISTS `detaikhoaluan_giangvienhuongdan`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `detaikhoaluan_giangvienhuongdan` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `deTaiKhoaLuan_id` int DEFAULT NULL,
+  `detaikhoaluan_sinhvien_id` int DEFAULT NULL,
   `giangVienHuongDan_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `deTaiKhoaLuan_id` (`deTaiKhoaLuan_id`),
   KEY `giangVienHuongDan_id` (`giangVienHuongDan_id`),
-  CONSTRAINT `detaikhoaluan_giangvienhuongdan_ibfk_1` FOREIGN KEY (`deTaiKhoaLuan_id`) REFERENCES `detaikhoaluans` (`id`),
-  CONSTRAINT `detaikhoaluan_giangvienhuongdan_ibfk_2` FOREIGN KEY (`giangVienHuongDan_id`) REFERENCES `nguoidungs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_gvhd_sinhvien` (`detaikhoaluan_sinhvien_id`),
+  CONSTRAINT `detaikhoaluan_giangvienhuongdan_ibfk_2` FOREIGN KEY (`giangVienHuongDan_id`) REFERENCES `nguoidungs` (`id`),
+  CONSTRAINT `fk_gvhd_sinhvien` FOREIGN KEY (`detaikhoaluan_sinhvien_id`) REFERENCES `detaikhoaluan_sinhvien` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,7 +70,7 @@ CREATE TABLE `detaikhoaluan_giangvienhuongdan` (
 
 LOCK TABLES `detaikhoaluan_giangvienhuongdan` WRITE;
 /*!40000 ALTER TABLE `detaikhoaluan_giangvienhuongdan` DISABLE KEYS */;
-INSERT INTO `detaikhoaluan_giangvienhuongdan` VALUES (8,1,7),(9,2,8),(10,1,7),(11,2,8),(12,1,7),(13,2,8),(14,1,7),(15,2,8),(16,1,7),(17,2,8),(18,1,7),(19,2,8);
+INSERT INTO `detaikhoaluan_giangvienhuongdan` VALUES (30,15,7),(31,15,8),(32,16,7),(33,16,8);
 /*!40000 ALTER TABLE `detaikhoaluan_giangvienhuongdan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -313,7 +313,7 @@ CREATE TABLE `tieuchis` (
   `status` enum('active','closed') DEFAULT 'active',
   `khoa` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,7 +322,7 @@ CREATE TABLE `tieuchis` (
 
 LOCK TABLES `tieuchis` WRITE;
 /*!40000 ALTER TABLE `tieuchis` DISABLE KEYS */;
-INSERT INTO `tieuchis` VALUES (1,'Độ chính xác của nghiên cứu','active','Công nghệ thông tin'),(2,'Tính khả dụng của nghiên cứu','active','Công nghệ thông tin'),(10,'sd','active','Công nghệ thông tin'),(11,'xc','active','Công nghệ thông tin'),(12,'rt','active','Quản trị kinh doanh'),(13,'sd','active','Công nghệ thông tin'),(14,'sd','active','Công nghệ thông tin');
+INSERT INTO `tieuchis` VALUES (1,'Độ chính xác của nghiên cứu','active','Công nghệ thông tin'),(2,'Tính khả dụng của nghiên cứu','active','Công nghệ thông tin'),(15,'Các chức năng cơ bản trong nghiên cứu','active','Công nghệ thông tin');
 /*!40000 ALTER TABLE `tieuchis` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -335,4 +335,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-24 17:14:05
+-- Dump completed on 2025-05-25  8:06:15

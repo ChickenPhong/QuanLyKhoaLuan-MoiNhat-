@@ -167,7 +167,7 @@ public class GiaoVuController {
                 var dtsv = deTaiSinhVienService.findBySinhVienId(sv.getId());
                 if (dtsv != null) {
                     var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
-                    var gvs = deTaiGVHuongDanService.findAllByDeTaiId(dt.getId());
+                    var gvs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
                     deTaiMap.put(sv.getId(), dt != null ? dt.getTitle() : "Chưa có");
                     String tenGVs = gvs.stream()
                         .map(gv -> nguoiDungService.getById(gv.getGiangVienHuongDanId()).getUsername())
@@ -191,7 +191,7 @@ public class GiaoVuController {
         
         
         // Kiểm tra nếu đã có đủ 2 giảng viên rồi thì không thêm nữa
-        var currentGVs = deTaiGVHuongDanService.findAllByDeTaiId(dt.getId());
+        var currentGVs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
         var sv = nguoiDungService.getById(sinhVienId);
         if (currentGVs.size() >= 2) {
             // Có thể hiển thị thông báo nếu muốn

@@ -18,8 +18,8 @@ public interface DeTaiHuongDanService {
     DeTaiKhoaLuan_GiangVienHuongDan add(DeTaiKhoaLuan_GiangVienHuongDan d);
     void delete(int id);
     
-    void assign(int deTaiId, int giangVienId);
+    void assign(int deTaiKhoaLuanSinhVienId, int giangVienId);
     
-    NguoiDung findByDeTaiId(int deTaiId);
-    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiId(int deTaiId);
+    NguoiDung findByDeTaiKhoaLuanSinhVienId(int id);
+    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id);
 }

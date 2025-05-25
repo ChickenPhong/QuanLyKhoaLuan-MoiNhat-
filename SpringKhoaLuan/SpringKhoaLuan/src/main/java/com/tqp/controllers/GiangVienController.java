@@ -89,7 +89,7 @@ public class GiangVienController {
                 var dtsv = deTaiSinhVienService.findBySinhVienId(sv.getId());
                 if (dtsv != null) {
                     var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
-                    var gvs = deTaiGVHuongDanService.findAllByDeTaiId(dt.getId());
+                    var gvs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
 
                     // Thêm vào map đề tài
                     deTaiMap.put(sv.getId(), dt != null ? dt.getTitle() : "Chưa có");

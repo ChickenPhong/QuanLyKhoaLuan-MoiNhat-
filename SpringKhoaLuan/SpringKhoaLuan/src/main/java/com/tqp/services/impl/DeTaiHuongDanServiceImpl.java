@@ -47,21 +47,21 @@ public class DeTaiHuongDanServiceImpl implements DeTaiHuongDanService{
     }
     
     @Override
-    public void assign(int deTaiId, int giangVienId) {
+    public void assign(int deTaiKhoaLuanSinhVienId, int giangVienId) {
         DeTaiKhoaLuan_GiangVienHuongDan dtgv = new DeTaiKhoaLuan_GiangVienHuongDan();
-        dtgv.setDeTaiKhoaLuanId(deTaiId); 
+        dtgv.setDeTaiKhoaLuanSinhVienId(deTaiKhoaLuanSinhVienId); 
         dtgv.setGiangVienHuongDanId(giangVienId); 
         repo.save(dtgv);
     }
     
     @Override
-    public NguoiDung findByDeTaiId(int deTaiId) {
-        var huongDan = repo.findByDeTaiId(deTaiId);
+    public NguoiDung findByDeTaiKhoaLuanSinhVienId(int id) {
+        var huongDan = repo.findByDeTaiKhoaLuanSinhVienId(id);
         return huongDan != null ? nguoiDungService.getById(huongDan.getGiangVienHuongDanId()) : null;
     }
     
     @Override
-    public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiId(int deTaiId) {
-        return repo.findAllByDeTaiId(deTaiId);
+    public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id) {
+        return repo.findAllByDeTaiKhoaLuanSinhVienId(id);
     }
 }
