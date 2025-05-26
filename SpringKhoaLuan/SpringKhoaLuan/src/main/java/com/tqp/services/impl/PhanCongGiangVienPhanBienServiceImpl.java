@@ -72,7 +72,7 @@ public class PhanCongGiangVienPhanBienServiceImpl implements PhanCongGiangVienPh
     @Override
     public List<PhanCongGiangVienPhanBien> findByHoiDongId(int hoiDongId) {
         Session s = factory.getObject().getCurrentSession();
-        String hql = "FROM PhanCongGiangVienPhanBien WHERE hoiDong_id = :hoiDongId";
+        String hql = "FROM PhanCongGiangVienPhanBien WHERE hoiDongId = :hoiDongId";
         Query q = s.createQuery(hql, PhanCongGiangVienPhanBien.class);
         q.setParameter("hoiDongId", hoiDongId);
         return q.getResultList();

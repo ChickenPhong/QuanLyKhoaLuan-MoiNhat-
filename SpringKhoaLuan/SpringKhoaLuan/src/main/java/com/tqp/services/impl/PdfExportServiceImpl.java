@@ -40,18 +40,20 @@ public class PdfExportServiceImpl implements PdfExportService{
         document.add(title);
         document.add(new Paragraph(" ")); // line break
 
-        PdfPTable table = new PdfPTable(4);
+        PdfPTable table = new PdfPTable(5); //5 cột
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{3, 5, 4, 2});
+        table.setWidths(new float[]{3, 5, 4, 4, 2});
 
         // Header
         table.addCell(new Phrase("Tên hội đồng", cellFont));
+        table.addCell(new Phrase("Giảng viên phản biện", cellFont));
         table.addCell(new Phrase("Tên đề tài", cellFont));
         table.addCell(new Phrase("Tên sinh viên", cellFont));
         table.addCell(new Phrase("Điểm trung bình", cellFont));
 
         for (BangDiemTongHopDTO b : bangDiemList) {
             table.addCell(new Phrase(b.getTenHoiDong(), cellFont));
+            table.addCell(new Phrase(b.getTenGiangVienPhanBien(), cellFont));
             table.addCell(new Phrase(b.getTenDeTai(), cellFont));
             table.addCell(new Phrase(b.getTenSinhVien(), cellFont));
             table.addCell(new Phrase(b.getDiemTrungBinh() == null ? "" : String.format("%.2f", b.getDiemTrungBinh()), cellFont));

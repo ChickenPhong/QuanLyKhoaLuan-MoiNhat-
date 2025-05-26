@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class BangDiemTongHopDTO {
     private String tenHoiDong;
+    private String tenGiangVienPhanBien;
     private String tenDeTai;
     private String tenSinhVien;
     private Double diemTrungBinh;
@@ -20,9 +21,10 @@ public class BangDiemTongHopDTO {
     public BangDiemTongHopDTO() {
     }
 
-    public BangDiemTongHopDTO(String tenHoiDong, String tenDeTai, String tenSinhVien,
-                              Double diemTrungBinh) {
+    public BangDiemTongHopDTO(String tenHoiDong,  String tenGiangVienPhanBien,String tenDeTai,
+                              String tenSinhVien, Double diemTrungBinh) {
         this.tenHoiDong = tenHoiDong;
+        this.tenGiangVienPhanBien = tenGiangVienPhanBien;
         this.tenDeTai = tenDeTai;
         this.tenSinhVien = tenSinhVien;
         this.diemTrungBinh = diemTrungBinh;
@@ -35,6 +37,14 @@ public class BangDiemTongHopDTO {
 
     public void setTenHoiDong(String tenHoiDong) {
         this.tenHoiDong = tenHoiDong;
+    }
+    
+    public String getTenGiangVienPhanBien() {
+        return tenGiangVienPhanBien;
+    }
+
+    public void setTenGiangVienPhanBien(String tenGiangVienPhanBien) {
+        this.tenGiangVienPhanBien = tenGiangVienPhanBien;
     }
 
     public String getTenDeTai() {

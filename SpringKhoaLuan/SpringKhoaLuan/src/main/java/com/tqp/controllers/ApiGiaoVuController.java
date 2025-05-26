@@ -25,6 +25,7 @@ import com.tqp.services.EmailService;
 import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
 import com.tqp.services.PdfExportService;
+import com.tqp.services.PhanCongGiangVienPhanBienService;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,9 @@ public class ApiGiaoVuController {
     
     @Autowired
     private PdfExportService pdfExportService;
+    
+    @Autowired
+    private PhanCongGiangVienPhanBienService phanCongGiangVienPhanBienService;
 
     @GetMapping("/khoahoc")
     public ResponseEntity<?> getKhoaHocList(Principal principal) {
@@ -499,12 +503,28 @@ public class ApiGiaoVuController {
             DeTaiKhoaLuan_HoiDong dthd = deTaiHoiDongService.findByDtsvId(dtsv.getId());
             HoiDong hd = dthd != null ? hoiDongService.getById(dthd.getHoiDongId()) : null;
 
+            String tenGVPhanBien = "";
+            if (hd != null) {
+                // Lấy danh sách giảng viên phản biện từ bảng phanconggiangvienphanbiens
+                var dsGVPhanBien = phanCongGiangVienPhanBienService.findByHoiDongId(hd.getId());
+                if (dsGVPhanBien != null && !dsGVPhanBien.isEmpty()) {
+                    List<String> tenGVs = new ArrayList<>();
+                    for (var p : dsGVPhanBien) {
+                        NguoiDung gv = nguoiDungService.getById(p.getGiangVienPhanBienId());
+                        if (gv != null) {
+                            tenGVs.add(gv.getFullname());
+                        }
+                    }
+                    tenGVPhanBien = String.join(", ", tenGVs);
+                }
+            }
             List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsv.getId());
             Double diemTB = (diemList != null && !diemList.isEmpty()) ?
                 diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
 
             bangDiemTongHopList.add(new BangDiemTongHopDTO(
                 hd != null ? hd.getName() : "",
+                tenGVPhanBien,
                 dt != null ? dt.getTitle() : "",
                 sv != null ? sv.getFullname() : "",
                 diemTB
