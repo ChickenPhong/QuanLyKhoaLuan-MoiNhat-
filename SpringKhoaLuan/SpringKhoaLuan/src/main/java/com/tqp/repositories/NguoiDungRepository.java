@@ -27,4 +27,7 @@ public interface NguoiDungRepository {
     List<String> getAllKhoaHocByKhoa(String khoa);
     List<String> findDistinctKhoaHocByKhoa(String khoa);
     List<NguoiDung> getSinhVienByKhoaHoc(String khoaHoc);
+    
+    //api
+    List<String> getAllKhoa();
 }

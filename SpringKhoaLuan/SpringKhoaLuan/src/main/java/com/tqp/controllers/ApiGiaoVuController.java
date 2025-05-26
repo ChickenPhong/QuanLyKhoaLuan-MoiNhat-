@@ -8,17 +8,25 @@ package com.tqp.controllers;
  *
  * @author Tran Quoc Phong
  */
+import com.itextpdf.text.pdf.PdfWriter;
+import com.tqp.dto.BangDiemTongHopDTO;
+import com.tqp.pojo.BangDiem;
 import com.tqp.pojo.DeTaiKhoaLuan;
 import com.tqp.pojo.DeTaiKhoaLuan_HoiDong;
 import com.tqp.pojo.DeTaiKhoaLuan_SinhVien;
 import com.tqp.pojo.HoiDong;
 import com.tqp.pojo.NguoiDung;
+import com.tqp.services.BangDiemService;
 import com.tqp.services.DeTaiHoiDongService;
 import com.tqp.services.DeTaiService;
 import com.tqp.services.DeTaiSinhVienService;
 import com.tqp.services.DeTaiHuongDanService;
+import com.tqp.services.EmailService;
 import com.tqp.services.HoiDongService;
 import com.tqp.services.NguoiDungService;
+import com.tqp.services.PdfExportService;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +60,15 @@ public class ApiGiaoVuController {
 
     @Autowired
     private HoiDongService hoiDongService;
+    
+    @Autowired
+    private BangDiemService bangDiemService;
+    
+    @Autowired
+    private EmailService emailService;
+    
+    @Autowired
+    private PdfExportService pdfExportService;
 
     @GetMapping("/khoahoc")
     public ResponseEntity<?> getKhoaHocList(Principal principal) {
@@ -369,8 +386,134 @@ public class ApiGiaoVuController {
 
         List<Integer> dtsvIds = dtsvs.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList());
         int count = deTaiHoiDongService.lockAllByHoiDongIdAndDtsvIds(hdId, dtsvIds);
+        
+        // Sau khi khóa, gửi email thông báo điểm cho từng sinh viên
+        for (Integer dtsvId : dtsvIds) {
+            DeTaiKhoaLuan_SinhVien dtsv = deTaiSinhVienService.getById(dtsvId);
+            NguoiDung sv = nguoiDungService.getById(dtsv.getSinhVienId());
+            if (sv == null || sv.getEmail() == null || sv.getEmail().isEmpty())
+                continue;
+
+            // Lấy danh sách bảng điểm của sinh viên này
+            List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsvId);
+            if (diemList == null || diemList.isEmpty())
+                continue;
+
+            // Tính điểm trung bình
+            double avg = diemList.stream()
+                .mapToDouble(BangDiem::getDiem)
+                .average()
+                .orElse(0);
+
+            String content = String.format(
+                "Chào bạn %s,\n\nHội đồng đã khóa điểm. Điểm trung bình cuối cùng của bạn là: %.2f.\n\nTrân trọng.",
+                sv.getFullname(), avg
+            );
+            emailService.sendEmail(sv.getEmail(), "Thông báo điểm trung bình hội đồng", content);
+        }
 
         return ResponseEntity.ok("Đã khóa " + count + " đề tài của hội đồng " + hdId);
+    }
+    
+    @GetMapping("/thongke_khoahoc")
+    public ResponseEntity<?> thongKeKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+
+        // Lấy danh sách sinh viên và đề tài-sinh viên theo khoa + khóa học
+        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        int soSinhVien = sinhViens.size();
+
+        List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
+        List<DeTaiKhoaLuan_SinhVien> dtsvList = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+        int soDeTai = dtsvList.size();
+
+        // Tính điểm trung bình cho từng sinh viên
+        double diemTrungBinh = 0;
+        int countSvCoDiem = 0;
+        for (DeTaiKhoaLuan_SinhVien dtsv : dtsvList) {
+            List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsv.getId());
+            if (diemList != null && !diemList.isEmpty()) {
+                double diemTB = diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0);
+                diemTrungBinh += diemTB;
+                countSvCoDiem++;
+            }
+        }
+        diemTrungBinh = countSvCoDiem > 0 ? diemTrungBinh / countSvCoDiem : 0;
+        Map<String, Object> result = new HashMap<>();
+        result.put("khoaHoc", khoaHoc);
+        result.put("soSinhVien", soSinhVien);
+        result.put("soDeTai", soDeTai);
+        result.put("diemTrungBinh", Math.round(diemTrungBinh * 100.0) / 100.0);
+
+        return ResponseEntity.ok(result);
+    }
+    
+    @GetMapping("/thongke_sinhvien")
+    public ResponseEntity<?> thongKeSinhVienTheoKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+
+        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
+        List<DeTaiKhoaLuan_SinhVien> dtsvList = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (DeTaiKhoaLuan_SinhVien dtsv : dtsvList) {
+            NguoiDung sv = nguoiDungService.getById(dtsv.getSinhVienId());
+            DeTaiKhoaLuan dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
+            DeTaiKhoaLuan_HoiDong dthd = deTaiHoiDongService.findByDtsvId(dtsv.getId());
+            HoiDong hd = dthd != null ? hoiDongService.getById(dthd.getHoiDongId()) : null;
+
+            List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsv.getId());
+            Double diemTB = (diemList != null && !diemList.isEmpty()) ?
+                diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("tenSinhVien", sv != null ? sv.getFullname() : "");
+            map.put("tenDeTai", dt != null ? dt.getTitle() : "");
+            map.put("tenHoiDong", hd != null ? hd.getName() : "");
+            map.put("diemTrungBinh", diemTB);
+
+            result.add(map);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    
+    @PostMapping("/xuat_pdf_diem")
+    public void xuatPdfDiem(@RequestBody Map<String, String> body, HttpServletResponse response, Principal principal) throws Exception {
+        String khoaHoc = body.get("khoaHoc");
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+
+        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
+        List<DeTaiKhoaLuan_SinhVien> dtsvList = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+
+        List<BangDiemTongHopDTO> bangDiemTongHopList = new ArrayList<>();
+        for (DeTaiKhoaLuan_SinhVien dtsv : dtsvList) {
+            NguoiDung sv = nguoiDungService.getById(dtsv.getSinhVienId());
+            DeTaiKhoaLuan dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
+            DeTaiKhoaLuan_HoiDong dthd = deTaiHoiDongService.findByDtsvId(dtsv.getId());
+            HoiDong hd = dthd != null ? hoiDongService.getById(dthd.getHoiDongId()) : null;
+
+            List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsv.getId());
+            Double diemTB = (diemList != null && !diemList.isEmpty()) ?
+                diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
+
+            bangDiemTongHopList.add(new BangDiemTongHopDTO(
+                hd != null ? hd.getName() : "",
+                dt != null ? dt.getTitle() : "",
+                sv != null ? sv.getFullname() : "",
+                diemTB
+            ));
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=bang_diem_khoahoc.pdf");
+        pdfExportService.exportBangDiemTongHop(bangDiemTongHopList, response.getOutputStream());
     }
 
 }

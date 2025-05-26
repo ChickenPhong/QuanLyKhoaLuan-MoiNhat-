@@ -46,11 +46,8 @@ const Header = () => {
                                 {user?.role === "ROLE_ADMIN" && (
                                     <>
                                         <Nav.Link as={Link} to="/admin/add-user">Thêm người dùng</Nav.Link>
+                                        <Nav.Link as={Link} to="/admin/thongke">Thống kê</Nav.Link>
                                     </>
-                                )}
-
-                                {(user?.role === "ROLE_ADMIN") && (
-                                    <Nav.Link as={Link} to="/thongke">Thống kê</Nav.Link>
                                 )}
 
                                 {user?.role === "ROLE_GIANGVIEN" && (

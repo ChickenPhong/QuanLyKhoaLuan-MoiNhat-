@@ -8,6 +8,7 @@ import Login from "./components/Login";
 import Profile from "./components/Profile";
 
 import AddUser from "./components/Admin/AddUser";
+import AdminThongKe from "./components/Admin/AdminThongKe";
 
 import AddTieuChi from "./components/GiaoVu/AddTieuChi";
 import XepDeTai from "./components/GiaoVu/XepDeTai";
@@ -40,6 +41,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin/add-user" element={<AddUser />} />
+              <Route path="/admin/thongke" element={<AdminThongKe />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/giaovu/tieuchi" element={<AddTieuChi />} />
               <Route path="/giaovu/xepdetai" element={<XepDeTai />} />

@@ -135,4 +135,12 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
         query.setParameter("khoaHoc", khoaHoc);
         return query.getResultList();
     }
+    
+    @Override
+    public List<String> getAllKhoa() {
+        Session session = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT DISTINCT n.khoa FROM NguoiDung n WHERE n.khoa IS NOT NULL AND n.khoa <> '' ORDER BY n.khoa ASC";
+        Query query = session.createQuery(hql);
+        return query.getResultList();
+    }
 }
