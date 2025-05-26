@@ -37,50 +37,34 @@ public class ApiGiangVienController {
 
     @Autowired
     private PhanCongGiangVienPhanBienService phanCongService;
-
     @Autowired
     private DeTaiHoiDongService deTaiHoiDongService;
-
     @Autowired
     private DeTaiSinhVienService deTaiSinhVienService;
-
     @Autowired
     private DeTaiService deTaiService;
-
     @Autowired
     private NguoiDungService nguoiDungService;
-
     @Autowired
     private TieuChiService tieuChiService;
-
     @Autowired
     private BangDiemService bangDiemService;
-
     @Autowired
     private HoiDongService hoiDongService;
 
     // Lấy danh sách đề tài và sinh viên được chấm điểm bởi giảng viên phản biện
     @GetMapping("/phanbien/danhsach")
     public ResponseEntity<?> getDanhSachChamDiem(Principal principal) {
-        // ✅ 1. Kiểm tra Principal có null không
         if (principal == null) {
-            System.out.println("❌ Principal null – không có token hoặc filter không inject");
             return ResponseEntity.status(401).body("Không có principal – token không được chấp nhận");
         }
-
-        // ✅ 2. In ra username từ token
         String username = principal.getName();
-        System.out.println("✅ Username từ token: " + username);
-
-        // ✅ 3. Tìm giảng viên trong DB
         var gv = nguoiDungService.getByUsername(username);
         if (gv == null) {
-            System.out.println("❌ Không tìm thấy giảng viên với username: " + username);
             return ResponseEntity.status(401).body("Không tìm thấy giảng viên: " + username);
         }
 
         int giangVienPhanBienId = gv.getId();
-        System.out.println("✅ ID giảng viên: " + giangVienPhanBienId);
 
         var phanCongs = phanCongService.findByGiangVienPhanBienId(giangVienPhanBienId);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -89,11 +73,6 @@ public class ApiGiangVienController {
             var deTaiHoiDongs = deTaiHoiDongService.findByHoiDongId(hoiDongId);
 
             for (var dthd : deTaiHoiDongs) {
-                if (Boolean.TRUE.equals(dthd.getLocked())) {
-                    System.out.println("⛔ Bỏ qua đề tài trong hội đồng đã khóa, ID hội đồng: " + dthd.getHoiDongId());
-                    continue;
-                }
-                
                 var dtsv = deTaiSinhVienService.getById(dthd.getDeTaiKhoaLuanSinhVienId());
                 var deTai = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
                 var sinhVien = nguoiDungService.getById(dtsv.getSinhVienId());
@@ -106,15 +85,14 @@ public class ApiGiangVienController {
                 item.put("sinhVienTen", sinhVien.getFullname());
                 item.put("hoiDongId", hoiDongId);
                 item.put("hoiDongName", hoiDongService.getById(hoiDongId).getName());
+                item.put("isLocked", Boolean.TRUE.equals(dthd.getLocked())); // Thêm trạng thái locked để FE nhận biết
                 result.add(item);
             }
         }
-
-        System.out.println("✅ Số lượng đề tài được trả về: " + result.size());
         return ResponseEntity.ok(result);
     }
 
-    // Lấy tiêu chí chấm điểm (giữ nguyên, ai cũng lấy được tiêu chí)
+    // Lấy tiêu chí chấm điểm (giữ nguyên)
     @GetMapping("/tieuchi")
     public ResponseEntity<?> getTieuChi() {
         return ResponseEntity.ok(tieuChiService.getAll());
@@ -123,40 +101,34 @@ public class ApiGiangVienController {
     // Lấy điểm đã chấm cho đề tài của giảng viên này
     @GetMapping("/phanbien/diem")
     public ResponseEntity<?> getDiem(@RequestParam(name = "dtsvId") int dtsvId, Principal principal) {
-        // ✅ Kiểm tra principal
         if (principal == null) {
-            System.out.println("❌ Không có principal – token chưa gửi hoặc không hợp lệ");
             return ResponseEntity.status(401).body("Không có thông tin người dùng");
         }
-
         String username = principal.getName();
-        System.out.println("✅ Username từ token: " + username);
-
         var gv = nguoiDungService.getByUsername(username);
         if (gv == null) {
-            System.out.println("❌ Không tìm thấy giảng viên trong DB với username: " + username);
             return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
         }
-
         int giangVienPhanBienId = gv.getId();
-        System.out.println("✅ ID giảng viên: " + giangVienPhanBienId + ", dtsvId: " + dtsvId);
+
+        // Lấy trạng thái locked của đề tài
+        var dthd = deTaiHoiDongService.findByDtsvId(dtsvId); // SỬA CHỖ NÀY cho đúng hàm
+        boolean isLocked = dthd != null && Boolean.TRUE.equals(dthd.getLocked());
 
         var tieuChis = tieuChiService.getAll();
         List<Map<String, Object>> result = new ArrayList<>();
-
         for (var tc : tieuChis) {
             var diem = bangDiemService.findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(dtsvId, giangVienPhanBienId, tc.getTenTieuChi());
-
             Map<String, Object> item = new HashMap<>();
             item.put("tieuChi", tc.getTenTieuChi());
             item.put("diem", diem != null ? diem.getDiem() : null);
             result.add(item);
-
-            System.out.printf("   - Tiêu chí: %s | Điểm: %s%n", tc.getTenTieuChi(), diem != null ? diem.getDiem() : "null");
         }
 
-        System.out.println("✅ Tổng số tiêu chí: " + result.size());
-        return ResponseEntity.ok(result);
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("list", result);
+        resp.put("isLocked", isLocked);
+        return ResponseEntity.ok(resp);
     }
 
     // Lưu điểm cho từng tiêu chí
@@ -167,10 +139,17 @@ public class ApiGiangVienController {
         if (gv == null) {
             return ResponseEntity.status(401).body("Không tìm thấy giảng viên");
         }
-
         int giangVienPhanBienId = gv.getId();
 
         int dtsvId = (int) payload.get("dtsvId");
+
+        // Lấy trạng thái locked của đề tài
+        var dthd = deTaiHoiDongService.findByDtsvId(dtsvId); // SỬA CHỖ NÀY
+        boolean isLocked = dthd != null && Boolean.TRUE.equals(dthd.getLocked());
+        if (isLocked) {
+            return ResponseEntity.status(403).body("Đề tài đã bị khóa, không thể lưu điểm!");
+        }
+
         Map<String, Object> diemMapRaw = (Map<String, Object>) payload.get("diemMap");
         Map<String, Float> diemMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : diemMapRaw.entrySet()) {

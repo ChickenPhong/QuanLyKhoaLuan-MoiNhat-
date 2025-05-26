@@ -16,4 +16,6 @@ public interface TieuChiService {
     TieuChi addTieuChi(TieuChi tieuChi);
     
     List<TieuChi> findByKhoa(String khoa); 
+    TieuChi getById(int id);                 
+    TieuChi updateTieuChi(TieuChi tieuChi);  
 }

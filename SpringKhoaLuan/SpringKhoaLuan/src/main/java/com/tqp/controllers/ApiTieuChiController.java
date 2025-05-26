@@ -63,4 +63,32 @@ public class ApiTieuChiController {
     TieuChi saved = tieuChiService.addTieuChi(tieuChi);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+    // Sửa tiêu chí (PUT /api/tieuchi/{id})
+    @PutMapping(value="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TieuChi> updateTieuChi(@PathVariable("id") int id,
+                                                 @RequestBody TieuChi updateData,
+                                                 Principal principal) {
+        // Kiểm tra người dùng
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        NguoiDung user = nguoiDungService.getByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // Lấy tiêu chí cũ
+        TieuChi old = tieuChiService.getById(id);
+        if (old == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        // Chỉ cho phép sửa tiêu chí cùng khoa
+        if (!old.getKhoa().equals(user.getKhoa())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        // Cập nhật thông tin
+        old.setTenTieuChi(updateData.getTenTieuChi());
+        old.setStatus(updateData.getStatus());
+        TieuChi updated = tieuChiService.updateTieuChi(old);
+        return ResponseEntity.ok(updated);
+    }
 }

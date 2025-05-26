@@ -21,7 +21,8 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class TieuChiRepositoryImpl implements TieuChiRepository{
+public class TieuChiRepositoryImpl implements TieuChiRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
 
@@ -38,7 +39,7 @@ public class TieuChiRepositoryImpl implements TieuChiRepository{
         session.persist(tieuChi);
         return tieuChi; // trả về entity vừa lưu
     }
-    
+
     @Override
     public List<TieuChi> findByKhoa(String khoa) {
         Session session = this.factory.getObject().getCurrentSession();
@@ -46,5 +47,17 @@ public class TieuChiRepositoryImpl implements TieuChiRepository{
         query.setParameter("khoa", khoa);
         return query.getResultList();
     }
-}
 
+    @Override
+    public TieuChi getById(int id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        return session.get(TieuChi.class, id);
+    }
+
+    @Override
+    public TieuChi updateTieuChi(TieuChi tieuChi) {
+        Session session = this.factory.getObject().getCurrentSession();
+        session.update(tieuChi);
+        return tieuChi;
+    }
+}

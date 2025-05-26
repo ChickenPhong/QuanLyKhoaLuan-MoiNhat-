@@ -18,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class TieuChiServiceImpl implements TieuChiService{
+public class TieuChiServiceImpl implements TieuChiService {
+
     @Autowired
     private TieuChiRepository tieuChiRepository;
 
@@ -31,9 +32,20 @@ public class TieuChiServiceImpl implements TieuChiService{
     public TieuChi addTieuChi(TieuChi tieuChi) {
         return tieuChiRepository.addTieuChi(tieuChi);
     }
-    
+
     @Override
     public List<TieuChi> findByKhoa(String khoa) {
         return tieuChiRepository.findByKhoa(khoa);
     }
+
+    @Override
+    public TieuChi getById(int id) {
+        return tieuChiRepository.getById(id);
+    }
+
+    @Override
+    public TieuChi updateTieuChi(TieuChi tieuChi) {
+        return tieuChiRepository.updateTieuChi(tieuChi);
+    }
+
 }
