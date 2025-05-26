@@ -36,8 +36,8 @@ const XepDeTai = () => {
       let form = new FormData();
       form.append('username', current_user.username);
       form.append('khoaHoc', selectedKhoaHoc);
-      const res = await authApis().get(`giaovu/sinhviens?khoaHoc=${selectedKhoaHoc}`);
-      setSinhVienList(res.data || []);
+      const res = await authApis().get(`/giaovu/danhsach_thuchien?khoaHoc=${selectedKhoaHoc}`);
+      setSinhVienList(res.data.sinhViens || []);
     } catch (error) {
       setMsg("Lỗi tải danh sách sinh viên: " + error.message);
       setMsgType("danger");
@@ -114,16 +114,18 @@ const XepDeTai = () => {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Tên đăng nhập</th>
+                <th>Họ và tên sinh viên</th>
                 <th>Email</th>
+                <th>Đề tài</th>
               </tr>
             </thead>
             <tbody>
               {sinhVienList.map((sv, idx) => (
                 <tr key={sv.id || idx}>
                   <td>{idx + 1}</td>
-                  <td>{sv.username}</td>
+                  <td>{sv.fullname}</td>
                   <td>{sv.email}</td>
+                  <td>{sv.deTai || "Chưa có"}</td>
                 </tr>
               ))}
             </tbody>

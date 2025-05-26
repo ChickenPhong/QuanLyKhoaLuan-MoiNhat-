@@ -85,6 +85,25 @@ const DanhSachThucHien = () => {
       {sinhVienList.length > 0 && (
         <>
           <h5>Khóa {selectedKhoaHoc} - Khoa {khoa}</h5>
+          <Button
+            className="mb-3"
+            variant="success"
+            onClick={async () => {
+              if (!selectedKhoaHoc) {
+                setMsg("Vui lòng chọn khóa học!");
+                return;
+              }
+              try {
+                await authApis().post("/giaovu/them_gv_1toanbo", { khoaHoc: selectedKhoaHoc });
+                setMsg("Đã thêm GV hướng dẫn cho toàn bộ sinh viên.");
+                handleXemDanhSach(new Event("submit"));
+              } catch (error) {
+                setMsg("Lỗi khi thêm GV hướng dẫn toàn bộ: " + error.message);
+              }
+            }}
+          >
+            Thêm toàn bộ GV hướng dẫn cho sinh viên
+          </Button>
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -100,18 +119,21 @@ const DanhSachThucHien = () => {
               {sinhVienList.map((sv, idx) => (
                 <tr key={sv.id || idx}>
                   <td>{idx + 1}</td>
-                  <td>{sv.username}</td>
+                  <td>{sv.fullname}</td>
                   <td>{sv.email}</td>
                   <td>{sv.deTai || "Chưa có"}</td>
                   <td>{sv.giangVienHuongDan || "Chưa có"}</td>
                   <td>
-                    <Button
-                      size="sm"
-                      variant="outline-primary"
-                      onClick={() => handleThemGV2(sv.id)}
-                    >
-                      Thêm GV thứ 2
-                    </Button>
+                    {sv.giangVienHuongDan && sv.giangVienHuongDan !== "Chưa có" && sv.giangVienHuongDan.split(",").length === 1 ? (
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        onClick={() => handleThemGV2(sv.id)}
+                      >
+                        Thêm GV thứ 2
+                      </Button>
+                    ) : null}
+
                   </td>
                 </tr>
               ))}

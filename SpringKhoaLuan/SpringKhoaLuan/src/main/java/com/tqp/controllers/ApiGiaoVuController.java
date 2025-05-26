@@ -75,22 +75,6 @@ public class ApiGiaoVuController {
         return ResponseEntity.ok(khoaHocList);
     }
 
-    // 1. Lấy danh sách sinh viên theo khoa và khóa học
-    @GetMapping("/sinhviens")
-    public ResponseEntity<?> getSinhVienByKhoaVaKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
-
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
-        }
-        NguoiDung user = this.nguoiDungService.getByUsername(principal.getName());
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy người dùng");
-        }
-        String khoa = user.getKhoa();
-        List<NguoiDung> svList = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
-        return ResponseEntity.ok(svList);
-    }
-
     // 2. Xếp đề tài cho sinh viên khóa học (theo khoa của người dùng đăng nhập)
     @PostMapping("/xepdetai")
     public ResponseEntity<?> xepDeTaiChoSinhVien(
@@ -146,7 +130,7 @@ public class ApiGiaoVuController {
         Map<Integer, String> svMap = new HashMap<>();
         for (var dtsv : dtsvList) {
             var sv = nguoiDungService.getById(dtsv.getSinhVienId());
-            svMap.put(dtsv.getDeTaiKhoaLuanId(), sv.getUsername());
+            svMap.put(dtsv.getDeTaiKhoaLuanId(), sv.getFullname());
         }
 
         // Map đề tài id -> tên hội đồng (nếu đã giao)
@@ -227,6 +211,7 @@ public class ApiGiaoVuController {
 
             var sv = nguoiDungService.getById(dtsv.getSinhVienId());
             item.put("id", sv.getId());
+            item.put("fullname", sv.getFullname());
             item.put("username", sv.getUsername());
             item.put("email", sv.getEmail());
 
@@ -247,6 +232,37 @@ public class ApiGiaoVuController {
         res.put("khoa", khoa);
         return ResponseEntity.ok(res);
     }
+    
+    @PostMapping("/them_gv_1toanbo")
+    public ResponseEntity<?> themGiangVien1ToanBo(@RequestBody Map<String, String> body, Principal principal) {
+        String khoaHoc = body.get("khoaHoc");
+        if (khoaHoc == null) {
+            return ResponseEntity.badRequest().body("Thiếu khóa học");
+        }
+
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+        var sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        var giangViens = nguoiDungService.getGiangVienByKhoa(khoa);
+
+        java.util.Random rand = new java.util.Random();
+        int count = 0;
+
+        for (var sv : sinhViens) {
+            var dtsv = deTaiSinhVienService.findBySinhVienId(sv.getId());
+            if (dtsv == null)
+                continue;
+            var currentGVs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
+            if (currentGVs.size() == 0 && !giangViens.isEmpty()) {
+                // Random GV
+                var gv = giangViens.get(rand.nextInt(giangViens.size()));
+                deTaiGVHuongDanService.assign(dtsv.getId(), gv.getId());
+                count++;
+            }
+        }
+        return ResponseEntity.ok("Đã thêm giảng viên hướng dẫn cho " + count + " sinh viên.");
+    }
+
 
     @PostMapping("/them_gv2")
     public ResponseEntity<?> themGiangVienThuHai(@RequestBody Map<String, Integer> body) {
@@ -270,13 +286,18 @@ public class ApiGiaoVuController {
         var sv = nguoiDungService.getById(sinhVienId);
         var giangViens = nguoiDungService.getGiangVienByKhoa(sv.getKhoa());
 
-        for (NguoiDung gv : giangViens) {
-            boolean isAlreadyAssigned = currentGVs.stream()
-                    .anyMatch(item -> item.getGiangVienHuongDanId().equals(gv.getId()));
-            if (!isAlreadyAssigned) {
-                deTaiGVHuongDanService.assign(dtsv.getId(), gv.getId());
-                return ResponseEntity.ok("Đã thêm giảng viên thứ 2 thành công");
-            }
+        // Chọn random GV chưa gán
+        var availableGvs = giangViens.stream()
+            .filter(gv -> currentGVs.stream()
+                .noneMatch(item -> item.getGiangVienHuongDanId().equals(gv.getId()))
+            )
+            .collect(Collectors.toList());
+
+        if (!availableGvs.isEmpty()) {
+            java.util.Random rand = new java.util.Random();
+            var gv = availableGvs.get(rand.nextInt(availableGvs.size()));
+            deTaiGVHuongDanService.assign(dtsv.getId(), gv.getId());
+            return ResponseEntity.ok("Đã thêm giảng viên thứ 2 thành công");
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm được giảng viên khác để gán");
