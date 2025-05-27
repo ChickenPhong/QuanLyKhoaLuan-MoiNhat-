@@ -61,16 +61,16 @@ public class ApiGiaoVuController {
 
     @Autowired
     private HoiDongService hoiDongService;
-    
+
     @Autowired
     private BangDiemService bangDiemService;
-    
+
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private PdfExportService pdfExportService;
-    
+
     @Autowired
     private PhanCongGiangVienPhanBienService phanCongGiangVienPhanBienService;
 
@@ -253,7 +253,7 @@ public class ApiGiaoVuController {
         res.put("khoa", khoa);
         return ResponseEntity.ok(res);
     }
-    
+
     @PostMapping("/them_gv_1toanbo")
     public ResponseEntity<?> themGiangVien1ToanBo(@RequestBody Map<String, String> body, Principal principal) {
         String khoaHoc = body.get("khoaHoc");
@@ -271,8 +271,9 @@ public class ApiGiaoVuController {
 
         for (var sv : sinhViens) {
             var dtsv = deTaiSinhVienService.findBySinhVienId(sv.getId());
-            if (dtsv == null)
+            if (dtsv == null) {
                 continue;
+            }
             var currentGVs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
             if (currentGVs.size() == 0 && !giangViens.isEmpty()) {
                 // Random GV
@@ -284,12 +285,36 @@ public class ApiGiaoVuController {
         return ResponseEntity.ok("Đã thêm giảng viên hướng dẫn cho " + count + " sinh viên.");
     }
 
+    @GetMapping("/danhsach_giangvien")
+    public ResponseEntity<?> getDanhSachGiangVien(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
+        }
+
+        var user = nguoiDungService.getByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy người dùng");
+        }
+
+        String khoa = user.getKhoa();
+        if (khoa == null) {
+            return ResponseEntity.badRequest().body("Người dùng chưa khai báo khoa");
+        }
+
+        var giangVienList = nguoiDungService.getGiangVienByKhoa(khoa);
+        return ResponseEntity.ok(giangVienList);
+    }
 
     @PostMapping("/them_gv2")
     public ResponseEntity<?> themGiangVienThuHai(@RequestBody Map<String, Integer> body) {
         Integer sinhVienId = body.get("sinhVienId");
+        Integer giaoVienId = body.get("giaoVienId");
+
         if (sinhVienId == null) {
             return ResponseEntity.badRequest().body("Thiếu sinhVienId");
+        }
+        if (giaoVienId == null) {
+            return ResponseEntity.badRequest().body("Thiếu giaoVienId");
         }
 
         var dtsv = deTaiSinhVienService.findBySinhVienId(sinhVienId);
@@ -297,31 +322,22 @@ public class ApiGiaoVuController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sinh viên chưa được xếp đề tài");
         }
 
-        var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
         var currentGVs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
-
         if (currentGVs.size() >= 2) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Đề tài đã có đủ 2 giảng viên hướng dẫn");
         }
 
-        var sv = nguoiDungService.getById(sinhVienId);
-        var giangViens = nguoiDungService.getGiangVienByKhoa(sv.getKhoa());
-
-        // Chọn random GV chưa gán
-        var availableGvs = giangViens.stream()
-            .filter(gv -> currentGVs.stream()
-                .noneMatch(item -> item.getGiangVienHuongDanId().equals(gv.getId()))
-            )
-            .collect(Collectors.toList());
-
-        if (!availableGvs.isEmpty()) {
-            java.util.Random rand = new java.util.Random();
-            var gv = availableGvs.get(rand.nextInt(availableGvs.size()));
-            deTaiGVHuongDanService.assign(dtsv.getId(), gv.getId());
-            return ResponseEntity.ok("Đã thêm giảng viên thứ 2 thành công");
+        // Kiểm tra GV đã được gán chưa
+        boolean daGiao = currentGVs.stream()
+                .anyMatch(gv -> gv.getGiangVienHuongDanId().equals(giaoVienId));
+        if (daGiao) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Giảng viên này đã được gán cho đề tài");
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm được giảng viên khác để gán");
+        // Gán giảng viên thứ 2 theo giaoVienId do frontend gửi
+        deTaiGVHuongDanService.assign(dtsv.getId(), giaoVienId);
+
+        return ResponseEntity.ok("Đã thêm giảng viên thứ 2 thành công");
     }
 
     @GetMapping("/hoidong_by_khoahoc")
@@ -390,35 +406,37 @@ public class ApiGiaoVuController {
 
         List<Integer> dtsvIds = dtsvs.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList());
         int count = deTaiHoiDongService.lockAllByHoiDongIdAndDtsvIds(hdId, dtsvIds);
-        
+
         // Sau khi khóa, gửi email thông báo điểm cho từng sinh viên
         for (Integer dtsvId : dtsvIds) {
             DeTaiKhoaLuan_SinhVien dtsv = deTaiSinhVienService.getById(dtsvId);
             NguoiDung sv = nguoiDungService.getById(dtsv.getSinhVienId());
-            if (sv == null || sv.getEmail() == null || sv.getEmail().isEmpty())
+            if (sv == null || sv.getEmail() == null || sv.getEmail().isEmpty()) {
                 continue;
+            }
 
             // Lấy danh sách bảng điểm của sinh viên này
             List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsvId);
-            if (diemList == null || diemList.isEmpty())
+            if (diemList == null || diemList.isEmpty()) {
                 continue;
+            }
 
             // Tính điểm trung bình
             double avg = diemList.stream()
-                .mapToDouble(BangDiem::getDiem)
-                .average()
-                .orElse(0);
+                    .mapToDouble(BangDiem::getDiem)
+                    .average()
+                    .orElse(0);
 
             String content = String.format(
-                "Chào bạn %s,\n\nHội đồng đã khóa điểm. Điểm trung bình cuối cùng của bạn là: %.2f.\n\nTrân trọng.",
-                sv.getFullname(), avg
+                    "Chào bạn %s,\n\nHội đồng đã khóa điểm. Điểm trung bình cuối cùng của bạn là: %.2f.\n\nTrân trọng.",
+                    sv.getFullname(), avg
             );
             emailService.sendEmail(sv.getEmail(), "Thông báo điểm trung bình hội đồng", content);
         }
 
         return ResponseEntity.ok("Đã khóa " + count + " đề tài của hội đồng " + hdId);
     }
-    
+
     @GetMapping("/thongke_khoahoc")
     public ResponseEntity<?> thongKeKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
         var user = nguoiDungService.getByUsername(principal.getName());
@@ -452,7 +470,7 @@ public class ApiGiaoVuController {
 
         return ResponseEntity.ok(result);
     }
-    
+
     @GetMapping("/thongke_sinhvien")
     public ResponseEntity<?> thongKeSinhVienTheoKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
         var user = nguoiDungService.getByUsername(principal.getName());
@@ -470,8 +488,8 @@ public class ApiGiaoVuController {
             HoiDong hd = dthd != null ? hoiDongService.getById(dthd.getHoiDongId()) : null;
 
             List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsv.getId());
-            Double diemTB = (diemList != null && !diemList.isEmpty()) ?
-                diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
+            Double diemTB = (diemList != null && !diemList.isEmpty())
+                    ? diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
 
             Map<String, Object> map = new HashMap<>();
             map.put("tenSinhVien", sv != null ? sv.getFullname() : "");
@@ -485,7 +503,6 @@ public class ApiGiaoVuController {
         return ResponseEntity.ok(result);
     }
 
-    
     @PostMapping("/xuat_pdf_diem")
     public void xuatPdfDiem(@RequestBody Map<String, String> body, HttpServletResponse response, Principal principal) throws Exception {
         String khoaHoc = body.get("khoaHoc");
@@ -519,15 +536,15 @@ public class ApiGiaoVuController {
                 }
             }
             List<BangDiem> diemList = bangDiemService.findByDeTaiSinhVienId(dtsv.getId());
-            Double diemTB = (diemList != null && !diemList.isEmpty()) ?
-                diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
+            Double diemTB = (diemList != null && !diemList.isEmpty())
+                    ? diemList.stream().mapToDouble(BangDiem::getDiem).average().orElse(0.0) : null;
 
             bangDiemTongHopList.add(new BangDiemTongHopDTO(
-                hd != null ? hd.getName() : "",
-                tenGVPhanBien,
-                dt != null ? dt.getTitle() : "",
-                sv != null ? sv.getFullname() : "",
-                diemTB
+                    hd != null ? hd.getName() : "",
+                    tenGVPhanBien,
+                    dt != null ? dt.getTitle() : "",
+                    sv != null ? sv.getFullname() : "",
+                    diemTB
             ));
         }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Form, Table } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import Apis, { authApis, endpoints } from "../../config/Apis";
 
 const KHOA_LIST = [
@@ -25,6 +25,7 @@ const AddUser = () => {
     const avatar = useRef();
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
+    const [formErrors, setFormErrors] = useState({});
 
     const loadUsers = async () => {
         try {
@@ -40,7 +41,7 @@ const AddUser = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value} = e.target;
+        const { name, value } = e.target;
         if (name === "role") {
             setForm({
                 ...form,
@@ -53,37 +54,61 @@ const AddUser = () => {
         }
     };
 
+    const validateForm = () => {
+        const errors = {};
+
+        if (!form.fullname.trim()) errors.fullname = "Họ và tên là bắt buộc";
+        if (!form.username.trim()) errors.username = "Tên đăng nhập là bắt buộc";
+        if (!form.password.trim()) errors.password = "Mật khẩu là bắt buộc";
+
+        if (["ROLE_GIAOVU", "ROLE_GIANGVIEN", "ROLE_SINHVIEN"].includes(form.role)) {
+            if (!form.khoa) errors.khoa = "Khoa là bắt buộc";
+        }
+
+        if (form.role === "ROLE_SINHVIEN" && !form.khoaHoc.trim()) {
+            errors.khoaHoc = "Khóa học là bắt buộc";
+        }
+
+        if (!avatar.current?.files?.length) {
+            errors.avatar = "Ảnh đại diện là bắt buộc";
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) return;
 
         const formData = new FormData();
         for (let key in form) {
             if (form[key]) formData.append(key, form[key]);
         }
 
-        if (avatar) {
+        if (avatar.current?.files?.length) {
             formData.append('avatar', avatar.current.files[0]);
         }
+
         try {
-            let res = await Apis.post(endpoints['add-user'], formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    });
+            await Apis.post(endpoints['add-user'], formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             setMessage("Thêm người dùng thành công!");
             setMessageType("success");
             loadUsers();
-            // Reset form nếu muốn
-            // setForm({
-            //     fullname: "",
-            //     username: "",
-            //     password: "",
-            //     email: "",
-            //     role: "ROLE_ADMIN",
-            //     khoa: "",
-            //     khoaHoc: "",
-            //     avatar: null
-            // });
+            setForm({
+                fullname: "",
+                username: "",
+                password: "",
+                email: "",
+                role: "ROLE_ADMIN",
+                khoa: "",
+                khoaHoc: "",
+            });
+            avatar.current.value = null;
+            setFormErrors({});
         } catch (err) {
             console.error("Lỗi thêm user:", err);
             setMessage("Thêm người dùng thất bại, vui lòng thử lại.");
@@ -104,15 +129,17 @@ const AddUser = () => {
                 </div>
             )}
 
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} noValidate>
                 <Form.Group className="mb-2">
                     <Form.Label>Họ và tên</Form.Label>
                     <Form.Control
                         name="fullname"
                         onChange={handleChange}
                         value={form.fullname}
+                        isInvalid={!!formErrors.fullname}
                         required
                     />
+                    <Form.Control.Feedback type="invalid">{formErrors.fullname}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group className="mb-2">
@@ -121,8 +148,10 @@ const AddUser = () => {
                         name="username"
                         onChange={handleChange}
                         value={form.username}
+                        isInvalid={!!formErrors.username}
                         required
                     />
+                    <Form.Control.Feedback type="invalid">{formErrors.username}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group className="mb-2">
@@ -132,8 +161,10 @@ const AddUser = () => {
                         name="password"
                         onChange={handleChange}
                         value={form.password}
+                        isInvalid={!!formErrors.password}
                         required
                     />
+                    <Form.Control.Feedback type="invalid">{formErrors.password}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group className="mb-2">
@@ -167,12 +198,15 @@ const AddUser = () => {
                             name="khoa"
                             onChange={handleChange}
                             value={form.khoa}
+                            isInvalid={!!formErrors.khoa}
+                            required
                         >
                             <option value="">-- Chọn khoa --</option>
                             {KHOA_LIST.map((k, idx) => (
                                 <option key={idx} value={k}>{k}</option>
                             ))}
                         </Form.Select>
+                        <Form.Control.Feedback type="invalid">{formErrors.khoa}</Form.Control.Feedback>
                     </Form.Group>
                 )}
 
@@ -183,18 +217,22 @@ const AddUser = () => {
                             name="khoaHoc"
                             onChange={handleChange}
                             value={form.khoaHoc}
+                            isInvalid={!!formErrors.khoaHoc}
+                            required
                         />
+                        <Form.Control.Feedback type="invalid">{formErrors.khoaHoc}</Form.Control.Feedback>
                     </Form.Group>
                 )}
 
                 <Form.Group className="mb-2">
                     <Form.Label>Avatar</Form.Label>
-                    {/* <Form.Control
+                    <Form.Control
+                        ref={avatar}
                         type="file"
-                        name="avatar"
-                        onChange={handleChange}
-                    /> */}
-                    <Form.Control ref={avatar} type="file" required />
+                        isInvalid={!!formErrors.avatar}
+                        required
+                    />
+                    <Form.Control.Feedback type="invalid">{formErrors.avatar}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Button type="submit">Thêm</Button>
