@@ -6,9 +6,40 @@ const KHOA_LIST = [
     "Công nghệ thông tin",
     "Quản trị kinh doanh",
     "Tài chính - Ngân hàng",
-    "Ngôn ngữ Anh",
-    "Kế toán"
+    "Ngôn ngữ",
+    "Công nghệ sinh học"
 ];
+
+const NGANH_THEO_KHOA = {
+    "Công nghệ thông tin": [
+        "Khoa học máy tính",
+        "Hệ thống thông tin quản lý",
+        "Công nghệ thông tin",
+        "Trí tuệ nhân tạo"
+    ],
+    "Quản trị kinh doanh": [
+        "Kinh doanh quốc tế",
+        "Marketing",
+        "Quản trị nhân lực",
+        "Quản trị kinh doanh",
+        "Logistics và Quản lý chuỗi cung ứng"
+    ],
+    "Tài chính - Ngân hàng": [
+        "Tài chính – Ngân hàng",
+        "Công nghệ tài chính",
+        "Bảo hiểm"
+    ],
+    "Ngôn ngữ": [
+        "Ngôn ngữ Anh",
+        "Ngôn ngữ Trung Quốc",
+        "Ngôn ngữ Nhật",
+        "Ngôn ngữ Hàn Quốc"
+    ],
+    "Công nghệ sinh học": [
+        "Công nghệ sinh học",
+        "Công nghệ thực phẩm"
+    ]
+};
 
 const AddUser = () => {
     const [users, setUsers] = useState([]);
@@ -19,7 +50,7 @@ const AddUser = () => {
         email: "",
         role: "ROLE_ADMIN",
         khoa: "",
-        khoaHoc: "",   
+        khoaHoc: "",
     });
 
     const avatar = useRef();
@@ -42,12 +73,20 @@ const AddUser = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         if (name === "role") {
             setForm({
                 ...form,
                 role: value,
                 khoa: "",
-                khoaHoc: ""
+                khoaHoc: "",
+                nganh: ""
+            });
+        } else if (name === "khoa") {
+            setForm({
+                ...form,
+                khoa: value,
+                nganh: ""  // reset nganh khi đổi khoa
             });
         } else {
             setForm({ ...form, [name]: value });
@@ -67,6 +106,10 @@ const AddUser = () => {
 
         if (form.role === "ROLE_SINHVIEN" && !form.khoaHoc.trim()) {
             errors.khoaHoc = "Khóa học là bắt buộc";
+        }
+
+        if (form.role === "ROLE_SINHVIEN" && !form.nganh) {
+            errors.nganh = "Ngành học là bắt buộc";
         }
 
         if (!avatar.current?.files?.length) {
@@ -106,6 +149,7 @@ const AddUser = () => {
                 role: "ROLE_ADMIN",
                 khoa: "",
                 khoaHoc: "",
+                nganh: "",
             });
             avatar.current.value = null;
             setFormErrors({});
@@ -207,6 +251,25 @@ const AddUser = () => {
                             ))}
                         </Form.Select>
                         <Form.Control.Feedback type="invalid">{formErrors.khoa}</Form.Control.Feedback>
+                    </Form.Group>
+                )}
+
+                {form.role === "ROLE_SINHVIEN" && form.khoa && (
+                    <Form.Group className="mb-2">
+                        <Form.Label>Ngành học</Form.Label>
+                        <Form.Select
+                            name="nganh"
+                            onChange={handleChange}
+                            value={form.nganh}
+                            isInvalid={!!formErrors.nganh}
+                            required
+                        >
+                            <option value="">-- Chọn ngành --</option>
+                            {NGANH_THEO_KHOA[form.khoa]?.map((n, idx) => (
+                                <option key={idx} value={n}>{n}</option>
+                            ))}
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">{formErrors.nganh}</Form.Control.Feedback>
                     </Form.Group>
                 )}
 

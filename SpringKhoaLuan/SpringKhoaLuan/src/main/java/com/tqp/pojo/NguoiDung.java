@@ -52,6 +52,9 @@ public class NguoiDung implements Serializable{
 
     @Column(name = "khoaHoc")
     private String khoaHoc;
+    
+    @Column(name = "nganh")
+    private String nganh;
     // Constructors
     public NguoiDung() {}
     public NguoiDung(Integer id) { this.id = id; }
@@ -97,6 +100,14 @@ public class NguoiDung implements Serializable{
 
     public void setKhoaHoc(String khoaHoc) {
         this.khoaHoc = khoaHoc;
+    }
+    
+    public String getNganh() {
+    return nganh;
+    }
+
+    public void setNganh(String nganh) {
+        this.nganh = nganh;
     }
     // equals, hashCode, toString
     @Override

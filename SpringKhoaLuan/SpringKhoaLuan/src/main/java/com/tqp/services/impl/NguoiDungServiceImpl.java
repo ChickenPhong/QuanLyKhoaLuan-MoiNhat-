@@ -95,6 +95,7 @@ public class NguoiDungServiceImpl implements NguoiDungService, UserDetailsServic
         u.setEmail(params.get("email"));
         u.setKhoa(params.get("khoa"));
         u.setKhoaHoc(params.get("khoaHoc"));
+        u.setNganh(params.get("nganh"));
         u.setRole(params.get("role"));
 
         if (avatar != null && !avatar.isEmpty()) {
