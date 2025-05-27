@@ -5,7 +5,6 @@ import { MyUserContext } from "../config/Contexts";
 import MySpinner from "./layout/MySpinner";
 import { Image } from "react-bootstrap";
 import { authApis, endpoints } from "../config/Apis";
-import Chat from "./Chat";
 
 const Home = () => {
   const user = useContext(MyUserContext);
@@ -21,7 +20,6 @@ const Home = () => {
       nav("/login");
       return;
     }
-
     const fetchData = async () => {
       if (user.role === "ROLE_ADMIN") {
         try {
@@ -33,11 +31,9 @@ const Home = () => {
       }
       setLoading(false);
     };
-
     fetchData();
   }, [user, nav]);
 
-  // Load danh sách đề tài cho giáo vụ hoặc admin
   useEffect(() => {
     const fetchDeTai = async () => {
       try {
@@ -47,7 +43,6 @@ const Home = () => {
         setMsg("Lỗi tải danh sách đề tài.");
       }
     };
-
     if (user && (user.role === "ROLE_GIAOVU" || user.role === "ROLE_ADMIN")) {
       fetchDeTai();
     }
@@ -55,7 +50,6 @@ const Home = () => {
 
   const deleteUser = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
-
     try {
       const formData = new FormData();
       formData.append("userId", id);
@@ -73,12 +67,11 @@ const Home = () => {
       setMsg("Vui lòng nhập tên đề tài");
       return;
     }
-
     const payload = {
       ...khoaLuan,
-      khoa: user.khoa // lấy khoa từ tài khoản giáo vụ đang đăng nhập
+      khoa: user.khoa,
+      status: "active"
     };
-
     try {
       if (khoaLuan.id) {
         await authApis().put(`${endpoints.detai}/${khoaLuan.id}`, payload);
@@ -94,17 +87,24 @@ const Home = () => {
     }
   };
 
-  const handleDeTaiDelete = async (id) => {
-    console.log("👉 Gọi API xóa với ID:", id); // Thêm dòng này
-    if (!window.confirm("Bạn có chắc chắn muốn xóa đề tài này?")) return;
+  // Toggle status giữa "active" và "disabled"
+  const handleToggleDeTaiStatus = async (id, currentStatus) => {
+    const action = currentStatus === "active" ? "ẩn" : "hiện";
+    if (!window.confirm(`Bạn có chắc chắn muốn ${action} đề tài này?`)) return;
     try {
-      await authApis().delete(`${endpoints.detai}/${id}`);
+      const old = deTaiList.find((d) => d.id === id);
+      if (!old) {
+        setMsg("Không tìm thấy đề tài.");
+        return;
+      }
+      const newStatus = currentStatus === "active" ? "disabled" : "active";
+      const payload = { ...old, status: newStatus };
+      await authApis().put(`${endpoints.detai}/${id}`, payload);
       const res = await authApis().get(endpoints.detai + "/");
       setDeTaiList(res.data);
-      setMsg("Xóa đề tài thành công.");
+      setMsg(`${action.charAt(0).toUpperCase() + action.slice(1)} đề tài thành công.`);
     } catch (error) {
-      setMsg("Xóa đề tài thất bại." + (error.response?.data?.message || error.message));
-      console.error("🔥 Lỗi khi gọi API DELETE:", error); // Rất quan trọng
+      setMsg(`${action.charAt(0).toUpperCase() + action.slice(1)} đề tài thất bại: ` + (error.response?.data?.message || error.message));
     }
   };
 
@@ -112,12 +112,11 @@ const Home = () => {
     setKhoaLuan({
       id: dt.id,
       title: dt.title,
-      khoa: dt.khoa || user.khoa // fallback nếu thiếu khoa
+      khoa: dt.khoa || user.khoa
     });
   };
 
   if (!user) return <Alert variant="danger">Bạn chưa đăng nhập!</Alert>;
-
   if (loading) return <MySpinner />;
 
   return (
@@ -133,8 +132,7 @@ const Home = () => {
               <Card.Title>Thông tin vai trò</Card.Title>
               {user.role === "ROLE_ADMIN" && (
                 <Alert variant="info">
-                  Bạn là quản trị viên. Hãy vào mục <strong>Quản lý người dùng</strong>{" "}
-                  để cấp tài khoản.
+                  Bạn là quản trị viên. Hãy vào mục <strong>Quản lý người dùng</strong> để cấp tài khoản.
                 </Alert>
               )}
               {user.role === "ROLE_GIAOVU" && (
@@ -144,14 +142,12 @@ const Home = () => {
               )}
               {user.role === "ROLE_GIANGVIEN" && (
                 <Alert variant="warning">
-                  Bạn là giảng viên. Vui lòng vào mục <strong>Hội đồng</strong> để
-                  xem và chấm điểm khóa luận.
+                  Bạn là giảng viên. Vui lòng vào mục <strong>Hội đồng</strong> để xem và chấm điểm khóa luận.
                 </Alert>
               )}
               {user.role === "ROLE_SINHVIEN" && (
                 <Alert variant="secondary">
-                  Bạn là sinh viên. Bạn có thể xem điểm khóa luận và lịch bảo vệ của
-                  mình.
+                  Bạn là sinh viên. Bạn có thể xem điểm khóa luận và lịch bảo vệ của mình.
                 </Alert>
               )}
             </Card.Body>
@@ -159,7 +155,7 @@ const Home = () => {
         </Col>
       </Row>
 
-      {(user.role === "ROLE_GIAOVU") && (
+      {user.role === "ROLE_GIAOVU" && (
         <div>
           <h3>Quản lý đề tài khóa luận</h3>
           <Form onSubmit={handleDeTaiSubmit} className="mb-3">
@@ -180,6 +176,7 @@ const Home = () => {
               <tr>
                 <th>#</th>
                 <th>Tên đề tài</th>
+                <th>Trạng thái</th>
                 <th>Hành động</th>
               </tr>
             </thead>
@@ -188,21 +185,22 @@ const Home = () => {
                 <tr key={dt.id}>
                   <td>{idx + 1}</td>
                   <td>{dt.title}</td>
+                  <td>{dt.status}</td>
                   <td>
+                    <Button
+                      variant={dt.status === "active" ? "secondary" : "success"}
+                      size="sm"
+                      onClick={() => handleToggleDeTaiStatus(dt.id, dt.status)}
+                    >
+                      {dt.status === "active" ? "Ẩn đề tài" : "Hiện đề tài"}
+                    </Button>
                     <Button
                       variant="warning"
                       size="sm"
                       onClick={() => handleEditDeTai(dt)}
-                      className="me-2"
+                      className="ms-2"
                     >
                       Sửa
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDeTaiDelete(dt.id)}
-                    >
-                      Xóa
                     </Button>
                   </td>
                 </tr>

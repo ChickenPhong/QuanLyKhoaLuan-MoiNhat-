@@ -59,6 +59,7 @@ public class DeTaiServiceImpl implements DeTaiService{
         if (existing != null) {
             existing.setTitle(deTai.getTitle());
             existing.setKhoa(deTai.getKhoa());
+            existing.setStatus(deTai.getStatus());
             // Cập nhật các trường khác nếu có
             return deTaiRepo.update(existing);
         }
