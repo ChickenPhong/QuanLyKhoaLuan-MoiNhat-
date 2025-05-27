@@ -273,10 +273,6 @@ const Home = () => {
           </Table>
         </div>
       )}
-      {/* CHAT REACT-FIREBASE: Cho tất cả vai trò */}
-      <div className="mt-5">
-        <Chat room="all-users" user={user.username || user.lastName || "Ẩn danh"} />
-      </div>
     </>
   );
 };

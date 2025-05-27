@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { MyUserContext } from "../config/Contexts";
+import Chat from "./Chat";
 import { authApis } from "../config/Apis"; // ✅ dùng đúng tên đã export trong Apis.js
 
 const Profile = () => {
@@ -129,6 +130,9 @@ const Profile = () => {
           </Form>
         </Modal.Body>
       </Modal>
+
+      <h3 className="mt-5">Nhắn tin với người dùng khác</h3>
+      <Chat />   {/* Chèn khung chat 1-1 ở đây */}
     </div>
   );
 };
