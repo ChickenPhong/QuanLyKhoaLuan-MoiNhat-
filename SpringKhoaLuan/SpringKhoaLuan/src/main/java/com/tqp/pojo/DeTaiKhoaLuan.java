@@ -23,13 +23,20 @@ public class DeTaiKhoaLuan implements Serializable{
 
     @Column(name = "title", nullable = false)
     private String title;
+    
+    @Column(name = "status", nullable = false)
+    private String status = "active";
+    
+    @Column(name = "khoa")
     private String khoa;
 
     public DeTaiKhoaLuan() {}
 
-    public DeTaiKhoaLuan(Integer id, String title) {
+    public DeTaiKhoaLuan(Integer id, String title, String status, String khoa) {
         this.id = id;
         this.title = title;
+        this.status = status;
+        this.khoa = khoa;
     }
 
     public Integer getId() { return id; }
@@ -37,6 +44,14 @@ public class DeTaiKhoaLuan implements Serializable{
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+    
+    public String getStatus() {
+    return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
     
     public String getKhoa() {
         return khoa;
