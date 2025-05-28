@@ -59,6 +59,7 @@ public class ApiTieuChiController {
     tieuChi.setTenTieuChi(tenTieuChi.trim());
     tieuChi.setKhoa(user.getKhoa());
     tieuChi.setStatus("active");
+    tieuChi.setNguoiTao(user.getId());
 
     TieuChi saved = tieuChiService.addTieuChi(tieuChi);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);

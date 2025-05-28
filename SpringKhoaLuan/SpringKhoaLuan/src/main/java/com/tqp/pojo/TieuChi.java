@@ -25,6 +25,9 @@ public class TieuChi {
     
     @Column(name = "khoa", nullable = false)
     private String khoa;
+    
+    @Column(name = "nguoi_tao", nullable = false)
+    private Integer nguoiTao;
 
     // Getters và setters
     public Integer getId() { return id; }
@@ -38,4 +41,7 @@ public class TieuChi {
     
     public String getKhoa() { return khoa; }
     public void setKhoa(String khoa) { this.khoa = khoa; }
+    
+    public Integer getNguoiTao() { return nguoiTao; }
+    public void setNguoiTao(Integer nguoiTao) { this.nguoiTao = nguoiTao; }
 }

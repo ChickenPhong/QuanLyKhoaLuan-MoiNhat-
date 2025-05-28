@@ -277,33 +277,6 @@ INSERT INTO `thanhvienhoidong` VALUES (5,3,7,'chu_tich'),(6,3,8,'thu_ky'),(7,3,1
 UNLOCK TABLES;
 
 --
--- Table structure for table `thongbaos`
---
-
-DROP TABLE IF EXISTS `thongbaos`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `thongbaos` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nguoiDung_id` int DEFAULT NULL,
-  `tinNhan` text,
-  `thoiGianGui` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `nguoiDung_id` (`nguoiDung_id`),
-  CONSTRAINT `thongbaos_ibfk_1` FOREIGN KEY (`nguoiDung_id`) REFERENCES `nguoidungs` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `thongbaos`
---
-
-LOCK TABLES `thongbaos` WRITE;
-/*!40000 ALTER TABLE `thongbaos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `thongbaos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `tieuchis`
 --
 
@@ -315,8 +288,11 @@ CREATE TABLE `tieuchis` (
   `ten_tieuchi` varchar(255) NOT NULL,
   `status` enum('active','closed') DEFAULT 'active',
   `khoa` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `nguoi_tao` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_nguoi_tao` (`nguoi_tao`),
+  CONSTRAINT `fk_nguoi_tao` FOREIGN KEY (`nguoi_tao`) REFERENCES `nguoidungs` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -325,7 +301,7 @@ CREATE TABLE `tieuchis` (
 
 LOCK TABLES `tieuchis` WRITE;
 /*!40000 ALTER TABLE `tieuchis` DISABLE KEYS */;
-INSERT INTO `tieuchis` VALUES (1,'Độ chính xác của nghiên cứu','active','Công nghệ thông tin'),(2,'Tính khả dụng của nghiên cứu','active','Công nghệ thông tin'),(15,'Các chức năng cơ bản trong nghiên cứu','active','Công nghệ thông tin'),(17,'Tính an toàn trong nghiên cứu','active','Quản trị kinh doanh'),(18,'Chức năng phù hợp với thực tế','active','Quản trị kinh doanh');
+INSERT INTO `tieuchis` VALUES (1,'Độ chính xác của nghiên cứu','active','Công nghệ thông tin',5),(2,'Tính khả dụng của nghiên cứu','active','Công nghệ thông tin',5),(15,'Các chức năng cơ bản trong nghiên cứu','active','Công nghệ thông tin',5),(17,'Tính an toàn trong nghiên cứu','active','Quản trị kinh doanh',11),(18,'Chức năng phù hợp với thực tế','active','Quản trị kinh doanh',11);
 /*!40000 ALTER TABLE `tieuchis` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -338,4 +314,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-28 15:16:38
+-- Dump completed on 2025-05-28 16:06:17
