@@ -13,5 +13,6 @@ import java.util.List;
  * @author Tran Quoc Phong
  */
 public interface PdfExportService {
-    void exportBangDiemTongHop(List<BangDiemTongHopDTO> bangDiemList, OutputStream out) throws Exception;
+    void exportBangDiemTongHop(List<BangDiemTongHopDTO> bangDiemList, OutputStream out,
+            String tenKhoa, String tenTruong, String khoaHoc) throws Exception;
 }

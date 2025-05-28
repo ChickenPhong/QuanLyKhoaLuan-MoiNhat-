@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button, Form, Table, Alert } from "react-bootstrap";
-import Apis, { authApis } from "../../config/Apis";
+import { authApis } from "../../config/Apis";
+import { MyUserContext } from "../../config/Contexts";
 
 const AddTieuChi = () => {
   const [tieuChiList, setTieuChiList] = useState([]);
@@ -9,11 +10,16 @@ const AddTieuChi = () => {
   const [editId, setEditId] = useState(null);
   const [editTenTieuChi, setEditTenTieuChi] = useState("");
 
+  const user = useContext(MyUserContext);
+  const userKhoa = user?.khoa || ""; // Lấy khoa từ user context
+
   // Load danh sách tiêu chí
   const loadTieuChi = async () => {
     try {
       const res = await authApis().get("/tieuchi");
-      setTieuChiList(res.data);
+      // Lọc danh sách tiêu chí theo khoa
+      const filtered = res.data.filter(tc => tc.khoa === userKhoa);
+      setTieuChiList(filtered);
       setMsg("");
     } catch (error) {
       setMsg("Lỗi tải danh sách tiêu chí: " + error.message);
@@ -34,10 +40,14 @@ const AddTieuChi = () => {
     try {
       const formData = new FormData();
       formData.append("tenTieuChi", newTieuChi.trim());
-      let res = await authApis().post("/tieuchi/", formData, {
+
+      await authApis().post("/tieuchi/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setTieuChiList([...tieuChiList, res.data]);
+
+      // Load lại danh sách tiêu chí sau khi thêm
+      await loadTieuChi();
+
       setMsg("Tạo tiêu chí thành công");
       setNewTieuChi("");
     } catch (error) {
@@ -60,7 +70,7 @@ const AddTieuChi = () => {
   // Gửi cập nhật tiêu chí (chỉ sửa tên)
   const handleUpdateTieuChi = async (id) => {
     try {
-      let res = await authApis().put(`/tieuchi/${id}`, {
+      await authApis().put(`/tieuchi/${id}`, {
         tenTieuChi: editTenTieuChi
       });
       setMsg("Cập nhật tiêu chí thành công");

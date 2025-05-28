@@ -38,7 +38,9 @@ const Home = () => {
     const fetchDeTai = async () => {
       try {
         const res = await authApis().get(endpoints.detai + "/");
-        setDeTaiList(res.data);
+        // Lọc danh sách theo khoa của user
+        const filtered = res.data.filter((dt) => dt.khoa === user.khoa);
+        setDeTaiList(filtered);
       } catch (error) {
         setMsg("Lỗi tải danh sách đề tài.");
       }
@@ -80,7 +82,7 @@ const Home = () => {
       }
       setKhoaLuan({ id: null, title: "", khoa: "" });
       const res = await authApis().get(endpoints.detai + "/");
-      setDeTaiList(res.data);
+      setDeTaiList(res.data.filter((dt) => dt.khoa === user.khoa));
       setMsg("Thao tác thành công!");
     } catch (error) {
       setMsg("Thao tác thất bại: " + error.message);

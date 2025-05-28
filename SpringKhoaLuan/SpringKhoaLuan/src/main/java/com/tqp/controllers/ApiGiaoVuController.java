@@ -95,18 +95,53 @@ public class ApiGiaoVuController {
         khoaHocList = khoaHocList.stream().filter(x -> x != null).collect(Collectors.toList());
         return ResponseEntity.ok(khoaHocList);
     }
+    
+    @GetMapping("/sinhvien_by_khoahoc")
+    public ResponseEntity<?> getSinhVienByKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+
+        // Lấy toàn bộ sinh viên theo khoa và khóa học
+        List<NguoiDung> svList = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (var sv : svList) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", sv.getId());
+            item.put("fullname", sv.getFullname());
+            item.put("username", sv.getUsername());
+            item.put("email", sv.getEmail());
+
+            // Kiểm tra đã được xếp đề tài hay chưa
+            var dtsv = deTaiSinhVienService.findBySinhVienId(sv.getId());
+            if (dtsv != null) {
+                var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
+                item.put("deTai", dt != null ? dt.getTitle() : "Chưa có");
+            } else {
+                item.put("deTai", "Chưa có");
+            }
+            result.add(item);
+        }
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("sinhViens", result);
+        res.put("khoa", khoa);
+        return ResponseEntity.ok(res);
+    }
 
     // 2. Xếp đề tài cho sinh viên khóa học (theo khoa của người dùng đăng nhập)
     @PostMapping("/xepdetai")
     public ResponseEntity<?> xepDeTaiChoSinhVien(
             @RequestParam("khoaHoc") String khoaHoc,
             Principal principal) {
+        
+        System.out.println("PRINCIPAL = " + principal);
 
         var user = nguoiDungService.getByUsername(principal.getName());
         String khoa = user.getKhoa();
 
         List<NguoiDung> svList = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
-        List<DeTaiKhoaLuan> deTaiList = deTaiService.getByKhoa(khoa);
+        List<DeTaiKhoaLuan> deTaiList = deTaiService.getByKhoaAndStatus(khoa, "active");
         List<NguoiDung> giangVienList = nguoiDungService.getGiangVienByKhoa(khoa);
 
         // Kiểm tra sinh viên đã được xếp đề tài chưa
@@ -118,6 +153,18 @@ public class ApiGiaoVuController {
             res.put("error", "Khóa " + khoaHoc + " đã được xếp danh sách trước đó!");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
         }
+        
+        // BỔ SUNG KIỂM TRA:
+        if (deTaiList.isEmpty()) {
+            Map<String, String> res = new HashMap<>();
+            res.put("error", "Không có đề tài nào thuộc khoa này đang hoạt động!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        }
+        if (giangVienList.isEmpty()) {
+            Map<String, String> res = new HashMap<>();
+            res.put("error", "Không có giảng viên nào thuộc khoa này!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        }
 
         // Thực hiện xếp đề tài
         for (int i = 0; i < svList.size(); i++) {
@@ -126,7 +173,7 @@ public class ApiGiaoVuController {
             var gv = giangVienList.get(i % giangVienList.size());
 
             deTaiSinhVienService.assign(sv.getId(), dt.getId());
-            deTaiGVHuongDanService.assign(dt.getId(), gv.getId());
+
         }
 
         Map<String, String> res = new HashMap<>();
@@ -578,7 +625,10 @@ public class ApiGiaoVuController {
 
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=bang_diem_khoahoc.pdf");
-        pdfExportService.exportBangDiemTongHop(bangDiemTongHopList, response.getOutputStream());
+        
+        String tenKhoa = khoa;
+        String tenTruong = "Tên Trường Của Bạn";
+        pdfExportService.exportBangDiemTongHop(bangDiemTongHopList, response.getOutputStream(), tenKhoa, tenTruong, khoaHoc);
     }
 
 }

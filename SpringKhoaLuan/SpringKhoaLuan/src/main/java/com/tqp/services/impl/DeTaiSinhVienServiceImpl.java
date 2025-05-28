@@ -41,11 +41,11 @@ public class DeTaiSinhVienServiceImpl implements DeTaiSinhVienService{
     }
     
     @Override
-    public void assign(int sinhVienId, int deTaiId) {
+    public DeTaiKhoaLuan_SinhVien assign(int sinhVienId, int deTaiId) {
         DeTaiKhoaLuan_SinhVien dtsv = new DeTaiKhoaLuan_SinhVien();
         dtsv.setSinhVienId(sinhVienId);
         dtsv.setDeTaiKhoaLuanId(deTaiId); 
-        repo.save(dtsv);
+        return repo.save(dtsv);
     }
     
     @Override

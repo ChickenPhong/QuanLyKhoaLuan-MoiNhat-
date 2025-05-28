@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface DeTaiRepository {
     List<DeTaiKhoaLuan> getAll();
-    List<DeTaiKhoaLuan> getByKhoa(String khoa);
+    List<DeTaiKhoaLuan> findByKhoaAndStatus(String khoa, String status);
     DeTaiKhoaLuan getById(int id);
     DeTaiKhoaLuan save(DeTaiKhoaLuan deTai);
     boolean delete(int id);

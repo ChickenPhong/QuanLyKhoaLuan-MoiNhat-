@@ -70,7 +70,7 @@ public class GiaoVuController {
     public String giaoVuView(Model model, Principal principal) {
         var user = nguoiDungService.getByUsername(principal.getName());
         if ("ROLE_GIAOVU".equals(user.getRole())) {
-            model.addAttribute("allDeTai", deTaiService.getByKhoa(user.getKhoa()));
+            model.addAttribute("allDeTai", deTaiService.getByKhoaAndStatus(user.getKhoa(), "active"));
         } else {
             model.addAttribute("allDeTai", deTaiService.getAllDeTai());
         }
@@ -118,7 +118,7 @@ public class GiaoVuController {
     public String xepDanhSach(@RequestParam("khoaHoc") String khoaHoc, Principal principal, RedirectAttributes redirectAttrs) {
         var user = nguoiDungService.getByUsername(principal.getName());
         var svList = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(user.getKhoa(), khoaHoc);
-        var deTaiList = deTaiService.getByKhoa(user.getKhoa());
+        var deTaiList = deTaiService.getByKhoaAndStatus(user.getKhoa(), "active");
         var giangVienList = nguoiDungService.getGiangVienByKhoa(user.getKhoa());
         
         // kiểm tra đã có sinh viên thuộc khoaHoc được phân đề tài chưa
@@ -235,7 +235,7 @@ public class GiaoVuController {
 
         if (khoaHoc != null) {
             // Lọc những đề tài đã được gán cho sinh viên
-            var deTais = deTaiService.getByKhoa(user.getKhoa()).stream()
+            var deTais = deTaiService.getByKhoaAndStatus(user.getKhoa(), "active").stream()
                 .filter(dt -> {
                     var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
                     return dtsv != null && khoaHoc.equals(nguoiDungService.getById(dtsv.getSinhVienId()).getKhoaHoc());
@@ -291,7 +291,7 @@ public class GiaoVuController {
         var user = nguoiDungService.getByUsername(principal.getName());
 
         // Lấy danh sách đề tài đã có sinh viên thực hiện theo khoa & khóa
-        var deTais = deTaiService.getByKhoa(user.getKhoa()).stream()
+        var deTais = deTaiService.getByKhoaAndStatus(user.getKhoa(), "active").stream()
             .filter(dt -> {
                 var dtsv = deTaiSinhVienService.findByDeTaiId(dt.getId());
                 return dtsv != null && khoaHoc.equals(nguoiDungService.getById(dtsv.getSinhVienId()).getKhoaHoc());
@@ -403,25 +403,20 @@ public class GiaoVuController {
     
     // Export từng hội đồng (phải có tên biến!)
     @GetMapping("/khoaluan/xuat-bangdiem-hoidong/{hoiDongId}")
-    public void xuatBangDiemTongHop(@PathVariable("hoiDongId") int hoiDongId, HttpServletResponse response) throws Exception {
+    public void xuatBangDiemTongHop(@PathVariable("hoiDongId") int hoiDongId, HttpServletResponse response, Principal principal) throws Exception {
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=bangdiem_hoidong_" + hoiDongId + ".pdf");
 
         List<BangDiemTongHopDTO> bangDiemList = bangDiemService.layBangDiemTongHopTheoHoiDong(hoiDongId);
-        System.out.println("Đang xuất bảng điểm cho hội đồng: " + hoiDongId);
-        System.out.println("Số dòng bảng điểm: " + bangDiemList.size());
-        if (!bangDiemList.isEmpty()) {
-            for (BangDiemTongHopDTO b : bangDiemList) {
-                System.out.println("Tên hội đồng: " + b.getTenHoiDong());
-                System.out.println("Tên đề tài: " + b.getTenDeTai());
-                System.out.println("Sinh viên: " + b.getTenSinhVien());
-            }
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String tenKhoa = user.getKhoa();
+        String tenTruong = "Tên Trường của bạn"; // Bạn có thể sửa thành lấy từ config hoặc service
+        String khoaHoc = "Khóa học"; 
+            pdfExportService.exportBangDiemTongHop(bangDiemList, response.getOutputStream(), tenKhoa, tenTruong, khoaHoc);
         }
-        pdfExportService.exportBangDiemTongHop(bangDiemList, response.getOutputStream());
-    }
     
     @GetMapping("/khoaluan/xuat-bangdiem-tatca")
-    public void xuatTatCaBangDiem(HttpServletResponse response) {
+    public void xuatTatCaBangDiem(HttpServletResponse response, Principal principal) {
         try {
             response.setContentType("application/pdf");
             response.setHeader("Content-Disposition", "attachment; filename=bangdiem_tatca.pdf");
@@ -431,7 +426,12 @@ public class GiaoVuController {
             for (HoiDong hd : hoiDongs) {
                 tongHop.addAll(bangDiemService.layBangDiemTongHopTheoHoiDong(hd.getId()));
             }
-            pdfExportService.exportBangDiemTongHop(tongHop, response.getOutputStream());
+            var user = nguoiDungService.getByUsername(principal.getName());
+            String tenKhoa = user.getKhoa();
+            String tenTruong = "Tên Trường của bạn"; // thay thế logic lấy tên trường
+            String khoaHoc = "Khóa học"; // logic lấy khóa học phù hợp
+
+            pdfExportService.exportBangDiemTongHop(tongHop, response.getOutputStream(), tenKhoa, tenTruong, khoaHoc);
         } catch (Exception ex) {
             ex.printStackTrace(); // Log ra console IDE để dễ fix bug nếu có lỗi
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

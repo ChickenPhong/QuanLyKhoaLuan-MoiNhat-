@@ -21,7 +21,8 @@ import java.util.List;
 @Service
 public class PdfExportServiceImpl implements PdfExportService{
     @Override
-    public void exportBangDiemTongHop(List<BangDiemTongHopDTO> bangDiemList, OutputStream out) throws Exception {
+    public void exportBangDiemTongHop(List<BangDiemTongHopDTO> bangDiemList, OutputStream out,
+            String tenKhoa, String tenTruong, String khoaHoc) throws Exception {
         Document document = new Document();
         PdfWriter.getInstance(document, out);
         document.open();
@@ -32,14 +33,33 @@ public class PdfExportServiceImpl implements PdfExportService{
 
         byte[] fontBytes = fontStream.readAllBytes();
         BaseFont bf = BaseFont.createFont("arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, fontBytes, null);
+        
+         Font headerFont = new Font(bf, 14, Font.BOLD);
         Font titleFont = new Font(bf, 16, Font.BOLD);
-        Font cellFont = new Font(bf, 12);
+        Font normalFont = new Font(bf, 12);
+        Font cellFont = new Font(bf, 11);
+        Font smallFont = new Font(bf, 7);
 
+        // Đầu trang: trường - khoa - khóa học
+        Paragraph pTruong = new Paragraph("TRƯỜNG ĐẠI HỌC MỞ THÀNH PHỐ HỒ CHÍ MINH ", headerFont);
+        pTruong.setAlignment(Element.ALIGN_CENTER);
+        document.add(pTruong);
+
+        Paragraph pKhoa = new Paragraph("Khoa: " + tenKhoa, normalFont);
+        document.add(pKhoa);
+
+        Paragraph pKhoaHoc = new Paragraph("Khóa học: " + khoaHoc, normalFont);
+        document.add(pKhoaHoc);
+
+        document.add(Chunk.NEWLINE);
+
+        // Tiêu đề chính
         Paragraph title = new Paragraph("BẢNG ĐIỂM TỔNG HỢP HỘI ĐỒNG", titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
         document.add(new Paragraph(" ")); // line break
 
+        //bảng
         PdfPTable table = new PdfPTable(5); //5 cột
         table.setWidthPercentage(100);
         table.setWidths(new float[]{3, 5, 4, 4, 2});
@@ -60,6 +80,20 @@ public class PdfExportServiceImpl implements PdfExportService{
         }
 
         document.add(table);
+        
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+
+        // Dòng ký lãnh đạo
+        Paragraph pLeader = new Paragraph("Lãnh đạo", normalFont);
+        pLeader.setAlignment(Element.ALIGN_RIGHT);
+        document.add(pLeader);
+
+        Paragraph pSignSpace = new Paragraph("\n\n\n\n( Ký và ghi rõ họ tên )", smallFont);
+        pSignSpace.setAlignment(Element.ALIGN_RIGHT);
+        document.add(pSignSpace);
+        
         document.close();
+        
     }
 }

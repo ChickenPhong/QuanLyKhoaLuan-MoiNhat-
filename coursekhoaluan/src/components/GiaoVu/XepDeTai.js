@@ -33,10 +33,8 @@ const XepDeTai = () => {
     }
     setMsg("");
     try {
-      let form = new FormData();
-      form.append('username', current_user.username);
-      form.append('khoaHoc', selectedKhoaHoc);
-      const res = await authApis().get(`/giaovu/danhsach_thuchien?khoaHoc=${selectedKhoaHoc}`);
+      // Đổi API mới
+      const res = await authApis().get(`/giaovu/sinhvien_by_khoahoc?khoaHoc=${selectedKhoaHoc}`);
       setSinhVienList(res.data.sinhViens || []);
     } catch (error) {
       setMsg("Lỗi tải danh sách sinh viên: " + error.message);

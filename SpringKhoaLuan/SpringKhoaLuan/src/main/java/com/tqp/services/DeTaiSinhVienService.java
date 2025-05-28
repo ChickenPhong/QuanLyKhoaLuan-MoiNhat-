@@ -17,7 +17,7 @@ public interface DeTaiSinhVienService {
     DeTaiKhoaLuan_SinhVien add(DeTaiKhoaLuan_SinhVien dtsv);
     void delete(int id);
     
-    void assign(int sinhVienId, int deTaiId);
+    DeTaiKhoaLuan_SinhVien assign(int sinhVienId, int deTaiId);
     boolean isSinhVienDaXepDeTai(int sinhVienId);
     DeTaiKhoaLuan_SinhVien findBySinhVienId(int sinhVienId);
     DeTaiKhoaLuan_SinhVien findByDeTaiId(int deTaiId);

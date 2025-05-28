@@ -27,8 +27,8 @@ public class DeTaiServiceImpl implements DeTaiService{
     }
 
     @Override
-    public List<DeTaiKhoaLuan> getByKhoa(String khoa) {
-        return this.deTaiRepo.getByKhoa(khoa);  // gọi từ repository
+    public List<DeTaiKhoaLuan> getByKhoaAndStatus(String khoa, String status) {
+        return deTaiRepo.findByKhoaAndStatus(khoa, status);
     }
 
     @Override
