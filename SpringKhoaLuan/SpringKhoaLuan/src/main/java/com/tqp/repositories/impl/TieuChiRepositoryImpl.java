@@ -60,4 +60,12 @@ public class TieuChiRepositoryImpl implements TieuChiRepository {
         session.update(tieuChi);
         return tieuChi;
     }
+    
+    @Override
+    public List<TieuChi> getByKhoa(String khoa) {
+        Session session = this.factory.getObject().getCurrentSession();
+        Query query = session.createQuery("FROM TieuChi WHERE khoa = :khoa", TieuChi.class);
+        query.setParameter("khoa", khoa);
+        return query.getResultList();
+    }
 }

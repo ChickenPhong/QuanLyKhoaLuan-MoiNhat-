@@ -103,7 +103,7 @@ const Home = () => {
       const payload = { ...old, status: newStatus };
       await authApis().put(`${endpoints.detai}/${id}`, payload);
       const res = await authApis().get(endpoints.detai + "/");
-      setDeTaiList(res.data);
+      setDeTaiList(res.data.filter(dt => dt.khoa === user.khoa));
       setMsg(`${action.charAt(0).toUpperCase() + action.slice(1)} đề tài thành công.`);
     } catch (error) {
       setMsg(`${action.charAt(0).toUpperCase() + action.slice(1)} đề tài thất bại: ` + (error.response?.data?.message || error.message));

@@ -47,5 +47,10 @@ public class TieuChiServiceImpl implements TieuChiService {
     public TieuChi updateTieuChi(TieuChi tieuChi) {
         return tieuChiRepository.updateTieuChi(tieuChi);
     }
+    
+    @Override
+    public List<TieuChi> getByKhoa(String khoa) {
+        return tieuChiRepository.getByKhoa(khoa);
+    }
 
 }

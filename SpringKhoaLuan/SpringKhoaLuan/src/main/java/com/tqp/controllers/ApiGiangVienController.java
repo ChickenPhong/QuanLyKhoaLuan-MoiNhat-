@@ -86,16 +86,20 @@ public class ApiGiangVienController {
                 item.put("hoiDongId", hoiDongId);
                 item.put("hoiDongName", hoiDongService.getById(hoiDongId).getName());
                 item.put("isLocked", Boolean.TRUE.equals(dthd.getLocked())); // Thêm trạng thái locked để FE nhận biết
+                item.put("khoa", deTai.getKhoa());
                 result.add(item);
             }
         }
         return ResponseEntity.ok(result);
     }
 
-    // Lấy tiêu chí chấm điểm (giữ nguyên)
+    // Lấy tiêu chí chấm điểm theo khoa
     @GetMapping("/tieuchi")
-    public ResponseEntity<?> getTieuChi() {
-        return ResponseEntity.ok(tieuChiService.getAll());
+    public ResponseEntity<?> getTieuChi(@RequestParam(name = "khoa", required = false) String khoa) {
+        if (khoa == null || khoa.isBlank())
+            return ResponseEntity.ok(tieuChiService.getAll());
+        // Nếu có truyền khoa, lọc theo khoa
+        return ResponseEntity.ok(tieuChiService.getByKhoa(khoa));
     }
 
     // Lấy điểm đã chấm cho đề tài của giảng viên này

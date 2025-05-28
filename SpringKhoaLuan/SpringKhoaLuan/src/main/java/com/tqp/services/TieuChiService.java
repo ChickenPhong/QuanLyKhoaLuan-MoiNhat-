@@ -18,4 +18,6 @@ public interface TieuChiService {
     List<TieuChi> findByKhoa(String khoa); 
     TieuChi getById(int id);                 
     TieuChi updateTieuChi(TieuChi tieuChi);  
+    
+    List<TieuChi> getByKhoa(String khoa);
 }

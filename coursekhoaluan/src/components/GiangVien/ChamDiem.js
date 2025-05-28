@@ -30,7 +30,10 @@ function ChamDiem() {
   // Khi chọn sinh viên, mới load tiêu chí & điểm
   useEffect(() => {
     if (selected && user && user.id) {
-      authApis().get(`/giangvien/tieuchi`)
+      // Truyền thêm khoa của đề tài khi gọi API
+      const khoa = selected.khoa || selected.khoaDeTai; // hoặc key phù hợp với cấu trúc dữ liệu
+      console.log("selected:", selected, "khoa gửi lên:", khoa);
+      authApis().get(`/giangvien/tieuchi${khoa ? `?khoa=${encodeURIComponent(khoa)}` : ""}`)
         .then(res => {
           setTieuChis(res.data);
           // Lấy điểm (nếu đã có)
