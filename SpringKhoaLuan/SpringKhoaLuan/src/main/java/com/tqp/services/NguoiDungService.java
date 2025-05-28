@@ -34,4 +34,7 @@ public interface NguoiDungService extends UserDetailsService{
     List<NguoiDung> getSinhVienByKhoaHoc(String khoaHoc);
     
     List<String> getAllKhoa();
+    List<NguoiDung> getSinhVienByKhoaVaKhoaHocVaNganh(String khoa, String khoaHoc, String nganh);
+    List<String> getAllNganhByKhoaVaKhoaHoc(String khoa, String khoaHoc);
+
 }

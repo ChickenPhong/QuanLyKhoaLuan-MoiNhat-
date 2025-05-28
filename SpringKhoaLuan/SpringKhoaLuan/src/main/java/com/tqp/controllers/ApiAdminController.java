@@ -103,15 +103,36 @@ public class ApiAdminController {
         return ResponseEntity.ok(dsKhoaHoc);
     }
     
-    // Thống kê điểm khóa luận cho Admin (lọc theo khoa và khóa học)
+    // Lấy danh sách ngành theo khoa + khóa học
+    @GetMapping("/nganh")
+    public ResponseEntity<?> getAllNganhByKhoaVaKhoaHoc(
+        @RequestParam("khoa") String khoa,
+        @RequestParam("khoaHoc") String khoaHoc
+    ) {
+        List<String> nganhList = nguoiDungService.getAllNganhByKhoaVaKhoaHoc(khoa, khoaHoc);
+        if (nganhList == null) return ResponseEntity.ok(List.of());
+        nganhList = nganhList.stream().filter(x -> x != null && !x.trim().isEmpty()).distinct().collect(Collectors.toList());
+        return ResponseEntity.ok(nganhList);
+    }
+    
+    // Thống kê điểm khóa luận cho Admin (lọc theo khoa, khóa học, ngành)
     @GetMapping("/thongke_khoaluan")
     public ResponseEntity<?> thongKeKhoaLuanAdmin(
         @RequestParam("khoa") String khoa,
-        @RequestParam("khoaHoc") String khoaHoc) {
+        @RequestParam("khoaHoc") String khoaHoc,
+        @RequestParam(value = "nganh", required = false) String nganh
+    ) {
+        List<NguoiDung> sinhViens;
+        if (nganh == null || nganh.isEmpty()) {
+            sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        } else {
+            sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHocVaNganh(khoa, khoaHoc, nganh);
+        }
+        int tongSinhVien = sinhViens.size();
 
-        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
         List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
         List<DeTaiKhoaLuan_SinhVien> dtsvList = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+        int soSinhVienThamGia = dtsvList.size();
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (DeTaiKhoaLuan_SinhVien dtsv : dtsvList) {
@@ -133,7 +154,11 @@ public class ApiAdminController {
             result.add(map);
         }
 
-        return ResponseEntity.ok(result);
+        Map<String, Object> res = new HashMap<>();
+        res.put("tongSinhVien", tongSinhVien);
+        res.put("soSinhVienThamGia", soSinhVienThamGia);
+        res.put("dsSinhVien", result);
+        return ResponseEntity.ok(res);
     }
 
 }

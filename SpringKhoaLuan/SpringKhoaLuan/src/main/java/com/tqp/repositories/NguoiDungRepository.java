@@ -30,4 +30,6 @@ public interface NguoiDungRepository {
     
     //api
     List<String> getAllKhoa();
+    List<NguoiDung> getSinhVienByKhoaVaKhoaHocVaNganh(String khoa, String khoaHoc, String nganh);
+    List<String> getAllNganhByKhoaVaKhoaHoc(String khoa, String khoaHoc);
 }

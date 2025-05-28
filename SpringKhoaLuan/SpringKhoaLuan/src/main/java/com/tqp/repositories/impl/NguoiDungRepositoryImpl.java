@@ -143,4 +143,28 @@ public class NguoiDungRepositoryImpl implements NguoiDungRepository {
         Query query = session.createQuery(hql);
         return query.getResultList();
     }
+    
+    @Override
+    public List<NguoiDung> getSinhVienByKhoaVaKhoaHocVaNganh(String khoa, String khoaHoc, String nganh) {
+        Session session = factory.getObject().getCurrentSession();
+        Query query = session.createQuery(
+            "FROM NguoiDung WHERE role = 'ROLE_SINHVIEN' AND khoa = :khoa AND khoaHoc = :khoaHoc AND nganh = :nganh",
+            NguoiDung.class
+        );
+        query.setParameter("khoa", khoa);
+        query.setParameter("khoaHoc", khoaHoc);
+        query.setParameter("nganh", nganh);
+        return query.getResultList();
+    }
+    
+    @Override
+    public List<String> getAllNganhByKhoaVaKhoaHoc(String khoa, String khoaHoc) {
+        Session session = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT DISTINCT n.nganh FROM NguoiDung n WHERE n.khoa = :khoa AND n.khoaHoc = :khoaHoc AND n.nganh IS NOT NULL AND n.nganh <> '' ORDER BY n.nganh ASC";
+        Query query = session.createQuery(hql);
+        query.setParameter("khoa", khoa);
+        query.setParameter("khoaHoc", khoaHoc);
+        return query.getResultList();
+    }
+
 }

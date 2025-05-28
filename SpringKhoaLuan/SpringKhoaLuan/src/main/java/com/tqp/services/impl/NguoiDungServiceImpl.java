@@ -164,4 +164,14 @@ public class NguoiDungServiceImpl implements NguoiDungService, UserDetailsServic
     public List<String> getAllKhoa() {
         return nguoiDungRepo.getAllKhoa();
     }
+    
+    @Override
+    public List<NguoiDung> getSinhVienByKhoaVaKhoaHocVaNganh(String khoa, String khoaHoc, String nganh) {
+        return nguoiDungRepo.getSinhVienByKhoaVaKhoaHocVaNganh(khoa, khoaHoc, nganh);
+    }
+    
+    @Override
+    public List<String> getAllNganhByKhoaVaKhoaHoc(String khoa, String khoaHoc) {
+        return nguoiDungRepo.getAllNganhByKhoaVaKhoaHoc(khoa, khoaHoc);
+    }
 }

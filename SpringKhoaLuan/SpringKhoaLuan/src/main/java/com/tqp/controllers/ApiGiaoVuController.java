@@ -470,15 +470,38 @@ public class ApiGiaoVuController {
 
         return ResponseEntity.ok(result);
     }
+    
+    @GetMapping("/nganh")
+    public ResponseEntity<?> getNganhList(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+        var user = nguoiDungService.getByUsername(principal.getName());
+        String khoa = user.getKhoa();
+        List<String> nganhList = nguoiDungService.getAllNganhByKhoaVaKhoaHoc(khoa, khoaHoc); // Bạn phải implement hàm này
+        if (nganhList == null) return ResponseEntity.ok(List.of());
+        nganhList = nganhList.stream().filter(x -> x != null && !x.trim().isEmpty()).distinct().collect(Collectors.toList());
+        return ResponseEntity.ok(nganhList);
+    }
 
     @GetMapping("/thongke_sinhvien")
-    public ResponseEntity<?> thongKeSinhVienTheoKhoaHoc(@RequestParam("khoaHoc") String khoaHoc, Principal principal) {
+    public ResponseEntity<?> thongKeSinhVienTheoKhoaHoc(
+            @RequestParam("khoaHoc") String khoaHoc,
+            @RequestParam(value = "nganh", required = false) String nganh,
+            Principal principal) {
         var user = nguoiDungService.getByUsername(principal.getName());
         String khoa = user.getKhoa();
 
-        List<NguoiDung> sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+         // Lọc theo khoa + khoá học + ngành (nếu có)
+        List<NguoiDung> sinhViens;
+        if (nganh == null || nganh.isEmpty()) {
+            sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHoc(khoa, khoaHoc);
+        } else {
+            sinhViens = nguoiDungService.getSinhVienByKhoaVaKhoaHocVaNganh(khoa, khoaHoc, nganh);
+        }
+        int tongSinhVien = sinhViens.size();
+        
         List<Integer> sinhVienIds = sinhViens.stream().map(NguoiDung::getId).collect(Collectors.toList());
         List<DeTaiKhoaLuan_SinhVien> dtsvList = deTaiSinhVienService.findBySinhVienIds(sinhVienIds);
+
+        int soSinhVienThamGia = dtsvList.size();
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (DeTaiKhoaLuan_SinhVien dtsv : dtsvList) {
@@ -500,7 +523,12 @@ public class ApiGiaoVuController {
             result.add(map);
         }
 
-        return ResponseEntity.ok(result);
+        // Trả về thêm tổng số sinh viên và số SV tham gia khóa luận
+        Map<String, Object> res = new HashMap<>();
+        res.put("tongSinhVien", tongSinhVien);
+        res.put("soSinhVienThamGia", soSinhVienThamGia);
+        res.put("dsSinhVien", result);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/xuat_pdf_diem")
