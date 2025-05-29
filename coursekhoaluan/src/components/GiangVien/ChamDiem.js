@@ -3,6 +3,21 @@ import { MyUserContext } from "../../config/Contexts";
 import { Button, Table, Form, Alert } from "react-bootstrap";
 import { authApis } from "../../config/Apis";
 
+
+// Hàm group danh sách theo khóa học
+function groupByKhoaHoc(danhSach) {
+  const map = {};
+  for (const item of danhSach) {
+    // Tùy thuộc backend trả, bạn lấy từ selected hoặc từ sinhVien hoặc từ đề tài
+    // Ưu tiên lấy từ sinhVien.khoaHoc, nếu không có thì lấy item.khoaHoc, nếu không thì null
+    const khoaHoc = item.khoaHoc || "";
+    if (!khoaHoc) continue; // Bỏ qua nếu không có khóa
+    if (!map[khoaHoc]) map[khoaHoc] = [];
+    map[khoaHoc].push(item);
+  }
+  return map;
+}
+
 function ChamDiem() {
   const user = useContext(MyUserContext);
 
@@ -19,13 +34,20 @@ function ChamDiem() {
     if (user && user.id) {
       authApis()
         .get(`/giangvien/phanbien/danhsach`)
-        .then(res => setDanhSach(res.data))
+        .then(res => {
+          setDanhSach(res.data);
+          console.log("DanhSachAPI: ", res.data); // <--- Thêm dòng này!
+        })
         .catch(err => {
           setMsg("Lỗi lấy danh sách: " + (err.response?.data?.error || err.message));
           setMsgType("danger");
         });
     }
   }, [user]);
+
+  // Group và sort khóa giảm dần (mới nhất lên đầu)
+  const group = groupByKhoaHoc(danhSach);
+  const sortedKhoaHoc = Object.keys(group).sort((a, b) => b.localeCompare(a)); // giảm dần
 
   // Khi chọn sinh viên, mới load tiêu chí & điểm
   useEffect(() => {
@@ -111,46 +133,51 @@ function ChamDiem() {
       {!selected ? (
         <>
           <h4>Chọn sinh viên để chấm điểm:</h4>
-          <Table bordered striped hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Đề tài</th>
-                <th>Sinh viên</th>
-                <th>Hội đồng</th>
-                <th>Trạng thái</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {danhSach.length === 0 && (
-                <tr><td colSpan={6}>Không có sinh viên nào cần chấm!</td></tr>
-              )}
-              {danhSach.map((dt, idx) =>
-                <tr key={dt.dtsvId}>
-                  <td>{idx + 1}</td>
-                  <td>{dt.deTaiTitle}</td>
-                  <td>{dt.sinhVienTen}</td>
-                  <td>{dt.hoiDongName}</td>
-                  <td>
-                    {dt.isLocked
-                      ? <span style={{ color: "red", fontWeight: "bold" }}>Đã khóa</span>
-                      : <span style={{ color: "green" }}>Chưa khóa</span>
-                    }
-                  </td>
-                  <td>
-                    <Button
-                      size="sm"
-                      variant="outline-primary"
-                      onClick={() => setSelected(dt)}
-                    >
-                      Chấm điểm
-                    </Button>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
+          {sortedKhoaHoc.length === 0 && <p>Không có sinh viên nào cần chấm!</p>}
+          {sortedKhoaHoc.map(khoaHoc => (
+            <div key={khoaHoc} className="mb-4">
+              <h5 style={{ fontWeight: "bold", color: "#0984e3" }}>
+                Khóa {khoaHoc}
+              </h5>
+              <Table bordered striped hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Đề tài</th>
+                    <th>Sinh viên</th>
+                    <th>Hội đồng</th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {group[khoaHoc].map((dt, idx) => (
+                    <tr key={dt.dtsvId}>
+                      <td>{idx + 1}</td>
+                      <td>{dt.deTaiTitle}</td>
+                      <td>{dt.sinhVienTen}</td>
+                      <td>{dt.hoiDongName}</td>
+                      <td>
+                        {dt.isLocked
+                          ? <span style={{ color: "red", fontWeight: "bold" }}>Đã khóa</span>
+                          : <span style={{ color: "green" }}>Chưa khóa</span>
+                        }
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          variant="outline-primary"
+                          onClick={() => setSelected(dt)}
+                        >
+                          Chấm điểm
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          ))}
         </>
       ) : (
         <div>

@@ -87,6 +87,7 @@ public class ApiGiangVienController {
                 item.put("hoiDongName", hoiDongService.getById(hoiDongId).getName());
                 item.put("isLocked", Boolean.TRUE.equals(dthd.getLocked())); // Thêm trạng thái locked để FE nhận biết
                 item.put("khoa", deTai.getKhoa());
+                item.put("khoaHoc", sinhVien.getKhoaHoc());
                 result.add(item);
             }
         }
