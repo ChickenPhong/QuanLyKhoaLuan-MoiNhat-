@@ -138,6 +138,10 @@ public class ApiGiangVienController {
     // Lưu điểm cho từng tiêu chí
     @PostMapping("/phanbien/luudiem")
     public ResponseEntity<?> saveDiem(@RequestBody Map<String, Object> payload, Principal principal) {
+        System.out.println(">>> Principal: " + principal);
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Không có thông tin principal!");
+        }
         String username = principal.getName();
         var gv = nguoiDungService.getByUsername(username);
         if (gv == null) {
@@ -157,15 +161,19 @@ public class ApiGiangVienController {
         Map<String, Object> diemMapRaw = (Map<String, Object>) payload.get("diemMap");
         Map<String, Float> diemMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : diemMapRaw.entrySet()) {
-            Float diem;
-            if (entry.getValue() instanceof Integer) {
-                diem = ((Integer) entry.getValue()).floatValue();
-            } else if (entry.getValue() instanceof Double) {
-                diem = ((Double) entry.getValue()).floatValue();
-            } else if (entry.getValue() instanceof Float) {
-                diem = (Float) entry.getValue();
+            Float diem = null;
+            Object val = entry.getValue();
+            if (val == null || val.toString().trim().isEmpty()) {
+                // Nếu giá trị rỗng, bỏ qua hoặc set giá trị mặc định (tùy bạn)
+                continue; // hoặc diem = null; tùy nghiệp vụ
+            } else if (val instanceof Integer) {
+                diem = ((Integer) val).floatValue();
+            } else if (val instanceof Double) {
+                diem = ((Double) val).floatValue();
+            } else if (val instanceof Float) {
+                diem = (Float) val;
             } else {
-                diem = Float.parseFloat(entry.getValue().toString());
+                diem = Float.parseFloat(val.toString());
             }
             diemMap.put(entry.getKey(), diem);
         }

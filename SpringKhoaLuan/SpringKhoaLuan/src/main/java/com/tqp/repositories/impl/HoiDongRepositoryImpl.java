@@ -51,4 +51,14 @@ public class HoiDongRepositoryImpl implements HoiDongRepository{
         if (hd != null)
             s.delete(hd);
     }
+    
+    //api
+    @Override
+    public List<HoiDong> getHoiDongByKhoa(String khoa) {
+        Session s = factory.getObject().getCurrentSession();
+        // Nếu cần lọc trạng thái active nữa thì bổ sung điều kiện
+        Query q = s.createQuery("FROM HoiDong WHERE khoa = :khoa AND status = 'active'", HoiDong.class);
+        q.setParameter("khoa", khoa);
+        return q.getResultList();
+    }
 }

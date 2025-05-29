@@ -50,4 +50,10 @@ public class HoiDongServiceImpl implements HoiDongService{
     public List<NguoiDung> getThanhVienHoiDong(int hoiDongId) {
         return tvRepo.getGiangVienByHoiDongId(hoiDongId);
     }
+    
+    //api
+    @Override
+    public List<HoiDong> getHoiDongByKhoa(String khoa) {
+        return hoiDongRepo.getHoiDongByKhoa(khoa);
+    }
 }

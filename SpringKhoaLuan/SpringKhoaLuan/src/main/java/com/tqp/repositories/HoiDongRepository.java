@@ -16,4 +16,7 @@ public interface HoiDongRepository {
     HoiDong getById(int id);
     HoiDong save(HoiDong hd);
     void delete(int id);
+    
+    //api
+    List<HoiDong> getHoiDongByKhoa(String khoa);
 }

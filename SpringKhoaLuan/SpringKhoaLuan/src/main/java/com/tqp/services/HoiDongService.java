@@ -19,4 +19,7 @@ public interface HoiDongService {
     void deleteHoiDong(int id);
     
     List<NguoiDung> getThanhVienHoiDong(int hoiDongId);
+    
+    //api
+    List<HoiDong> getHoiDongByKhoa(String khoa);
 }

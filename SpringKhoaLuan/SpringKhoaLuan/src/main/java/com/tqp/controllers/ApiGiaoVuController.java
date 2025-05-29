@@ -243,7 +243,7 @@ public class ApiGiaoVuController {
         }
 
         // Lấy danh sách hội đồng
-        List<HoiDong> hoiDongs = hoiDongService.getAllHoiDong();
+        List<HoiDong> hoiDongs = hoiDongService.getHoiDongByKhoa(khoa);
         if (hoiDongs.isEmpty()) {
             Map<String, String> res = new HashMap<>();
             res.put("error", "Chưa có hội đồng nào để giao đề tài");

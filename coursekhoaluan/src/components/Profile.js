@@ -1,8 +1,9 @@
+
 import React, { useContext, useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { MyUserContext } from "../config/Contexts";
 import Chat from "./Chat";
-import { authApis } from "../config/Apis"; // ✅ dùng đúng tên đã export trong Apis.js
+import { authApis } from "../config/Apis";
 
 const Profile = () => {
   const user = useContext(MyUserContext);
@@ -80,8 +81,23 @@ const Profile = () => {
           <h4 className="mt-2">{user.username}</h4>
         </div>
         <div className="col-md-8">
+          {/* Luôn hiển thị họ và tên, email */}
+          <p><strong>Họ và tên:</strong> {user.fullname || user.username}</p>
           <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Vai trò:</strong> {user.role}</p>
+
+          {/* Hiển thị tùy role */}
+          {user.role && user.role.toLowerCase().includes("giangvien") && (
+            <p><strong>Khoa:</strong> {user.khoa || "Chưa cập nhật"}</p>
+          )}
+
+          {user.role && user.role.toLowerCase().includes("sinhvien") && (
+            <>
+              <p><strong>Khoa:</strong> {user.khoa || "Chưa cập nhật"}</p>
+              <p><strong>Khóa học:</strong> {user.khoaHoc || "Chưa cập nhật"}</p>
+              <p><strong>Ngành:</strong> {user.nganh || "Chưa cập nhật"}</p>
+            </>
+          )}
+
           <Button variant="warning" onClick={() => setShowModal(true)}>
             Đổi mật khẩu
           </Button>
@@ -132,7 +148,7 @@ const Profile = () => {
       </Modal>
 
       <h3 className="mt-5">Nhắn tin với người dùng khác</h3>
-      <Chat />   {/* Chèn khung chat 1-1 ở đây */}
+      <Chat />
     </div>
   );
 };
