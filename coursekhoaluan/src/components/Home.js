@@ -134,7 +134,7 @@ const Home = () => {
               <Card.Title>Thông tin vai trò</Card.Title>
               {user.role === "ROLE_ADMIN" && (
                 <Alert variant="info">
-                  Bạn là quản trị viên. Hãy vào mục <strong>Quản lý người dùng</strong> để cấp tài khoản.
+                  Bạn là quản trị viên. Hãy vào mục <strong>Thêm người dùng</strong> để cấp tài khoản.
                 </Alert>
               )}
               {user.role === "ROLE_GIAOVU" && (
@@ -144,12 +144,12 @@ const Home = () => {
               )}
               {user.role === "ROLE_GIANGVIEN" && (
                 <Alert variant="warning">
-                  Bạn là giảng viên. Vui lòng vào mục <strong>Hội đồng</strong> để xem và chấm điểm khóa luận.
+                  Bạn là giảng viên. Vui lòng vào mục <strong>Chấm điểm</strong> để xem và chấm điểm khóa luận.
                 </Alert>
               )}
               {user.role === "ROLE_SINHVIEN" && (
                 <Alert variant="secondary">
-                  Bạn là sinh viên. Bạn có thể xem điểm khóa luận và lịch bảo vệ của mình.
+                  Bạn là sinh viên. Bạn có thể xem giảng viên hướng dẫn và đề tài khóa luận của mình.
                 </Alert>
               )}
             </Card.Body>
@@ -226,7 +226,6 @@ const Home = () => {
                 <th>Vai trò</th>
                 <th>Mật khẩu (mã hóa)</th>
                 <th>Avatar</th>
-                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -257,15 +256,6 @@ const Home = () => {
                     ) : (
                       <span>No avatar</span>
                     )}
-                  </td>
-                  <td>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => deleteUser(u.id || u.eid)}
-                    >
-                      Xóa
-                    </Button>
                   </td>
                 </tr>
               ))}

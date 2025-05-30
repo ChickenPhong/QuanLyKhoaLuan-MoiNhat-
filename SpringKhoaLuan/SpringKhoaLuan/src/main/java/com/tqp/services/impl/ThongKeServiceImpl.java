@@ -49,7 +49,7 @@ public class ThongKeServiceImpl implements ThongKeService {
             "FROM DeTaiKhoaLuan d " +
             "JOIN DeTaiKhoaLuan_SinhVien ds ON ds.deTaiKhoaLuanId = d.id " +
             "JOIN NguoiDung sv ON sv.id = ds.sinhVienId " +
-            "LEFT JOIN BangDiem bd ON bd.deTaiKhoaLuanId = d.id " +
+            "LEFT JOIN BangDiem bd ON bd.deTaiKhoaLuanSinhVienId = ds.id " +
             "WHERE (:khoaHoc IS NULL OR sv.khoaHoc = :khoaHoc) " +
             "AND (:khoa IS NULL OR d.khoa = :khoa) " +
             "GROUP BY d.khoa, sv.khoaHoc " +

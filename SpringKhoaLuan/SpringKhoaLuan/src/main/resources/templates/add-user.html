@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
@@ -14,37 +15,36 @@
 
     <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
 
-    <form th:action="@{/admin/add-user}" method="post" enctype="multipart/form-data" class="mt-4">
-        
-        <!-- Fullname -->
+    <form th:action="@{/admin/add-user}" method="post" enctype="multipart/form-data" class="mt-4" novalidate>
+        <!-- Họ và tên -->
         <div class="mb-3">
-            <label class="form-label">Họ và tên:</label>
-            <input type="text" name="fullname" class="form-control" required>
+            <label class="form-label" for="fullname">Họ và tên:</label>
+            <input type="text" name="fullname" id="fullname" class="form-control" required th:value="${fullname}"/>
         </div>
-        
+
         <!-- Tên đăng nhập -->
         <div class="mb-3">
-            <label class="form-label">Tên đăng nhập:</label>
-            <input type="text" name="username" class="form-control" required>
+            <label class="form-label" for="username">Tên đăng nhập:</label>
+            <input type="text" name="username" id="username" class="form-control" required th:value="${username}"/>
         </div>
 
         <!-- Mật khẩu -->
         <div class="mb-3">
-            <label class="form-label">Mật khẩu:</label>
-            <input type="password" name="password" class="form-control" required>
+            <label class="form-label" for="password">Mật khẩu:</label>
+            <input type="password" name="password" id="password" class="form-control" required/>
         </div>
 
         <!-- Email -->
         <div class="mb-3">
-            <label class="form-label">Email:</label>
-            <input type="email" name="email" class="form-control">
+            <label class="form-label" for="email">Email:</label>
+            <input type="email" name="email" id="email" class="form-control" th:value="${email}"/>
         </div>
 
         <!-- Vai trò -->
         <div class="mb-3">
-            <label class="form-label">Vai trò:</label>
-            <select name="role" id="role" class="form-select" onchange="toggleFields()">
-                <option value="ROLE_ADMIN" selected>Admin</option>
+            <label class="form-label" for="role">Vai trò:</label>
+            <select name="role" id="role" class="form-select">
+                <option value="ROLE_ADMIN">Admin</option>
                 <option value="ROLE_GIAOVU">Giáo vụ</option>
                 <option value="ROLE_GIANGVIEN">Giảng viên</option>
                 <option value="ROLE_SINHVIEN">Sinh viên</option>
@@ -52,58 +52,142 @@
         </div>
 
         <!-- Khoa -->
-        <div class="mb-3" id="khoaField" style="display: none;">
-            <label class="form-label">Khoa:</label>
-            <select name="khoa" class="form-select">
+        <div class="mb-3" id="khoaField" style="display:none;">
+            <label class="form-label" for="khoa">Khoa:</label>
+            <select id="khoa" name="khoa" class="form-select">
+                <option value="">-- Chọn khoa --</option>
                 <option value="Công nghệ thông tin">Công nghệ thông tin</option>
                 <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
                 <option value="Tài chính - Ngân hàng">Tài chính - Ngân hàng</option>
-                <option value="Ngôn ngữ Anh">Ngôn ngữ Anh</option>
-                <option value="Kế toán">Kế toán</option>
+                <option value="Ngôn ngữ">Ngôn ngữ</option>
+                <option value="Công nghệ sinh học">Công nghệ sinh học</option>
+            </select>
+        </div>
+
+        <!-- Ngành -->
+        <div class="mb-3" id="nganhField" style="display:none;">
+            <label class="form-label" for="nganh">Ngành:</label>
+            <select id="nganh" name="nganh" class="form-select" disabled>
+                <option value="">-- Chọn ngành --</option>
             </select>
         </div>
 
         <!-- Khóa học -->
-        <div class="mb-3" id="khoaHocField" style="display: none;">
-            <label class="form-label">Khóa học:</label>
-            <input type="text" name="khoaHoc" class="form-control" placeholder="VD: 2022">
+        <div class="mb-3" id="khoaHocField" style="display:none;">
+            <label class="form-label" for="khoaHoc">Khóa học:</label>
+            <input type="text" name="khoaHoc" id="khoaHoc" class="form-control" placeholder="Ví dụ: 2022" />
         </div>
 
         <!-- Avatar -->
         <div class="mb-3">
-            <label class="form-label">Avatar:</label>
-            <input type="file" name="avatar" class="form-control">
+            <label class="form-label" for="avatar">Avatar:</label>
+            <input type="file" name="avatar" id="avatar" class="form-control" />
         </div>
 
         <button type="submit" class="btn btn-primary">Thêm người dùng</button>
-        <a th:href="@{/admin}" class="btn btn-secondary">Quay lại</a>
+        <a th:href="@{/admin}" class="btn btn-secondary ms-2">Quay lại</a>
     </form>
 </div>
 
 <div th:replace="base :: footer"></div>
 
 <script>
-    function toggleFields() {
-        const role = document.getElementById("role").value;
-        const khoaField = document.getElementById("khoaField");
-        const khoaHocField = document.getElementById("khoaHocField");
+const NGANH_THEO_KHOA = {
+    "Công nghệ thông tin": [
+        "Khoa học máy tính",
+        "Hệ thống thông tin quản lý",
+        "Công nghệ thông tin",
+        "Trí tuệ nhân tạo"
+    ],
+    "Quản trị kinh doanh": [
+        "Kinh doanh quốc tế",
+        "Marketing",
+        "Quản trị nhân lực",
+        "Quản trị kinh doanh",
+        "Logistics và Quản lý chuỗi cung ứng"
+    ],
+    "Tài chính - Ngân hàng": [
+        "Tài chính – Ngân hàng",
+        "Công nghệ tài chính",
+        "Bảo hiểm"
+    ],
+    "Ngôn ngữ": [
+        "Ngôn ngữ Anh",
+        "Ngôn ngữ Trung Quốc",
+        "Ngôn ngữ Nhật",
+        "Ngôn ngữ Hàn Quốc"
+    ],
+    "Công nghệ sinh học": [
+        "Công nghệ sinh học",
+        "Công nghệ thực phẩm"
+    ]
+};
 
-        if (role === "ROLE_ADMIN") {
-            khoaField.style.display = "none";
-            khoaHocField.style.display = "none";
-        } else {
-            khoaField.style.display = "block";
+function toggleFields() {
+    const role = document.getElementById('role').value;
+    const khoaField = document.getElementById('khoaField');
+    const nganhField = document.getElementById('nganhField');
+    const khoaHocField = document.getElementById('khoaHocField');
+    const khoa = document.getElementById('khoa');
+    const nganh = document.getElementById('nganh');
 
-            if (role === "ROLE_SINHVIEN") {
-                khoaHocField.style.display = "block";
-            } else {
-                khoaHocField.style.display = "none";
-            }
-        }
+    // Reset
+    khoaField.style.display = 'none';
+    nganhField.style.display = 'none';
+    khoaHocField.style.display = 'none';
+    nganh.disabled = true;
+
+    if(role === 'ROLE_ADMIN') {
+        // Không hiện gì thêm
+    } else if(role === 'ROLE_SINHVIEN') {
+        khoaField.style.display = 'block';
+        nganhField.style.display = 'block';
+        khoaHocField.style.display = 'block';
+        nganh.disabled = (khoa.value === "");
+    } else if(role === 'ROLE_GIAOVU' || role === 'ROLE_GIANGVIEN') {
+        khoaField.style.display = 'block';
+        // không cần ngành và khóa học
     }
+}
 
-    // Gọi khi trang load lần đầu
-    window.addEventListener("DOMContentLoaded", toggleFields);
+function updateNganhOptions() {
+    const role = document.getElementById('role').value;
+    const khoa = document.getElementById('khoa').value;
+    const nganh = document.getElementById('nganh');
+
+    nganh.innerHTML = '<option value="">-- Chọn ngành --</option>';
+
+    if(role === 'ROLE_SINHVIEN' && khoa && NGANH_THEO_KHOA[khoa]) {
+        NGANH_THEO_KHOA[khoa].forEach(ng => {
+            const option = document.createElement('option');
+            option.value = ng;
+            option.textContent = ng;
+            nganh.appendChild(option);
+        });
+        nganh.disabled = false;
+    } else {
+        nganh.disabled = true;
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    toggleFields();
+
+    document.getElementById('role').addEventListener('change', () => {
+        // Reset giá trị khi đổi vai trò
+        document.getElementById('khoa').value = "";
+        document.getElementById('nganh').value = "";
+        document.getElementById('khoaHoc').value = "";
+        updateNganhOptions();
+        toggleFields();
+    });
+
+    document.getElementById('khoa').addEventListener('change', () => {
+        document.getElementById('nganh').value = "";
+        updateNganhOptions();
+        toggleFields();
+    });
+});
 </script>
 
 </body>
