@@ -222,35 +222,11 @@ const Home = () => {
               )}
 
               {user.role === "ROLE_SINHVIEN" && (
-                <Card className="mt-3">
-                  <Card.Body>
-                    <Card.Title>Thông tin đề tài & giảng viên hướng dẫn</Card.Title>
-                    {svDeTai && svDeTai.deTai ? (
-                      <Table bordered size="sm">
-                        <tbody>
-                          <tr>
-                            <th>Khóa học</th>
-                            <td>{svDeTai.khoaHoc}</td>
-                          </tr>
-                          <tr>
-                            <th>Đề tài khóa luận</th>
-                            <td>{svDeTai.deTai}</td>
-                          </tr>
-                          <tr>
-                            <th>Giảng viên hướng dẫn</th>
-                            <td>
-                              {svDeTai.giangVien}
-                              <br />
-                              <small className="text-muted">{svDeTai.giangVienEmail}</small>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </Table>
-                    ) : (
-                      <div>Bạn chưa được phân công đề tài hoặc giảng viên hướng dẫn.</div>
-                    )}
-                  </Card.Body>
-                </Card>
+                <>
+                  <Alert variant="warning">
+                    Bạn là sinh viên. Vui lòng vào mục <strong>Xem Đề Tài</strong> để xem .
+                  </Alert>
+                </>
               )}
             </Card.Body>
           </Card>

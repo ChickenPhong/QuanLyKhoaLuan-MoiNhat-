@@ -20,50 +20,83 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/sinhvien")
 public class ApiSinhVienController {
-    @Autowired
-    private NguoiDungService nguoiDungService;
+
     @Autowired
     private DeTaiSinhVienService deTaiSinhVienService;
     @Autowired
+    private DeTaiService deTaiService;
+    @Autowired
     private DeTaiHuongDanService deTaiHuongDanService;
     @Autowired
-    private DeTaiService deTaiService;
+    private NguoiDungService nguoiDungService;
 
-    // API: Lấy đề tài & giảng viên hướng dẫn cho sinh viên đang đăng nhập
-    @GetMapping("/detai-huongdan")
-    public ResponseEntity<?> getDeTaiVaGiangVien(Principal principal) {
-        if (principal == null)
-            return ResponseEntity.status(401).body("Không có principal");
+    @GetMapping("/detai")
+    public ResponseEntity<?> getDeTaiVaGvHuongDan(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Không có thông tin người dùng"));
+        }
 
         String username = principal.getName();
-        NguoiDung sv = nguoiDungService.getByUsername(username);
-        if (sv == null)
-            return ResponseEntity.status(401).body("Không tìm thấy sinh viên");
+        var sv = nguoiDungService.getByUsername(username);
+        if (sv == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Không tìm thấy sinh viên"));
+        }
 
-        // Lấy đề tài sinh viên này được giao (giả sử mỗi sinh viên chỉ có 1 đề tài)
-        DeTaiKhoaLuan_SinhVien dtsv = deTaiSinhVienService.findBySinhVienId(sv.getId());
-        if (dtsv == null)
-            return ResponseEntity.ok(new HashMap<>()); // Chưa có đề tài
+        var deTaiSinhVien = deTaiSinhVienService.findBySinhVienId(sv.getId());
+        if (deTaiSinhVien == null) {
+            return ResponseEntity.ok(Map.of(
+                "message", "Chưa được phân công đề tài",
+                "khoaHoc", sv.getKhoaHoc(),
+                "deTai", null,
+                "giangVienHuongDan", List.of()
+            ));
+        }
 
-        DeTaiKhoaLuan deTai = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
+        var deTai = deTaiService.getDeTaiById(deTaiSinhVien.getDeTaiKhoaLuanId());
+        if (deTai == null) {
+            return ResponseEntity.ok(Map.of(
+                "message", "Chưa có thông tin đề tài",
+                "khoaHoc", sv.getKhoaHoc(),
+                "deTai", null,
+                "giangVienHuongDan", List.of()
+            ));
+        }
 
-        // Lấy giảng viên hướng dẫn
-        DeTaiKhoaLuan_GiangVienHuongDan huongDan = deTaiHuongDanService.findByDeTaiKhoaLuanSinhVienId(dtsv.getId());
-        NguoiDung giangVien = (huongDan != null)
-            ? nguoiDungService.getById(huongDan.getGiangVienHuongDanId())
-            : null;
+        var huongDans = deTaiHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(deTaiSinhVien.getId());
 
-        Map<String, Object> resp = new HashMap<>();
-        resp.put("deTai", deTai != null ? deTai.getTitle() : null);
-        resp.put("giangVien", giangVien != null ? giangVien.getFullname() : null);
-        resp.put("giangVienEmail", giangVien != null ? giangVien.getEmail() : null);
-        resp.put("khoaHoc", sv.getKhoaHoc());
-        return ResponseEntity.ok(resp);
+        List<Map<String, Object>> gvList = new ArrayList<>();
+        for (var hd : huongDans) {
+            var gv = nguoiDungService.getById(hd.getGiangVienHuongDanId());
+            if (gv == null) continue;
+
+            Map<String, Object> gvMap = new HashMap<>();
+            gvMap.put("id", gv.getId());
+            gvMap.put("fullname", gv.getFullname());
+            gvMap.put("email", gv.getEmail());
+            gvMap.put("avatar", gv.getAvatar());
+            gvList.add(gvMap);
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("khoaHoc", sv.getKhoaHoc());
+        result.put("deTai", Map.of(
+            "id", deTai.getId(),
+            "title", deTai.getTitle(),
+            "khoa", deTai.getKhoa()
+        ));
+        result.put("giangVienHuongDan", gvList);
+        result.put("message", "success");
+
+        return ResponseEntity.ok(result);
     }
 }
+
+

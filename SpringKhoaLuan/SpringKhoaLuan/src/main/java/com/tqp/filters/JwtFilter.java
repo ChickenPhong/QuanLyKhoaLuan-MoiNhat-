@@ -24,7 +24,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class JwtFilter implements Filter{
+public class JwtFilter implements Filter {
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -33,18 +34,19 @@ public class JwtFilter implements Filter{
 
         // Chỉ kiểm tra token với các request bắt đầu bằng /api/secure
         if (uri.contains("/api/secure")
-            || uri.contains("/api/tieuchi")
-            || uri.contains("/api/hoidong")
-            || uri.contains("/api/giaovu")
-            || uri.contains("/api/giangvien")) {
-            
+                || uri.contains("/api/tieuchi")
+                || uri.contains("/api/hoidong")
+                || uri.contains("/api/giaovu")
+                || uri.contains("/api/giangvien")
+                || uri.contains("/api/sinhvien")) {
+
             String header = httpRequest.getHeader("Authorization");
             System.out.println("HEADER nhận từ FE: " + header);
-            
+
             if (header == null || !header.startsWith("Bearer ")) {
                 ((HttpServletResponse) response).sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED, 
-                    "Missing or invalid Authorization header.");
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Missing or invalid Authorization header.");
                 return;
             } else {
                 String token = header.substring(7);
@@ -53,8 +55,8 @@ public class JwtFilter implements Filter{
                     if (username != null) {
                         System.out.println("Token hợp lệ, user: " + username); //mới thêm
                         httpRequest.setAttribute("username", username);
-                        UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(username, null, null);
+                        UsernamePasswordAuthenticationToken authentication
+                                = new UsernamePasswordAuthenticationToken(username, null, null);
                         //List<GrantedAuthority> authorities = new ArrayList<>(); //mới dc thêm
                         //authorities.add(new SimpleGrantedAuthority("ROLE_GIAOVU")); // hoặc quyền phù hợp của bạn, mới dc thêm
                         //UsernamePasswordAuthenticationToken authentication =  //mới dc thêm
@@ -74,8 +76,8 @@ public class JwtFilter implements Filter{
             }
 
             ((HttpServletResponse) response).sendError(
-                HttpServletResponse.SC_UNAUTHORIZED, 
-                "Token không hợp lệ hoặc hết hạn");
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Token không hợp lệ hoặc hết hạn");
             return;
         }
 

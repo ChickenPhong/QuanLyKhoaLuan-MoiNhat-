@@ -20,6 +20,7 @@ export const endpoints = {
     committees: 'committees',
 
     detai: "detai",
+    detaiSinhVien: "sinhvien/detai",
 
     // Tiêu chí
     tieuchi: 'tieuchi',        // GET danh sách tiêu chí

@@ -58,6 +58,12 @@ const Header = () => {
                                         Chấm điểm
                                     </Nav.Link>
                                 )}
+                                
+                                {user?.role === "ROLE_SINHVIEN" && (
+                                    <>
+                                        <Nav.Link as={Link} to="/sinhvien/xemdetai">Xem Đề Tài</Nav.Link>                                      
+                                    </>
+                                )}
 
                                 <Nav.Link as={Link} to="/profile">Thông tin cá nhân</Nav.Link>
                             </Nav>
