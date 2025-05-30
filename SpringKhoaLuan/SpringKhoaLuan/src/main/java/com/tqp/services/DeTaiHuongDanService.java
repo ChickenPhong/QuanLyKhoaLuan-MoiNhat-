@@ -20,6 +20,9 @@ public interface DeTaiHuongDanService {
     
     void assign(int deTaiKhoaLuanSinhVienId, int giangVienId);
     
-    NguoiDung findByDeTaiKhoaLuanSinhVienId(int id);
+    DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiKhoaLuanSinhVienId(int id);
     List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id);
+    
+    //api
+    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByGiangVienHuongDanId(int giangVienId);
 }

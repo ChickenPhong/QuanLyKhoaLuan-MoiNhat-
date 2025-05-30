@@ -68,4 +68,16 @@ public class DeTaiHuongDanRepositoryImpl implements DeTaiHuongDanRepository{
         q.setParameter("id", id);
         return q.getResultList();
     }
+    
+    //api
+    @Override
+    public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByGiangVienHuongDanId(int giangVienId) {
+        Session s = factory.getObject().getCurrentSession();
+        Query q = s.createQuery(
+            "FROM DeTaiKhoaLuan_GiangVienHuongDan WHERE giangVienHuongDanId = :gid",
+            DeTaiKhoaLuan_GiangVienHuongDan.class
+        );
+        q.setParameter("gid", giangVienId);
+        return q.getResultList();
+    }
 }

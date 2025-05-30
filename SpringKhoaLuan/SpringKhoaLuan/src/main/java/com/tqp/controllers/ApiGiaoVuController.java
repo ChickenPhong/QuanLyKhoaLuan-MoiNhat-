@@ -288,7 +288,7 @@ public class ApiGiaoVuController {
 
             var gvs = deTaiGVHuongDanService.findAllByDeTaiKhoaLuanSinhVienId(dtsv.getId());
             String tenGVs = gvs.stream()
-                    .map(gv -> nguoiDungService.getById(gv.getGiangVienHuongDanId()).getUsername())
+                    .map(gv -> nguoiDungService.getById(gv.getGiangVienHuongDanId()).getFullname())
                     .collect(Collectors.joining(", "));
             item.put("giangVienHuongDan", tenGVs.isEmpty() ? "Chưa có" : tenGVs);
 

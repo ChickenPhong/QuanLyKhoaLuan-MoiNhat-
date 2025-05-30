@@ -55,13 +55,18 @@ public class DeTaiHuongDanServiceImpl implements DeTaiHuongDanService{
     }
     
     @Override
-    public NguoiDung findByDeTaiKhoaLuanSinhVienId(int id) {
-        var huongDan = repo.findByDeTaiKhoaLuanSinhVienId(id);
-        return huongDan != null ? nguoiDungService.getById(huongDan.getGiangVienHuongDanId()) : null;
+    public DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiKhoaLuanSinhVienId(int id) {
+        return repo.findByDeTaiKhoaLuanSinhVienId(id);
     }
     
     @Override
     public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id) {
         return repo.findAllByDeTaiKhoaLuanSinhVienId(id);
+    }
+    
+    //api
+    @Override
+    public List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByGiangVienHuongDanId(int giangVienId) {
+        return repo.findAllByGiangVienHuongDanId(giangVienId);
     }
 }

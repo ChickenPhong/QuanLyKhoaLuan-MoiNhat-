@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import { Button, Table, Form, Alert } from "react-bootstrap";
 import Apis, { authApis } from "../../config/Apis";
@@ -55,12 +56,21 @@ const XepDeTai = () => {
       const res = await authApis().post(`giaovu/xepdetai?khoaHoc=${selectedKhoaHoc}`);
       setMsg(res.data.message || "Xếp đề tài thành công");
       setMsgType("success");
+      try {
+        const res2 = await authApis().get(`/giaovu/sinhvien_by_khoahoc?khoaHoc=${selectedKhoaHoc}`);
+        setSinhVienList(res2.data.sinhViens || []);
+      } catch (error) {
+        setMsg("Lỗi tải lại danh sách sinh viên: " + error.message);
+        setMsgType("danger");
+        setSinhVienList([]);
+      }
     } catch (error) {
       const errMsg = error.response?.data?.error || error.message;
       setMsg("Lỗi khi xếp đề tài: " + errMsg);
       setMsgType("danger");
     }
   };
+
 
   return (
     <div className="container mt-4">

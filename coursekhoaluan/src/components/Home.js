@@ -11,6 +11,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [deTaiList, setDeTaiList] = useState([]);
+  const [huongDanList, setHuongDanList] = useState([]);
+  const [svDeTai, setSvDeTai] = useState(null);
   const [khoaLuan, setKhoaLuan] = useState({ id: null, title: "", khoa: "" });
   const [msg, setMsg] = useState("");
   const nav = useNavigate();
@@ -48,7 +50,39 @@ const Home = () => {
     if (user && (user.role === "ROLE_GIAOVU" || user.role === "ROLE_ADMIN")) {
       fetchDeTai();
     }
+
+    const fetchHuongDan = async () => {
+      if (user && user.role === "ROLE_GIANGVIEN") {
+        try {
+          const res = await authApis().get("/giangvien/huongdan/danhsach");
+          setHuongDanList(res.data);
+        } catch (err) {
+          setMsg("Lỗi tải danh sách sinh viên hướng dẫn.");
+        }
+      }
+    };
+    fetchHuongDan();
+
+    // Nếu là sinh viên thì gọi API lấy đề tài & GVHD
+    const fetchSinhVienInfo = async () => {
+      if (user && user.role === "ROLE_SINHVIEN") {
+        try {
+          const res = await authApis().get("/sinhvien/detai-huongdan");
+          setSvDeTai(res.data);
+        } catch {
+          setSvDeTai(null);
+        }
+      }
+    };
+    fetchSinhVienInfo();
   }, [user]);
+
+
+  const groupByKhoaHoc = {};
+  huongDanList.forEach((sv) => {
+    if (!groupByKhoaHoc[sv.khoaHoc]) groupByKhoaHoc[sv.khoaHoc] = [];
+    groupByKhoaHoc[sv.khoaHoc].push(sv);
+  });
 
   const deleteUser = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
@@ -143,14 +177,80 @@ const Home = () => {
                 </Alert>
               )}
               {user.role === "ROLE_GIANGVIEN" && (
-                <Alert variant="warning">
-                  Bạn là giảng viên. Vui lòng vào mục <strong>Chấm điểm</strong> để xem và chấm điểm khóa luận.
-                </Alert>
+                <>
+                  <Alert variant="warning">
+                    Bạn là giảng viên. Vui lòng vào mục <strong>Chấm điểm</strong> để xem và chấm điểm khóa luận.
+                  </Alert>
+                  <Card className="mt-3">
+                    <Card.Body>
+                      <Card.Title>Danh sách sinh viên bạn đang hướng dẫn</Card.Title>
+                      {huongDanList.length === 0 ? (
+                        <div>Hiện chưa có sinh viên nào được bạn hướng dẫn.</div>
+                      ) : (
+                        // Group và sort khóa học giảm dần
+                        Object.keys(groupByKhoaHoc)
+                          .sort((a, b) => b.localeCompare(a)) // sort giảm dần: 2023, 2022...
+                          .map((khoaHoc, i) => (
+                            <div key={khoaHoc} className="mb-4">
+                              <h5 className="text-primary mb-2">Khóa: {khoaHoc}</h5>
+                              <Table striped bordered size="sm">
+                                <thead>
+                                  <tr>
+                                    <th>#</th>
+                                    <th>Họ tên sinh viên</th>
+                                    <th>Email</th>
+                                    <th>Đề tài khóa luận</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {groupByKhoaHoc[khoaHoc].map((sv, idx) => (
+                                    <tr key={sv.svId}>
+                                      <td>{idx + 1}</td>
+                                      <td>{sv.fullname}</td>
+                                      <td>{sv.email}</td>
+                                      <td>{sv.deTai}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </Table>
+                            </div>
+                          ))
+                      )}
+                    </Card.Body>
+                  </Card>
+                </>
               )}
+
               {user.role === "ROLE_SINHVIEN" && (
-                <Alert variant="secondary">
-                  Bạn là sinh viên. Bạn có thể xem giảng viên hướng dẫn và đề tài khóa luận của mình.
-                </Alert>
+                <Card className="mt-3">
+                  <Card.Body>
+                    <Card.Title>Thông tin đề tài & giảng viên hướng dẫn</Card.Title>
+                    {svDeTai && svDeTai.deTai ? (
+                      <Table bordered size="sm">
+                        <tbody>
+                          <tr>
+                            <th>Khóa học</th>
+                            <td>{svDeTai.khoaHoc}</td>
+                          </tr>
+                          <tr>
+                            <th>Đề tài khóa luận</th>
+                            <td>{svDeTai.deTai}</td>
+                          </tr>
+                          <tr>
+                            <th>Giảng viên hướng dẫn</th>
+                            <td>
+                              {svDeTai.giangVien}
+                              <br />
+                              <small className="text-muted">{svDeTai.giangVienEmail}</small>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    ) : (
+                      <div>Bạn chưa được phân công đề tài hoặc giảng viên hướng dẫn.</div>
+                    )}
+                  </Card.Body>
+                </Card>
               )}
             </Card.Body>
           </Card>

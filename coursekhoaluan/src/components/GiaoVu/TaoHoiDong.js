@@ -108,7 +108,7 @@ const TaoHoiDong = () => {
             {giangViens
               .filter(gv => String(gv.id) !== String(thuKyId) && !phanBiensIds.includes(gv.id))
               .map(gv => (
-                <option key={gv.id} value={gv.id}>{gv.username}</option>
+                <option key={gv.id} value={gv.id}>{gv.fullname}</option>
               ))}
           </Form.Select>
         </Form.Group>
@@ -124,7 +124,7 @@ const TaoHoiDong = () => {
             {giangViens
               .filter(gv => String(gv.id) !== String(chuTichId) && !phanBiensIds.includes(gv.id))
               .map(gv => (
-                <option key={gv.id} value={gv.id}>{gv.username}</option>
+                <option key={gv.id} value={gv.id}>{gv.fullname}</option>
               ))}
           </Form.Select>
         </Form.Group>
@@ -140,7 +140,7 @@ const TaoHoiDong = () => {
                   key={gv.id}
                   type="checkbox"
                   id={`phanbien-${gv.id}`}
-                  label={gv.username}
+                  label={gv.fullname}
                   checked={phanBiensIds.includes(gv.id)}
                   onChange={() => togglePhanBien(gv.id)}
                 />

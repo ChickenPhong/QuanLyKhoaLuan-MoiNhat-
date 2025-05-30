@@ -7,6 +7,7 @@ package com.tqp.controllers;
 import com.tqp.pojo.BangDiem;
 import com.tqp.services.BangDiemService;
 import com.tqp.services.DeTaiHoiDongService;
+import com.tqp.services.DeTaiHuongDanService;
 import com.tqp.services.DeTaiService;
 import com.tqp.services.DeTaiSinhVienService;
 import com.tqp.services.HoiDongService;
@@ -51,6 +52,39 @@ public class ApiGiangVienController {
     private BangDiemService bangDiemService;
     @Autowired
     private HoiDongService hoiDongService;
+    @Autowired
+    private DeTaiHuongDanService deTaiGVHuongDanService;
+
+    @GetMapping("/huongdan/danhsach")
+    public ResponseEntity<?> getDanhSachHuongDan(Principal principal) {
+        if (principal == null)
+            return ResponseEntity.status(401).body("Không có principal – token không được chấp nhận");
+
+        String username = principal.getName();
+        var gv = nguoiDungService.getByUsername(username);
+        if (gv == null)
+            return ResponseEntity.status(401).body("Không tìm thấy giảng viên: " + username);
+
+        int giangVienId = gv.getId();
+
+        // Lấy các bản ghi hướng dẫn của GV này
+        var huongDans = deTaiGVHuongDanService.findAllByGiangVienHuongDanId(giangVienId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (var hd : huongDans) {
+            var dtsv = deTaiSinhVienService.getById(hd.getDeTaiKhoaLuanSinhVienId());
+            if (dtsv == null) continue;
+            var sv = nguoiDungService.getById(dtsv.getSinhVienId());
+            var dt = deTaiService.getDeTaiById(dtsv.getDeTaiKhoaLuanId());
+            Map<String, Object> item = new HashMap<>();
+            item.put("svId", sv.getId());
+            item.put("fullname", sv.getFullname());
+            item.put("email", sv.getEmail());
+            item.put("khoaHoc", sv.getKhoaHoc());
+            item.put("deTai", dt != null ? dt.getTitle() : "");
+            result.add(item);
+        }
+        return ResponseEntity.ok(result);
+    }
 
     // Lấy danh sách đề tài và sinh viên được chấm điểm bởi giảng viên phản biện
     @GetMapping("/phanbien/danhsach")
