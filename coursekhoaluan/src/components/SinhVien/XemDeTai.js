@@ -41,7 +41,7 @@ export default function SinhVienDeTai() {
         <div className="card-header font-weight-bold">
           Đề tài khóa luận của bạn
           <br />
-          Khóa: <a>{data.khoaHoc}</a>
+          Khóa: {data.khoaHoc}
         </div>
         <div className="card-body">
           <strong>Tiêu đề đề tài:</strong> {data.deTai?.title || "Chưa có đề tài"}

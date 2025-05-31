@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Table, Form, Alert } from "react-bootstrap";
-import Apis, { authApis } from "../../config/Apis";
-import { MyUserContext } from "../../config/Contexts";
+import { authApis } from "../../config/Apis";
 
 const XepDeTai = () => {
   const [khoaHocList, setKhoaHocList] = useState([]);
@@ -10,7 +9,7 @@ const XepDeTai = () => {
   const [sinhVienList, setSinhVienList] = useState([]);
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState(""); // 'success' hoặc 'danger'
-  const current_user = useContext(MyUserContext);
+
   useEffect(() => {
     const loadKhoaHoc = async () => {
       try {

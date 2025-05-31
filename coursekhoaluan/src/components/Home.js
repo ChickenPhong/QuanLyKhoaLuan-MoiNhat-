@@ -84,19 +84,6 @@ const Home = () => {
     groupByKhoaHoc[sv.khoaHoc].push(sv);
   });
 
-  const deleteUser = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
-    try {
-      const formData = new FormData();
-      formData.append("userId", id);
-      await authApis().post(endpoints["delete-user"], formData);
-      const res = await authApis().get(endpoints["get-users"]);
-      setUsers(res.data);
-    } catch (err) {
-      alert("Xóa thất bại, vui lòng thử lại.");
-    }
-  };
-
   const handleDeTaiSubmit = async (e) => {
     e.preventDefault();
     if (!khoaLuan.title.trim()) {

@@ -250,14 +250,63 @@ public class ApiGiaoVuController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
         }
 
+        // Tính tổng slot tối đa có thể giao (mỗi hội đồng tối đa 5 đề tài)
+        int maxSlot = hoiDongs.size() * 5;
+
+        // Đếm số đề tài chưa được giao
+        long soDeTaiChuaGiao = dtsvList.stream()
+                .filter(dtsv -> !deTaiHoiDongService.isDeTaiAssigned(dtsv.getId()))
+                .count();
+
+        // Nếu số đề tài vượt quá tổng slot, trả lỗi
+        if (soDeTaiChuaGiao > maxSlot) {
+            Map<String, String> res = new HashMap<>();
+            res.put("error", String.format(
+                "Số đề tài chưa được giao (%d) vượt quá tối đa (%d) khóa luận mà một hội đồng cần chấm. Vui lòng tăng số hội đồng lên để giao khóa luận.",
+                soDeTaiChuaGiao, maxSlot));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+        }
+
+        // Đếm số đề tài đã giao cho mỗi hội đồng hiện tại (để tránh vượt quá 5)
+        Map<Integer, Integer> hoiDongCount = new HashMap<>();
+        for (HoiDong hd : hoiDongs) {
+            hoiDongCount.put(hd.getId(), 0);
+        }
+
+        List<DeTaiKhoaLuan_SinhVien> deTaiChuaGiaoList = dtsvList.stream()
+                .filter(dtsv -> !deTaiHoiDongService.isDeTaiAssigned(dtsv.getId()))
+                .collect(Collectors.toList());
+
+        // Cập nhật số đề tài đã giao cho từng hội đồng hiện tại
+        List<DeTaiKhoaLuan_HoiDong> dthds = deTaiHoiDongService.findByDtsvIds(
+                dtsvList.stream().map(DeTaiKhoaLuan_SinhVien::getId).collect(Collectors.toList())
+        );
+        for (DeTaiKhoaLuan_HoiDong dthd : dthds) {
+            hoiDongCount.put(dthd.getHoiDongId(), hoiDongCount.getOrDefault(dthd.getHoiDongId(), 0) + 1);
+        }
+
+        // Bắt đầu giao đề tài cho hội đồng, đảm bảo không vượt quá 5 đề tài mỗi hội đồng
         int hdIndex = 0;
-        for (var dtsv : dtsvList) {
-            if (deTaiHoiDongService.isDeTaiAssigned(dtsv.getId())) {
-                continue;
+        for (var dtsv : deTaiChuaGiaoList) {
+            boolean assigned = false;
+            int loopCount = 0;
+            while (!assigned && loopCount < hoiDongs.size()) {
+                HoiDong hd = hoiDongs.get(hdIndex % hoiDongs.size());
+                int currentCount = hoiDongCount.getOrDefault(hd.getId(), 0);
+                if (currentCount < 5) {
+                    deTaiHoiDongService.assignHoiDong(dtsv.getId(), hd.getId());
+                    hoiDongCount.put(hd.getId(), currentCount + 1);
+                    assigned = true;
+                }
+                hdIndex++;
+                loopCount++;
             }
-            var hd = hoiDongs.get(hdIndex % hoiDongs.size());
-            deTaiHoiDongService.assignHoiDong(dtsv.getId(), hd.getId());
-            hdIndex++;
+            if (!assigned) {
+                // Trường hợp không thể giao đề tài (dù đã kiểm tra ở trên, đây là phòng ngừa)
+                Map<String, String> res = new HashMap<>();
+                res.put("error", "Không thể giao đề tài vì giới hạn số lượng đề tài cho hội đồng đã đạt tối đa.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+            }
         }
 
         Map<String, String> res = new HashMap<>();

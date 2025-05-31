@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Image } from "react-bootstrap";
 import { authApis, endpoints } from "../config/Apis";
 
 export default function ChatSidebar({ user, onSelectUser }) {
@@ -52,7 +51,7 @@ export default function ChatSidebar({ user, onSelectUser }) {
                         style={{ cursor: "pointer", borderRadius: 8, marginBottom: 2 }}
                         onClick={() => onSelectUser(u)}
                     >
-                        <img src={u.avatar || "/default-avatar.png"} width={36} height={36} style={{ borderRadius: '50%' }} />
+                        <img src={u.avatar || "/default-avatar.png"} alt="Mô tả ảnh" width={36} height={36} style={{ borderRadius: '50%' }} />
                         <div className="ms-2">
                             <div style={{ fontWeight: 500 }}>{u.fullname}</div>
                             <div style={{ fontSize: 12, color: "#888" }}>@{u.username}</div>

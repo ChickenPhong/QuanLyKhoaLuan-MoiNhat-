@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Table, Alert, Badge } from "react-bootstrap";
 import { authApis } from "../../config/Apis";
 import cookie from 'react-cookies';
-import axios from "axios";
 
 const GiaoDeTai = () => {
   const [khoaHoc, setKhoaHoc] = useState("");
@@ -65,7 +64,7 @@ const GiaoDeTai = () => {
       return;
     }
     try {
-      const res = await authApis().post(`giaovu/giaodetai/giao?khoaHoc=${khoaHoc}`);
+      await authApis().post(`giaovu/giaodetai/giao?khoaHoc=${khoaHoc}`);
       setAlertMsg("Giao đề tài thành công");
       setAlertVariant("success");
 

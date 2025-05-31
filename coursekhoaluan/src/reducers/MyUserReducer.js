@@ -1,5 +1,3 @@
-import cookie from 'react-cookies';
-
 const MyUserReducer = (state, action) => {
   switch (action.type) {
     case "login":

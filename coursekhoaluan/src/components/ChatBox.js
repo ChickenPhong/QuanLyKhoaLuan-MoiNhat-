@@ -44,7 +44,7 @@ export default function ChatBox({ user, peer }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ borderBottom: "1px solid #ddd", padding: 16, background: "#fafafa" }}>
-        <img src={peer.avatar || "/default-avatar.png"} width={40} height={40} style={{ borderRadius: 20, marginRight: 8 }} />
+        <img src={peer.avatar || "/default-avatar.png"} alt="Mô tả ảnh" width={40} height={40} style={{ borderRadius: 20, marginRight: 8 }} />
         <span style={{ fontWeight: 600 }}>{peer.fullname}</span>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: 16, background: "#f9f9f9" }}>
@@ -54,7 +54,7 @@ export default function ChatBox({ user, peer }) {
             flexDirection: msg.userId === user.id ? "row-reverse" : "row",
             alignItems: "center", marginBottom: 10
           }}>
-            <img src={msg.avatar || "/default-avatar.png"} width={32} height={32} style={{ borderRadius: 16 }} />
+            <img src={msg.avatar || "/default-avatar.png"} alt="Mô tả" width={32} height={32} style={{ borderRadius: 16 }} />
             <div style={{
               background: msg.userId === user.id ? "#D1F2EB" : "#fff",
               padding: 10, borderRadius: 12, margin: "0 8px", minWidth: 80
