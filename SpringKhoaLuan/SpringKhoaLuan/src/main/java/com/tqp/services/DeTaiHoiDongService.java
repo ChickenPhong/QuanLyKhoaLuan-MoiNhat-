@@ -18,8 +18,8 @@ public interface DeTaiHoiDongService {
     DeTaiKhoaLuan_HoiDong add(DeTaiKhoaLuan_HoiDong dthd);
     void delete(int id);
     
-    void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId);
-    boolean isDeTaiAssigned(int deTaiId);
+    void assignHoiDong(int detaikhoaluanSinhVienId, int hoiDongId); //apiGiaovu
+    boolean isDeTaiAssigned(int deTaiId); //apiGiaovu
     DeTaiKhoaLuan_HoiDong findByDeTaiId(int deTaiId);
     long countDeTaiByHoiDongId(int hoiDongId);
     
@@ -28,9 +28,9 @@ public interface DeTaiHoiDongService {
     boolean isHoiDongLocked(int hoiDongId);
     
     List<DeTaiKhoaLuan> findDeTaiByHoiDongId(int hoiDongId);
-    DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId);
+    DeTaiKhoaLuan_HoiDong findByDtsvId(int dtsvId); //apiGiaovu
     
     //api
-    List<DeTaiKhoaLuan_HoiDong> findByDtsvIds(List<Integer> dtsvIds);
-    int lockAllByHoiDongIdAndDtsvIds(int hoiDongId, List<Integer> dtsvIds);
+    List<DeTaiKhoaLuan_HoiDong> findByDtsvIds(List<Integer> dtsvIds);  //apiAdmin, apiGiaovu
+    int lockAllByHoiDongIdAndDtsvIds(int hoiDongId, List<Integer> dtsvIds); //apiGiaovu
 }

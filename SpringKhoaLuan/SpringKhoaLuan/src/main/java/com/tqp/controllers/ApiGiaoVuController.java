@@ -27,7 +27,6 @@ import com.tqp.services.NguoiDungService;
 import com.tqp.services.PdfExportService;
 import com.tqp.services.PhanCongGiangVienPhanBienService;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -170,7 +169,6 @@ public class ApiGiaoVuController {
         for (int i = 0; i < svList.size(); i++) {
             var sv = svList.get(i);
             var dt = deTaiList.get(i % deTaiList.size());
-            var gv = giangVienList.get(i % giangVienList.size());
 
             deTaiSinhVienService.assign(sv.getId(), dt.getId());
 

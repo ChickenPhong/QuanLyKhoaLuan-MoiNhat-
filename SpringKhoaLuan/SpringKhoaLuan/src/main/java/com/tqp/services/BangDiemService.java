@@ -21,7 +21,7 @@ public interface BangDiemService {
     BangDiem findByDeTaiSinhVienIdAndGiangVienIdAndTieuChi(int dtsvId, int giangVienId, String tieuChi);
     BangDiem update(BangDiem diem);
     
-    List<BangDiem> findByDeTaiSinhVienId(int dtsvId);
+    List<BangDiem> findByDeTaiSinhVienId(int dtsvId); //apiAdmin
     Double tinhDiemTrungBinhByDeTaiSinhVienId(int dtsvId);
     
     List<BangDiemTongHopDTO> layBangDiemTongHopTheoHoiDong(int hoiDongId);

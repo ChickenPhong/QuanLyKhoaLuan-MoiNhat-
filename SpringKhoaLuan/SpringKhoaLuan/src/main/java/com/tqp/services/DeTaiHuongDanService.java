@@ -18,10 +18,10 @@ public interface DeTaiHuongDanService {
     DeTaiKhoaLuan_GiangVienHuongDan add(DeTaiKhoaLuan_GiangVienHuongDan d);
     void delete(int id);
     
-    void assign(int deTaiKhoaLuanSinhVienId, int giangVienId);
+    void assign(int deTaiKhoaLuanSinhVienId, int giangVienId); //apiGiaovu
     
     DeTaiKhoaLuan_GiangVienHuongDan findByDeTaiKhoaLuanSinhVienId(int id);
-    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id);
+    List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByDeTaiKhoaLuanSinhVienId(int id); //apiGiaovu
     
     //api
     List<DeTaiKhoaLuan_GiangVienHuongDan> findAllByGiangVienHuongDanId(int giangVienId);

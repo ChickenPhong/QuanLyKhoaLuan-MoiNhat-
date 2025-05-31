@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface HoiDongService {
     List<HoiDong> getAllHoiDong();
-    HoiDong getById(int id);
+    HoiDong getById(int id); //apiAdmin
     HoiDong addHoiDong(HoiDong hoiDong);
     void deleteHoiDong(int id);
     

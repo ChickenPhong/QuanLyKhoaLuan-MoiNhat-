@@ -16,25 +16,25 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface NguoiDungService extends UserDetailsService{
-    NguoiDung getByUsername(String username);
-    NguoiDung getById(int id);
-    NguoiDung addUser(NguoiDung user);
+    NguoiDung getByUsername(String username); //apiGiaovu
+    NguoiDung getById(int id); //apiAdmin, apiGiaovu
+    NguoiDung addUser(NguoiDung user); //apiAdmin
     NguoiDung mergeUser(NguoiDung user);
     NguoiDung addUser(Map<String, String> params, MultipartFile avatar);
     boolean authenticate(String username, String rawPassword);
     boolean deleteUser(int id);
-    List<NguoiDung> getAllUsers();
+    List<NguoiDung> getAllUsers();  //apiAdmin
     
-    List<NguoiDung> getGiangVienByKhoa(String khoa);
+    List<NguoiDung> getGiangVienByKhoa(String khoa); //apiGiaovu
     // Mới gộp từ SinhVienService
-    List<NguoiDung> getSinhVienByKhoaVaKhoaHoc(String khoa, String khoaHoc);
+    List<NguoiDung> getSinhVienByKhoaVaKhoaHoc(String khoa, String khoaHoc); //apiAdmin, apiGiaovu
     
-    //api
-    List<String> getAllKhoaHocByKhoa(String khoa);
+    //api Admin
+    List<String> getAllKhoaHocByKhoa(String khoa); //apiAdmin, apiGiaovu
     List<NguoiDung> getSinhVienByKhoaHoc(String khoaHoc);
     
-    List<String> getAllKhoa();
-    List<NguoiDung> getSinhVienByKhoaVaKhoaHocVaNganh(String khoa, String khoaHoc, String nganh);
-    List<String> getAllNganhByKhoaVaKhoaHoc(String khoa, String khoaHoc);
+    List<String> getAllKhoa(); 
+    List<NguoiDung> getSinhVienByKhoaVaKhoaHocVaNganh(String khoa, String khoaHoc, String nganh); //apiAdmin, apiGiaovu
+    List<String> getAllNganhByKhoaVaKhoaHoc(String khoa, String khoaHoc); //apiAdmin, apiGiaovu
 
 }

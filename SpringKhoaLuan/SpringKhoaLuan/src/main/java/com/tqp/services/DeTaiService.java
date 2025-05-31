@@ -13,8 +13,8 @@ import com.tqp.pojo.DeTaiKhoaLuan;
 
 public interface DeTaiService {
     List<DeTaiKhoaLuan> getAllDeTai();
-    List<DeTaiKhoaLuan> getByKhoaAndStatus(String khoa, String status);
-    DeTaiKhoaLuan getDeTaiById(int id);
+    List<DeTaiKhoaLuan> getByKhoaAndStatus(String khoa, String status); //apiGiaovu
+    DeTaiKhoaLuan getDeTaiById(int id); //apiAdmin, apiGiaovu
     DeTaiKhoaLuan addDeTai(DeTaiKhoaLuan deTai);
     boolean deleteDeTai(int id);
     DeTaiKhoaLuan updateDeTai(int id, DeTaiKhoaLuan deTai);
