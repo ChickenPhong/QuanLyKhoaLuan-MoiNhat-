@@ -95,7 +95,6 @@ public class SpringSecurityConfigs {
                 // Quyền cho admin, giáo vụ, giảng viên (bạn giữ nếu dùng)
                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/khoaluan/**").hasAuthority("ROLE_GIAOVU")
-                //.requestMatchers("/detai/**").hasAuthority("ROLE_GIANGVIEN")
                 .requestMatchers("/detai/**").hasAnyAuthority("ROLE_GIANGVIEN", "ROLE_GIAOVU", "ROLE_ADMIN")
                 .anyRequest().authenticated()
             )

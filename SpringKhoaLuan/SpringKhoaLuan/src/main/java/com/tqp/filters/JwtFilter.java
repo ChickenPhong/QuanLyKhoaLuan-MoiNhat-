@@ -17,11 +17,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class JwtFilter implements Filter {
@@ -57,10 +53,6 @@ public class JwtFilter implements Filter {
                         httpRequest.setAttribute("username", username);
                         UsernamePasswordAuthenticationToken authentication
                                 = new UsernamePasswordAuthenticationToken(username, null, null);
-                        //List<GrantedAuthority> authorities = new ArrayList<>(); //mới dc thêm
-                        //authorities.add(new SimpleGrantedAuthority("ROLE_GIAOVU")); // hoặc quyền phù hợp của bạn, mới dc thêm
-                        //UsernamePasswordAuthenticationToken authentication =  //mới dc thêm
-                        //    new UsernamePasswordAuthenticationToken(username, null, authorities); //mới dc thêm
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
                         chain.doFilter(request, response);

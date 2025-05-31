@@ -9,27 +9,15 @@ export const endpoints = {
     login: 'login',
     'current-user': 'secure/profile',
 
-    // 👤 Quản trị viên
+    //  Quản trị viên
     'get-users': 'users/',             // GET - lấy danh sách
     'add-user': 'users/',              // POST - thêm user (multipart/form-data)
-    'delete-user': 'users/delete',    // POST - xóa user (form userId)
 
-    // 🎓 Giáo vụ
-    theses: 'theses',
-    'assign-reviewers': 'theses/assign',
-    committees: 'committees',
-
+    //giaovu
     detai: "detai",
+
+    //sinhvien
     detaiSinhVien: "sinhvien/detai",
-
-    // Tiêu chí
-    tieuchi: 'tieuchi',        // GET danh sách tiêu chí
-
-    // 🧑‍🏫 Giảng viên
-    scores: 'scores',
-
-    // 📊 Báo cáo thống kê
-    stats: 'stats'
 };
 
 // Gọi API có kèm token (auth required)
@@ -50,7 +38,4 @@ export const authApis = () => {
 // Gọi API không cần token
 export default axios.create({
     baseURL: BASE_URL,
-    // headers: {
-    //         'Authorization': `Bearer ${cookie.load('token')}`
-    //     }
 });

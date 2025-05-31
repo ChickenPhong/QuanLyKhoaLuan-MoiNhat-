@@ -46,7 +46,7 @@ export default function SinhVienDeTai() {
         <div className="card-body">
           <strong>Tiêu đề đề tài:</strong> {data.deTai?.title || "Chưa có đề tài"}
           <br />
-          <strong>Khóa:</strong> {data.deTai?.khoa || "Chưa có thông tin"}
+          <strong>Khoa:</strong> {data.deTai?.khoa || "Chưa có thông tin"}
         </div>
       </div>
 
