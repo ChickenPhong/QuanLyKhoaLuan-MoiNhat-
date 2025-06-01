@@ -8,6 +8,7 @@ package com.tqp.services;
  *
  * @author Tran Quoc Phong
  */
+import com.tqp.dto.HoiDongWithMembersDTO;
 import com.tqp.pojo.HoiDong;
 import com.tqp.pojo.NguoiDung;
 import java.util.List;
@@ -22,4 +23,5 @@ public interface HoiDongService {
     
     //api
     List<HoiDong> getHoiDongByKhoa(String khoa);
+    List<HoiDongWithMembersDTO> getHoiDongWithMembersByKhoa(String khoa);
 }

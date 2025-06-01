@@ -48,4 +48,9 @@ public class ThanhVienHoiDongServiceImpl implements ThanhVienHoiDongService{
         tv.setRole(role);
         repo.save(tv);
     }
+    
+    @Override
+    public List<ThanhVienHoiDong> getByHoiDongId(Integer hoiDongId) {
+        return repo.findByHoiDongId(hoiDongId);
+    }
 }

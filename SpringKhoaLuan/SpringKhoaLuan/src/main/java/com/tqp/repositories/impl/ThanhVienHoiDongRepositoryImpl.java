@@ -64,4 +64,12 @@ public class ThanhVienHoiDongRepositoryImpl implements ThanhVienHoiDongRepositor
         q.setParameter("id", hoiDongId);
         return q.getResultList();
     }
+    
+    @Override
+    public List<ThanhVienHoiDong> findByHoiDongId(Integer hoiDongId) {
+        Session s = factory.getObject().getCurrentSession();
+        Query q = s.createQuery("FROM ThanhVienHoiDong WHERE hoiDongId = :hoiDongId", ThanhVienHoiDong.class);
+        q.setParameter("hoiDongId", hoiDongId);
+        return q.getResultList();
+    }
 }

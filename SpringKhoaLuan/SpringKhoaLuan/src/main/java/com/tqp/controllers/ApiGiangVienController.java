@@ -151,7 +151,7 @@ public class ApiGiangVienController {
         int giangVienPhanBienId = gv.getId();
 
         // Lấy trạng thái locked của đề tài
-        var dthd = deTaiHoiDongService.findByDtsvId(dtsvId); // SỬA CHỖ NÀY cho đúng hàm
+        var dthd = deTaiHoiDongService.findByDtsvId(dtsvId); 
         boolean isLocked = dthd != null && Boolean.TRUE.equals(dthd.getLocked());
 
         var tieuChis = tieuChiService.getAll();
@@ -187,7 +187,7 @@ public class ApiGiangVienController {
         int dtsvId = (int) payload.get("dtsvId");
 
         // Lấy trạng thái locked của đề tài
-        var dthd = deTaiHoiDongService.findByDtsvId(dtsvId); // SỬA CHỖ NÀY
+        var dthd = deTaiHoiDongService.findByDtsvId(dtsvId);
         boolean isLocked = dthd != null && Boolean.TRUE.equals(dthd.getLocked());
         if (isLocked) {
             return ResponseEntity.status(403).body("Đề tài đã bị khóa, không thể lưu điểm!");
@@ -199,8 +199,8 @@ public class ApiGiangVienController {
             Float diem = null;
             Object val = entry.getValue();
             if (val == null || val.toString().trim().isEmpty()) {
-                // Nếu giá trị rỗng, bỏ qua hoặc set giá trị mặc định (tùy bạn)
-                continue; // hoặc diem = null; tùy nghiệp vụ
+                // Nếu giá trị rỗng, bỏ qua hoặc set giá trị mặc định 
+                continue; // hoặc diem = null; 
             } else if (val instanceof Integer) {
                 diem = ((Integer) val).floatValue();
             } else if (val instanceof Double) {

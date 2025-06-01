@@ -8,6 +8,7 @@ package com.tqp.controllers;
  *
  * @author Tran Quoc Phong
  */
+import com.tqp.dto.HoiDongWithMembersDTO;
 import com.tqp.pojo.HoiDong;
 import com.tqp.pojo.NguoiDung;
 import com.tqp.pojo.PhanCongGiangVienPhanBien;
@@ -114,6 +115,14 @@ public class ApiHoiDongController {
         }
 
         return ResponseEntity.ok(savedHoiDong);
+    }
+    
+    @GetMapping("/with-members")
+    public ResponseEntity<List<HoiDongWithMembersDTO>> getHoiDongWithMembers(Principal principal) {
+        NguoiDung user = nguoiDungService.getByUsername(principal.getName());
+        
+        List<HoiDongWithMembersDTO> list = hoiDongService.getHoiDongWithMembersByKhoa(user.getKhoa());
+        return ResponseEntity.ok(list);
     }
 
     @DeleteMapping("/{id}")

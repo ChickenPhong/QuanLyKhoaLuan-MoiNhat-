@@ -20,4 +20,5 @@ public interface ThanhVienHoiDongRepository {
     void delete(int id);
     
     List<NguoiDung> getGiangVienByHoiDongId(int hoiDongId);
+    List<ThanhVienHoiDong> findByHoiDongId(Integer hoiDongId);
 }

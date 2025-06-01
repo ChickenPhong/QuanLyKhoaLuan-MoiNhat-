@@ -18,4 +18,5 @@ public interface ThanhVienHoiDongService {
     void delete(int id);
     
     void addThanhVien(int hoiDongId, int userId, String role);
+    List<ThanhVienHoiDong> getByHoiDongId(Integer hoiDongId);
 }
